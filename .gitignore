@@ -15,3 +15,10 @@ buildNumber.properties
 .project
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
+
+nb-configuration.xml
+nbactions.xml
+
+run/cards.json
+run/arkhamhorrorlcg.tsv
+run/arkhamhorrorlcg.xlsx
