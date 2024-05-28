@@ -20,5 +20,9 @@ nb-configuration.xml
 nbactions.xml
 
 run/cards.json
+run/player_cards_en.json
+run/player_cards_pl.json
 run/arkhamhorrorlcg.tsv
 run/arkhamhorrorlcg.xlsx
+/src/main/java/pl/derwinski/arkham/MainCompareTitles.java
+/src/main/java/pl/derwinski/arkham/MainFixEncoding.java

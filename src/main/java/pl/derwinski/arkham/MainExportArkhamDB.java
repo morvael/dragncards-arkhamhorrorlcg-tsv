@@ -58,21 +58,21 @@ import pl.derwinski.arkham.json.Restrictions;
  */
 public class MainExportArkhamDB {
 
-    private final HashSet<String> unhandledDeckRequirementsRandom = new HashSet<>();
-    private final HashSet<String> unhandledDeckRequirement = new HashSet<>();
-    private final HashSet<String> unhandledDeckOptionLevel = new HashSet<>();
-    private final HashSet<String> unhandledDeckOptionAtLeast = new HashSet<>();
-    private final HashSet<String> unhandledDeckOption = new HashSet<>();
-    private final HashSet<String> unhandledErrataDate = new HashSet<>();
-    private final HashSet<String> unhandledRestrictions = new HashSet<>();
-    private final HashSet<String> unhandledBondedCard = new HashSet<>();
-    private final HashSet<String> unhandledCustomizationOptionCard = new HashSet<>();
-    private final HashSet<String> unhandledCustomizationOption = new HashSet<>();
-    private final HashSet<String> unhandledCard = new HashSet<>();
+    protected final HashSet<String> unhandledDeckRequirementsRandom = new HashSet<>();
+    protected final HashSet<String> unhandledDeckRequirement = new HashSet<>();
+    protected final HashSet<String> unhandledDeckOptionLevel = new HashSet<>();
+    protected final HashSet<String> unhandledDeckOptionAtLeast = new HashSet<>();
+    protected final HashSet<String> unhandledDeckOption = new HashSet<>();
+    protected final HashSet<String> unhandledErrataDate = new HashSet<>();
+    protected final HashSet<String> unhandledRestrictions = new HashSet<>();
+    protected final HashSet<String> unhandledBondedCard = new HashSet<>();
+    protected final HashSet<String> unhandledCustomizationOptionCard = new HashSet<>();
+    protected final HashSet<String> unhandledCustomizationOption = new HashSet<>();
+    protected final HashSet<String> unhandledCard = new HashSet<>();
 
-    private boolean writeTab;
+    protected boolean writeTab;
 
-    private String readString(JsonNode c) {
+    protected String readString(JsonNode c) {
         if (c == null || c.isNull()) {
             return null;
         } else {
@@ -88,7 +88,7 @@ public class MainExportArkhamDB {
     }
 
     @SuppressWarnings("UnnecessaryTemporaryOnConversionFromString")
-    private Integer readInteger(JsonNode c) {
+    protected Integer readInteger(JsonNode c) {
         if (c == null || c.isNull()) {
             return null;
         } else {
@@ -102,7 +102,7 @@ public class MainExportArkhamDB {
     }
 
     @SuppressWarnings("UnnecessaryTemporaryOnConversionFromString")
-    private Boolean readBoolean(JsonNode c) {
+    protected Boolean readBoolean(JsonNode c) {
         if (c == null || c.isNull()) {
             return null;
         } else {
@@ -118,7 +118,7 @@ public class MainExportArkhamDB {
         }
     }
 
-    private ArrayList<String> readStringList(JsonNode c) throws Exception {
+    protected ArrayList<String> readStringList(JsonNode c) throws Exception {
         if (c.isArray()) {
             ArrayList<String> list = new ArrayList<>();
             for (int i = 0; i < c.size(); i++) {
@@ -133,7 +133,7 @@ public class MainExportArkhamDB {
         }
     }
 
-    private LinkedHashMap<String, String> readStringStringMap(JsonNode c) throws Exception {
+    protected LinkedHashMap<String, String> readStringStringMap(JsonNode c) throws Exception {
         if (c.isObject()) {
             LinkedHashMap<String, String> map = new LinkedHashMap<>();
             Iterator<String> it = c.fieldNames();
@@ -150,7 +150,7 @@ public class MainExportArkhamDB {
         }
     }
 
-    private DeckRequirementsRandom readDeckRequirementsRandom(JsonNode c) throws Exception {
+    protected DeckRequirementsRandom readDeckRequirementsRandom(JsonNode c) throws Exception {
         if (c.isObject()) {
             DeckRequirementsRandom randomRequirement = new DeckRequirementsRandom();
             Iterator<String> it = c.fieldNames();
@@ -179,7 +179,7 @@ public class MainExportArkhamDB {
         }
     }
 
-    private DeckRequirements readDeckRequirements(JsonNode c) throws Exception {
+    protected DeckRequirements readDeckRequirements(JsonNode c) throws Exception {
         if (c.isObject()) {
             DeckRequirements deckRequirements = new DeckRequirements();
             Iterator<String> it = c.fieldNames();
@@ -235,7 +235,7 @@ public class MainExportArkhamDB {
         }
     }
 
-    private DeckOptionLevel readDeckOptionLevel(JsonNode c) throws Exception {
+    protected DeckOptionLevel readDeckOptionLevel(JsonNode c) throws Exception {
         if (c.isObject()) {
             DeckOptionLevel deckOptionLevel = new DeckOptionLevel();
             Iterator<String> it = c.fieldNames();
@@ -264,7 +264,7 @@ public class MainExportArkhamDB {
         }
     }
 
-    private DeckOptionAtLeast readDeckOptionAtLeast(JsonNode c) throws Exception {
+    protected DeckOptionAtLeast readDeckOptionAtLeast(JsonNode c) throws Exception {
         if (c.isObject()) {
             DeckOptionAtLeast deckOptionAtLeast = new DeckOptionAtLeast();
             Iterator<String> it = c.fieldNames();
@@ -293,7 +293,7 @@ public class MainExportArkhamDB {
         }
     }
 
-    private DeckOption readDeckOption(JsonNode c) throws Exception {
+    protected DeckOption readDeckOption(JsonNode c) throws Exception {
         if (c.isObject()) {
             DeckOption deckOption = new DeckOption();
             Iterator<String> it = c.fieldNames();
@@ -387,7 +387,7 @@ public class MainExportArkhamDB {
         }
     }
 
-    private ErrataDate readErrataDate(JsonNode c) throws Exception {
+    protected ErrataDate readErrataDate(JsonNode c) throws Exception {
         if (c.isObject()) {
             ErrataDate errataDate = new ErrataDate();
             Iterator<String> it = c.fieldNames();
@@ -419,7 +419,7 @@ public class MainExportArkhamDB {
         }
     }
 
-    private Restrictions readRestrictions(JsonNode c) throws Exception {
+    protected Restrictions readRestrictions(JsonNode c) throws Exception {
         if (c.isObject()) {
             Restrictions restrictions = new Restrictions();
             Iterator<String> it = c.fieldNames();
@@ -445,7 +445,7 @@ public class MainExportArkhamDB {
         }
     }
 
-    private BondedCard readBondedCard(JsonNode c) throws Exception {
+    protected BondedCard readBondedCard(JsonNode c) throws Exception {
         if (c.isObject()) {
             BondedCard bondedCard = new BondedCard();
             Iterator<String> it = c.fieldNames();
@@ -474,7 +474,7 @@ public class MainExportArkhamDB {
         }
     }
 
-    private CustomizationOptionCard readCustomizationOptionCard(JsonNode c) throws Exception {
+    protected CustomizationOptionCard readCustomizationOptionCard(JsonNode c) throws Exception {
         if (c.isObject()) {
             CustomizationOptionCard customizationOptionCard = new CustomizationOptionCard();
             Iterator<String> it = c.fieldNames();
@@ -503,7 +503,7 @@ public class MainExportArkhamDB {
         }
     }
 
-    private CustomizationOption readCustomizationOption(JsonNode c) throws Exception {
+    protected CustomizationOption readCustomizationOption(JsonNode c) throws Exception {
         if (c.isObject()) {
             CustomizationOption customizationOption = new CustomizationOption();
             Iterator<String> it = c.fieldNames();
@@ -568,7 +568,7 @@ public class MainExportArkhamDB {
         }
     }
 
-    private Card readCard(JsonNode c) throws Exception {
+    protected Card readCard(JsonNode c) throws Exception {
         if (c.isObject()) {
             Card card = new Card();
             Iterator<String> it = c.fieldNames();
@@ -885,7 +885,7 @@ public class MainExportArkhamDB {
         }
     }
 
-    private Cards loadCards(String path) throws Exception {
+    protected Cards loadCards(String path) throws Exception {
         File file = new File(path);
         if (file.exists() == false) {
             System.out.println(String.format("Download and save https://arkhamdb.com/api/public/cards/?encounter=1 to %s", file.getAbsoluteFile().getCanonicalPath()));
@@ -908,22 +908,22 @@ public class MainExportArkhamDB {
         }
     }
 
-    private void writeBoolean(BufferedWriter bw, Boolean bool) throws Exception {
+    protected void writeBoolean(BufferedWriter bw, Boolean bool) throws Exception {
         writeString(bw, bool != null ? (bool ? "1" : "0") : null);
     }
 
-    private void writeInteger(BufferedWriter bw, Integer number) throws Exception {
+    protected void writeInteger(BufferedWriter bw, Integer number) throws Exception {
         writeString(bw, number != null ? number.toString() : null);
     }
 
-    private void writeHTML(BufferedWriter bw, String text) throws Exception {
+    protected void writeHTML(BufferedWriter bw, String text) throws Exception {
         if (text != null) {
             text = Jsoup.parse(text).text().replace("[[", "").replace("]]", "");
         }
         writeString(bw, text);
     }
 
-    private void writeString(BufferedWriter bw, String text) throws Exception {
+    protected void writeString(BufferedWriter bw, String text) throws Exception {
         if (writeTab) {
             bw.write('\t');
         } else {
@@ -934,12 +934,12 @@ public class MainExportArkhamDB {
         }
     }
 
-    private void newLine(BufferedWriter bw) throws Exception {
+    protected void newLine(BufferedWriter bw) throws Exception {
         bw.newLine();
         writeTab = false;
     }
 
-    private void exportCards(Cards cards, String path) throws Exception {
+    protected void exportCards(Cards cards, String path) throws Exception {
         File file = new File(path);
         if (cards != null && cards.getCards() != null && cards.getCards().isEmpty() == false) {
             try (FileOutputStream fos = new FileOutputStream(file, false);
@@ -1117,7 +1117,7 @@ public class MainExportArkhamDB {
         }
     }
 
-    private void run() throws Exception {
+    protected void run() throws Exception {
         Cards cards = loadCards("run/cards.json");
         exportCards(cards, "run/arkhamhorrorlcg.tsv");
     }
