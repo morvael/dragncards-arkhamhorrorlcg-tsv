@@ -37,6 +37,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.jsoup.Jsoup;
 import pl.derwinski.arkham.json.BondedCard;
 import pl.derwinski.arkham.json.Card;
@@ -939,7 +945,240 @@ public class MainExportArkhamDB {
         writeTab = false;
     }
 
-    protected void exportCards(Cards cards, String path) throws Exception {
+    protected String getString(Row row, int index) {
+        try {
+            Cell c = row.getCell(index);
+            if (c == null) {
+                return null;
+            } else if (c.getCellType() == CellType.NUMERIC) {
+                return Long.toString((long) row.getCell(index).getNumericCellValue());
+            } else if (c.getCellType() == CellType.STRING) {
+                String s = row.getCell(index).getStringCellValue().trim();
+                if (s.equals("")) {
+                    return null;
+                }
+                s = s.trim();
+                return s;
+            } else {
+                return null;
+            }
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    protected Integer getInteger(Row row, int index) {
+        try {
+            Cell c = row.getCell(index);
+            if (c == null) {
+                return null;
+            } else if (c.getCellType() == CellType.NUMERIC) {
+                return (int) row.getCell(index).getNumericCellValue();
+            } else if (c.getCellType() == CellType.STRING) {
+                return Integer.valueOf(row.getCell(index).getStringCellValue().trim());
+            } else {
+                return null;
+            }
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    protected Boolean getBoolean(Row row, int index) {
+        Integer i = getInteger(row, index);
+        if (i == null) {
+            return null;
+        } else {
+            return i != 0;
+        }
+    }
+
+    private void exportDefaultCards(BufferedWriter bw, String predefinedPath) throws Exception {
+        try (Workbook wb = WorkbookFactory.create(new File(predefinedPath))) {
+            Sheet sheet = wb.getSheetAt(0);
+            for (Row row : sheet) {
+                if (row.getRowNum() == 0) {
+                    continue;
+                }
+                int idx = 0;
+                String databaseId = getString(row, idx++);
+                if (databaseId == null) {
+                    continue;
+                }
+                writeString(bw, databaseId); //databaseId
+                writeString(bw, getString(row, idx++)); //name
+                writeString(bw, getString(row, idx++)); //imageUrl
+                writeString(bw, getString(row, idx++)); //cardBack
+                writeString(bw, getString(row, idx++)); //type
+                writeString(bw, getString(row, idx++)); //packName
+                writeInteger(bw, getInteger(row, idx++)); //deckbuilderQuantity
+                writeString(bw, getString(row, idx++)); //setUuid
+                writeInteger(bw, getInteger(row, idx++)); //numberInPack
+                writeString(bw, getString(row, idx++)); //encounterSet
+                writeInteger(bw, getInteger(row, idx++)); //encounterNumber
+                writeBoolean(bw, getBoolean(row, idx++)); //unique
+                writeBoolean(bw, getBoolean(row, idx++)); //permanent
+                writeBoolean(bw, getBoolean(row, idx++)); //exceptional
+                writeBoolean(bw, getBoolean(row, idx++)); //myriad
+                writeString(bw, getString(row, idx++)); //faction
+                writeString(bw, getString(row, idx++)); //traits
+                writeString(bw, getString(row, idx++)); //side
+                writeInteger(bw, getInteger(row, idx++)); //xp
+                writeInteger(bw, getInteger(row, idx++)); //cost
+                writeInteger(bw, getInteger(row, idx++)); //skillWillpower
+                writeInteger(bw, getInteger(row, idx++)); //skillIntellect
+                writeInteger(bw, getInteger(row, idx++)); //skillCombat
+                writeInteger(bw, getInteger(row, idx++)); //skillAgility
+                writeInteger(bw, getInteger(row, idx++)); //skillWild
+                writeInteger(bw, getInteger(row, idx++)); //health
+                writeBoolean(bw, getBoolean(row, idx++)); //healthPerInvestigator
+                writeInteger(bw, getInteger(row, idx++)); //sanity
+                writeInteger(bw, getInteger(row, idx++)); //enemyDamage
+                writeInteger(bw, getInteger(row, idx++)); //enemyHorror
+                writeInteger(bw, getInteger(row, idx++)); //enemyFight
+                writeInteger(bw, getInteger(row, idx++)); //enemyEvade
+                writeInteger(bw, getInteger(row, idx++)); //shroud
+                writeInteger(bw, getInteger(row, idx++)); //clues
+                writeBoolean(bw, getBoolean(row, idx++)); //cluesFixed
+                writeInteger(bw, getInteger(row, idx++)); //victoryPoints
+                writeInteger(bw, getInteger(row, idx++)); //stage
+                writeString(bw, getString(row, idx++)); //chaos
+                writeHTML(bw, getString(row, idx++)); //text
+                newLine(bw);
+            }
+        }
+    }
+
+    protected void exportFrontSide(BufferedWriter bw, Card c, boolean doubleSided, boolean linked, boolean location, String side, boolean showSubname) throws Exception {
+        writeString(bw, c.getCode()); //databaseId
+        writeString(bw, c.getFullName(showSubname)); //name
+        writeString(bw, c.getCardFront()); //imageUrl
+        writeString(bw, doubleSided || linked ? "multi_sided" : c.getDefaultCardBack()); //cardBack
+        writeString(bw, c.getTypeName()); //type
+        writeString(bw, c.getPackName()); //packName
+        writeInteger(bw, c.getDeckbuilderQuantity()); //deckbuilderQuantity
+        writeString(bw, c.getPackCode()); //setUuid
+        writeInteger(bw, c.getPosition()); //numberInPack
+        writeString(bw, c.getEncounterName()); //encounterSet
+        writeInteger(bw, c.getEncounterPosition()); //encounterNumber
+        writeBoolean(bw, c.getUnique()); //unique
+        writeBoolean(bw, c.getPermanent()); //permanent
+        writeBoolean(bw, c.getExceptional()); //exceptional
+        writeBoolean(bw, c.getMyriad()); //myriad
+        writeString(bw, c.getFactions()); //faction
+        writeString(bw, c.getTraits()); //traits
+        writeString(bw, side); //side
+        writeInteger(bw, c.getXp()); //xp
+        writeInteger(bw, c.getCost()); //cost
+        writeInteger(bw, c.getSkillWillpower()); //skillWillpower
+        writeInteger(bw, c.getSkillIntellect()); //skillIntellect
+        writeInteger(bw, c.getSkillCombat()); //skillCombat
+        writeInteger(bw, c.getSkillAgility()); //skillAgility
+        writeInteger(bw, c.getSkillWild()); //skillWild
+        writeInteger(bw, c.getHealth()); //health
+        writeBoolean(bw, c.getHealthPerInvestigator()); //healthPerInvestigator
+        writeInteger(bw, c.getSanity()); //sanity
+        writeInteger(bw, c.getEnemyDamage()); //enemyDamage
+        writeInteger(bw, c.getEnemyHorror()); //enemyHorror
+        writeInteger(bw, c.getEnemyFight()); //enemyFight
+        writeInteger(bw, c.getEnemyEvade()); //enemyEvade
+        writeInteger(bw, c.getShroud()); //shroud
+        writeInteger(bw, c.getClues()); //clues
+        writeBoolean(bw, c.getCluesFixed()); //cluesFixed
+        writeInteger(bw, c.getVictory()); //victoryPoints
+        writeInteger(bw, c.getStage()); //stage
+        writeString(bw, null); //chaos
+        writeHTML(bw, c.getText()); //text
+        newLine(bw);
+    }
+
+    protected void exportBackSide(BufferedWriter bw, Card c, boolean doubleSided, boolean linked, boolean location, String side, boolean showSubname) throws Exception {
+        writeString(bw, c.getCode()); //databaseId
+        writeString(bw, c.getBackName() != null ? c.getBackName() : c.getFullName(showSubname)); //name
+        writeString(bw, c.getCardBack()); //imageUrl
+        writeString(bw, "multi_sided"); //cardBack
+        writeString(bw, c.getTypeName()); //type
+        writeString(bw, c.getPackName()); //packName
+        writeInteger(bw, c.getDeckbuilderQuantity()); //deckbuilderQuantity
+        writeString(bw, c.getPackCode()); //setUuid
+        writeInteger(bw, c.getPosition()); //numberInPack
+        writeString(bw, c.getEncounterName()); //encounterSet
+        writeInteger(bw, c.getEncounterPosition()); //encounterNumber
+        writeBoolean(bw, c.getUnique()); //unique
+        writeBoolean(bw, c.getPermanent()); //permanent
+        writeBoolean(bw, c.getExceptional()); //exceptional
+        writeBoolean(bw, c.getMyriad()); //myriad
+        writeString(bw, c.getFactions()); //faction
+        writeString(bw, "Location".equals(c.getTypeName()) ? c.getTraits() : null); //traits
+        writeString(bw, side); //side
+        writeInteger(bw, null); //xp
+        writeInteger(bw, null); //cost
+        writeInteger(bw, null); //skillWillpower
+        writeInteger(bw, null); //skillIntellect
+        writeInteger(bw, null); //skillCombat
+        writeInteger(bw, null); //skillAgility
+        writeInteger(bw, null); //skillWild
+        writeInteger(bw, null); //health
+        writeBoolean(bw, null); //healthPerInvestigator
+        writeInteger(bw, null); //sanity
+        writeInteger(bw, null); //enemyDamage
+        writeInteger(bw, null); //enemyHorror
+        writeInteger(bw, null); //enemyFight
+        writeInteger(bw, null); //enemyEvade
+        writeInteger(bw, null); //shroud
+        writeInteger(bw, null); //clues
+        writeBoolean(bw, null); //cluesFixed
+        writeInteger(bw, null); //victoryPoints
+        writeInteger(bw, null); //stage
+        writeString(bw, null); //chaos
+        writeHTML(bw, c.getBackText()); //text
+        newLine(bw);
+    }
+
+    protected void exportLinked(BufferedWriter bw, Card c, Card cc, boolean doubleSided, boolean linked, boolean location, String side, boolean showSubname) throws Exception {
+        writeString(bw, c.getCode()); //databaseId: multi_sided must share
+        writeString(bw, cc.getFullName(showSubname)); //name
+        writeString(bw, cc.getCardFront()); //imageUrl
+        writeString(bw, "multi_sided"); //cardBack
+        writeString(bw, cc.getTypeName()); //type
+        writeString(bw, cc.getPackName()); //packName
+        writeInteger(bw, cc.getDeckbuilderQuantity()); //deckbuilderQuantity
+        writeString(bw, cc.getPackCode()); //setUuid
+        writeInteger(bw, cc.getPosition()); //numberInPack
+        writeString(bw, cc.getEncounterName()); //encounterSet
+        writeInteger(bw, cc.getEncounterPosition()); //encounterNumber
+        writeBoolean(bw, cc.getUnique()); //unique
+        writeBoolean(bw, cc.getPermanent()); //permanent
+        writeBoolean(bw, cc.getExceptional()); //exceptional
+        writeBoolean(bw, cc.getMyriad()); //myriad
+        writeString(bw, cc.getFactions()); //faction
+        writeString(bw, cc.getTraits()); //traits
+        writeString(bw, side); //side
+        writeInteger(bw, cc.getXp()); //xp
+        writeInteger(bw, cc.getCost()); //cost
+        writeInteger(bw, cc.getSkillWillpower()); //skillWillpower
+        writeInteger(bw, cc.getSkillIntellect()); //skillIntellect
+        writeInteger(bw, cc.getSkillCombat()); //skillCombat
+        writeInteger(bw, cc.getSkillAgility()); //skillAgility
+        writeInteger(bw, cc.getSkillWild()); //skillWild
+        writeInteger(bw, cc.getHealth()); //health
+        writeBoolean(bw, cc.getHealthPerInvestigator()); //healthPerInvestigator
+        writeInteger(bw, cc.getSanity()); //sanity
+        writeInteger(bw, cc.getEnemyDamage()); //enemyDamage
+        writeInteger(bw, cc.getEnemyHorror()); //enemyHorror
+        writeInteger(bw, cc.getEnemyFight()); //enemyFight
+        writeInteger(bw, cc.getEnemyEvade()); //enemyEvade
+        writeInteger(bw, cc.getShroud()); //shroud
+        writeInteger(bw, cc.getClues()); //clues
+        writeBoolean(bw, cc.getCluesFixed()); //cluesFixed
+        writeInteger(bw, cc.getVictory()); //victoryPoints
+        writeInteger(bw, cc.getStage()); //stage
+        writeString(bw, null); //chaos
+        writeHTML(bw, cc.getText()); //text
+        newLine(bw);
+    }
+
+    protected void exportCards(Cards cards, String predefinedPath, String path) throws Exception {
         File file = new File(path);
         if (cards != null && cards.getCards() != null && cards.getCards().isEmpty() == false) {
             try (FileOutputStream fos = new FileOutputStream(file, false);
@@ -982,134 +1221,36 @@ public class MainExportArkhamDB {
                 writeString(bw, "cluesFixed");
                 writeString(bw, "victoryPoints");
                 writeString(bw, "stage");
+                writeString(bw, "chaos");
                 writeString(bw, "text");
                 newLine(bw);
+                exportDefaultCards(bw, predefinedPath);
                 for (Card c : cards) {
                     if (c.getHidden() != null && c.getHidden()) {
                         continue;
                     }
+                    if ("Core Set".equals(c.getPackName()) == false) { //skip cards outside core set for now
+                        continue;
+                    }
                     boolean doubleSided = c.getDoubleSided() != null && c.getDoubleSided();
                     boolean linked = c.getLinkedCard() != null;
-                    writeString(bw, c.getCode()); //databaseId
-                    writeString(bw, c.getFullName()); //name
-                    writeString(bw, c.getCardFront()); //imageUrl
-                    writeString(bw, doubleSided || linked ? "multi_sided" : c.getDefaultCardBack()); //cardBack
-                    writeString(bw, c.getTypeName()); //type
-                    writeString(bw, c.getPackName()); //packName
-                    writeInteger(bw, c.getDeckbuilderQuantity()); //deckbuilderQuantity
-                    writeString(bw, c.getPackCode()); //setUuid
-                    writeInteger(bw, c.getPosition()); //numberInPack
-                    writeString(bw, c.getEncounterName()); //encounterSet
-                    writeInteger(bw, c.getEncounterPosition()); //encounterNumber
-                    writeBoolean(bw, c.getUnique()); //unique
-                    writeBoolean(bw, c.getPermanent()); //permanent
-                    writeBoolean(bw, c.getExceptional()); //exceptional
-                    writeBoolean(bw, c.getMyriad()); //myriad
-                    writeString(bw, c.getFactions()); //faction
-                    writeString(bw, c.getTraits()); //traits
-                    writeString(bw, doubleSided || linked ? "A" : null); //side
-                    writeInteger(bw, c.getXp()); //xp
-                    writeInteger(bw, c.getCost()); //cost
-                    writeInteger(bw, c.getSkillWillpower()); //skillWillpower
-                    writeInteger(bw, c.getSkillIntellect()); //skillIntellect
-                    writeInteger(bw, c.getSkillCombat()); //skillCombat
-                    writeInteger(bw, c.getSkillAgility()); //skillAgility
-                    writeInteger(bw, c.getSkillWild()); //skillWild
-                    writeInteger(bw, c.getHealth()); //health
-                    writeBoolean(bw, c.getHealthPerInvestigator()); //healthPerInvestigator
-                    writeInteger(bw, c.getSanity()); //sanity
-                    writeInteger(bw, c.getEnemyDamage()); //enemyDamage
-                    writeInteger(bw, c.getEnemyHorror()); //enemyHorror
-                    writeInteger(bw, c.getEnemyFight()); //enemyFight
-                    writeInteger(bw, c.getEnemyEvade()); //enemyEvade
-                    writeInteger(bw, c.getShroud()); //shroud
-                    writeInteger(bw, c.getClues()); //clues
-                    writeBoolean(bw, c.getCluesFixed()); //cluesFixed
-                    writeInteger(bw, c.getVictory()); //victoryPoints
-                    writeInteger(bw, c.getStage()); //stage
-                    writeHTML(bw, c.getText()); //text
-                    newLine(bw);
-                    if (doubleSided) {
-                        writeString(bw, c.getCode()); //databaseId
-                        writeString(bw, c.getBackName() != null ? c.getBackName() : c.getFullName()); //name
-                        writeString(bw, c.getCardBack()); //imageUrl
-                        writeString(bw, "multi_sided"); //cardBack
-                        writeString(bw, c.getTypeName()); //type
-                        writeString(bw, c.getPackName()); //packName
-                        writeInteger(bw, c.getDeckbuilderQuantity()); //deckbuilderQuantity
-                        writeString(bw, c.getPackCode()); //setUuid
-                        writeInteger(bw, c.getPosition()); //numberInPack
-                        writeString(bw, c.getEncounterName()); //encounterSet
-                        writeInteger(bw, c.getEncounterPosition()); //encounterNumber
-                        writeBoolean(bw, c.getUnique()); //unique
-                        writeBoolean(bw, c.getPermanent()); //permanent
-                        writeBoolean(bw, c.getExceptional()); //exceptional
-                        writeBoolean(bw, c.getMyriad()); //myriad
-                        writeString(bw, c.getFactions()); //faction
-                        writeString(bw, null); //traits
-                        writeString(bw, "B"); //side
-                        writeInteger(bw, null); //xp
-                        writeInteger(bw, null); //cost
-                        writeInteger(bw, null); //skillWillpower
-                        writeInteger(bw, null); //skillIntellect
-                        writeInteger(bw, null); //skillCombat
-                        writeInteger(bw, null); //skillAgility
-                        writeInteger(bw, null); //skillWild
-                        writeInteger(bw, null); //health
-                        writeBoolean(bw, null); //healthPerInvestigator
-                        writeInteger(bw, null); //sanity
-                        writeInteger(bw, null); //enemyDamage
-                        writeInteger(bw, null); //enemyHorror
-                        writeInteger(bw, null); //enemyFight
-                        writeInteger(bw, null); //enemyEvade
-                        writeInteger(bw, null); //shroud
-                        writeInteger(bw, null); //clues
-                        writeBoolean(bw, null); //cluesFixed
-                        writeInteger(bw, null); //victoryPoints
-                        writeInteger(bw, null); //stage
-                        writeHTML(bw, c.getBackText()); //text
-                        newLine(bw);
-                    } else if (linked) {
-                        Card cc = c.getLinkedCard();
-                        writeString(bw, c.getCode()); //databaseId: multi_sided must share
-                        writeString(bw, cc.getFullName()); //name
-                        writeString(bw, cc.getCardFront()); //imageUrl
-                        writeString(bw, "multi_sided"); //cardBack
-                        writeString(bw, cc.getTypeName()); //type
-                        writeString(bw, cc.getPackName()); //packName
-                        writeInteger(bw, cc.getDeckbuilderQuantity()); //deckbuilderQuantity
-                        writeString(bw, cc.getPackCode()); //setUuid
-                        writeInteger(bw, cc.getPosition()); //numberInPack
-                        writeString(bw, cc.getEncounterName()); //encounterSet
-                        writeInteger(bw, cc.getEncounterPosition()); //encounterNumber
-                        writeBoolean(bw, cc.getUnique()); //unique
-                        writeBoolean(bw, cc.getPermanent()); //permanent
-                        writeBoolean(bw, cc.getExceptional()); //exceptional
-                        writeBoolean(bw, cc.getMyriad()); //myriad
-                        writeString(bw, cc.getFactions()); //faction
-                        writeString(bw, cc.getTraits()); //traits
-                        writeString(bw, "B"); //side
-                        writeInteger(bw, cc.getXp()); //xp
-                        writeInteger(bw, cc.getCost()); //cost
-                        writeInteger(bw, cc.getSkillWillpower()); //skillWillpower
-                        writeInteger(bw, cc.getSkillIntellect()); //skillIntellect
-                        writeInteger(bw, cc.getSkillCombat()); //skillCombat
-                        writeInteger(bw, cc.getSkillAgility()); //skillAgility
-                        writeInteger(bw, cc.getSkillWild()); //skillWild
-                        writeInteger(bw, cc.getHealth()); //health
-                        writeBoolean(bw, cc.getHealthPerInvestigator()); //healthPerInvestigator
-                        writeInteger(bw, cc.getSanity()); //sanity
-                        writeInteger(bw, cc.getEnemyDamage()); //enemyDamage
-                        writeInteger(bw, cc.getEnemyHorror()); //enemyHorror
-                        writeInteger(bw, cc.getEnemyFight()); //enemyFight
-                        writeInteger(bw, cc.getEnemyEvade()); //enemyEvade
-                        writeInteger(bw, cc.getShroud()); //shroud
-                        writeInteger(bw, cc.getClues()); //clues
-                        writeBoolean(bw, cc.getCluesFixed()); //cluesFixed
-                        writeInteger(bw, cc.getVictory()); //victoryPoints
-                        writeInteger(bw, cc.getStage()); //stage
-                        writeHTML(bw, cc.getText()); //text
-                        newLine(bw);
+                    boolean location = "Location".equals(c.getTypeName());
+                    if (location && (doubleSided/* || linked */)) {
+                        if (doubleSided) {
+                            exportBackSide(bw, c, doubleSided, linked, location, "A", false);
+                        } else if (linked) {
+                            Card cc = c.getLinkedCard();
+                            exportLinked(bw, c, cc, doubleSided, linked, location, "A", false);
+                        }
+                        exportFrontSide(bw, c, doubleSided, linked, location, "B", true);
+                    } else {
+                        exportFrontSide(bw, c, doubleSided, linked, location, doubleSided || linked ? "A" : null, true);
+                        if (doubleSided) {
+                            exportBackSide(bw, c, doubleSided, linked, location, "B", true);
+                        } else if (linked) {
+                            Card cc = c.getLinkedCard();
+                            exportLinked(bw, c, cc, doubleSided, linked, location, "B", true);
+                        }
                     }
                 }
                 bw.flush();
@@ -1119,7 +1260,7 @@ public class MainExportArkhamDB {
 
     protected void run() throws Exception {
         Cards cards = loadCards("run/cards.json");
-        exportCards(cards, "run/arkhamhorrorlcg.tsv");
+        exportCards(cards, "run/predefined.xlsx", "run/arkhamhorrorlcg.tsv");
     }
 
     public static void main(String[] args) {

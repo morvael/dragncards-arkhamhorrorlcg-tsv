@@ -844,9 +844,9 @@ public class Card implements Comparable<Card> {
         return Long.compare(getSortOrder(), o.getSortOrder());
     }
 
-    public String getFullName() {
-        if (subname != null && subname.length() > 0) {
-            return String.format("%s (%s)", name, subname);
+    public String getFullName(boolean showSubname) {
+        if (showSubname && subname != null && subname.length() > 0) {
+            return String.format("%s: %s", name, subname);
         } else {
             return name;
         }
@@ -873,7 +873,7 @@ public class Card implements Comparable<Card> {
     }
 
     public String getDefaultCardBack() {
-        if (spoiler != null && spoiler == 1) {
+        if ((spoiler != null && spoiler == 1) || "Story".equals(typeName)) {
             return "encounter";
         } else {
             return "player";
@@ -903,7 +903,9 @@ public class Card implements Comparable<Card> {
     }
 
     public Integer getDeckbuilderQuantity() {
-        if (deckLimit != null) {
+        if ("encounter".equals(getDefaultCardBack())) {
+            return 0;
+        } else if (deckLimit != null) {
             return deckLimit;
         } else if (quantity != null) {
             return quantity;
