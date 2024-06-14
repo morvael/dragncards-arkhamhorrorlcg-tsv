@@ -1042,16 +1042,15 @@ public class MainExportArkhamDB {
                 writeBoolean(bw, getBoolean(row, idx++)); //cluesFixed
                 writeInteger(bw, getInteger(row, idx++)); //victoryPoints
                 writeInteger(bw, getInteger(row, idx++)); //stage
-                writeString(bw, getString(row, idx++)); //chaos
                 writeHTML(bw, getString(row, idx++)); //text
                 newLine(bw);
             }
         }
     }
 
-    protected void exportFrontSide(BufferedWriter bw, Card c, boolean doubleSided, boolean linked, boolean location, String side, boolean showSubname) throws Exception {
+    protected void exportFrontSide(BufferedWriter bw, Card c, boolean doubleSided, boolean linked) throws Exception {
         writeString(bw, c.getCode()); //databaseId
-        writeString(bw, c.getFullName(showSubname)); //name
+        writeString(bw, c.getFullName(true)); //name
         writeString(bw, c.getCardFront()); //imageUrl
         writeString(bw, doubleSided || linked ? "multi_sided" : c.getDefaultCardBack()); //cardBack
         writeString(bw, c.getTypeName()); //type
@@ -1067,7 +1066,7 @@ public class MainExportArkhamDB {
         writeBoolean(bw, c.getMyriad()); //myriad
         writeString(bw, c.getFactions()); //faction
         writeString(bw, c.getTraits()); //traits
-        writeString(bw, side); //side
+        writeString(bw, doubleSided || linked ? "A" : null); //side
         writeInteger(bw, c.getXp()); //xp
         writeInteger(bw, c.getCost()); //cost
         writeInteger(bw, c.getSkillWillpower()); //skillWillpower
@@ -1087,14 +1086,13 @@ public class MainExportArkhamDB {
         writeBoolean(bw, c.getCluesFixed()); //cluesFixed
         writeInteger(bw, c.getVictory()); //victoryPoints
         writeInteger(bw, c.getStage()); //stage
-        writeString(bw, null); //chaos
         writeHTML(bw, c.getText()); //text
         newLine(bw);
     }
 
-    protected void exportBackSide(BufferedWriter bw, Card c, boolean doubleSided, boolean linked, boolean location, String side, boolean showSubname) throws Exception {
+    protected void exportBackSide(BufferedWriter bw, Card c) throws Exception {
         writeString(bw, c.getCode()); //databaseId
-        writeString(bw, c.getBackName() != null ? c.getBackName() : c.getFullName(showSubname)); //name
+        writeString(bw, c.getBackName() != null ? c.getBackName() : c.getFullName("Location".equals(c.getTypeName()) == false)); //name
         writeString(bw, c.getCardBack()); //imageUrl
         writeString(bw, "multi_sided"); //cardBack
         writeString(bw, c.getTypeName()); //type
@@ -1110,7 +1108,7 @@ public class MainExportArkhamDB {
         writeBoolean(bw, c.getMyriad()); //myriad
         writeString(bw, c.getFactions()); //faction
         writeString(bw, "Location".equals(c.getTypeName()) ? c.getTraits() : null); //traits
-        writeString(bw, side); //side
+        writeString(bw, "B"); //side
         writeInteger(bw, null); //xp
         writeInteger(bw, null); //cost
         writeInteger(bw, null); //skillWillpower
@@ -1130,14 +1128,13 @@ public class MainExportArkhamDB {
         writeBoolean(bw, null); //cluesFixed
         writeInteger(bw, null); //victoryPoints
         writeInteger(bw, null); //stage
-        writeString(bw, null); //chaos
         writeHTML(bw, c.getBackText()); //text
         newLine(bw);
     }
 
-    protected void exportLinked(BufferedWriter bw, Card c, Card cc, boolean doubleSided, boolean linked, boolean location, String side, boolean showSubname) throws Exception {
+    protected void exportLinked(BufferedWriter bw, Card c, Card cc) throws Exception {
         writeString(bw, c.getCode()); //databaseId: multi_sided must share
-        writeString(bw, cc.getFullName(showSubname)); //name
+        writeString(bw, cc.getFullName(true)); //name
         writeString(bw, cc.getCardFront()); //imageUrl
         writeString(bw, "multi_sided"); //cardBack
         writeString(bw, cc.getTypeName()); //type
@@ -1153,7 +1150,7 @@ public class MainExportArkhamDB {
         writeBoolean(bw, cc.getMyriad()); //myriad
         writeString(bw, cc.getFactions()); //faction
         writeString(bw, cc.getTraits()); //traits
-        writeString(bw, side); //side
+        writeString(bw, "B"); //side
         writeInteger(bw, cc.getXp()); //xp
         writeInteger(bw, cc.getCost()); //cost
         writeInteger(bw, cc.getSkillWillpower()); //skillWillpower
@@ -1173,7 +1170,6 @@ public class MainExportArkhamDB {
         writeBoolean(bw, cc.getCluesFixed()); //cluesFixed
         writeInteger(bw, cc.getVictory()); //victoryPoints
         writeInteger(bw, cc.getStage()); //stage
-        writeString(bw, null); //chaos
         writeHTML(bw, cc.getText()); //text
         newLine(bw);
     }
@@ -1221,7 +1217,6 @@ public class MainExportArkhamDB {
                 writeString(bw, "cluesFixed");
                 writeString(bw, "victoryPoints");
                 writeString(bw, "stage");
-                writeString(bw, "chaos");
                 writeString(bw, "text");
                 newLine(bw);
                 exportDefaultCards(bw, predefinedPath);
@@ -1234,23 +1229,12 @@ public class MainExportArkhamDB {
                     }
                     boolean doubleSided = c.getDoubleSided() != null && c.getDoubleSided();
                     boolean linked = c.getLinkedCard() != null;
-                    boolean location = "Location".equals(c.getTypeName());
-                    if (location && (doubleSided/* || linked */)) {
-                        if (doubleSided) {
-                            exportBackSide(bw, c, doubleSided, linked, location, "A", false);
-                        } else if (linked) {
-                            Card cc = c.getLinkedCard();
-                            exportLinked(bw, c, cc, doubleSided, linked, location, "A", false);
-                        }
-                        exportFrontSide(bw, c, doubleSided, linked, location, "B", true);
-                    } else {
-                        exportFrontSide(bw, c, doubleSided, linked, location, doubleSided || linked ? "A" : null, true);
-                        if (doubleSided) {
-                            exportBackSide(bw, c, doubleSided, linked, location, "B", true);
-                        } else if (linked) {
-                            Card cc = c.getLinkedCard();
-                            exportLinked(bw, c, cc, doubleSided, linked, location, "B", true);
-                        }
+                    exportFrontSide(bw, c, doubleSided, linked);
+                    if (doubleSided) {
+                        exportBackSide(bw, c);
+                    } else if (linked) {
+                        Card cc = c.getLinkedCard();
+                        exportLinked(bw, c, cc);
                     }
                 }
                 bw.flush();
