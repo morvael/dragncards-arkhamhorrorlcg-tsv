@@ -874,9 +874,9 @@ public class Card implements Comparable<Card> {
 
     public String getDefaultCardBack() {
         if ((spoiler != null && spoiler == 1) || "Story".equals(typeName)) {
-            return "encounter";
+            return "Encounter Card";
         } else {
-            return "player";
+            return "Player Card";
         }
     }
 
@@ -903,7 +903,7 @@ public class Card implements Comparable<Card> {
     }
 
     public Integer getDeckbuilderQuantity() {
-        if ("encounter".equals(getDefaultCardBack())) {
+        if ("Encounter Card".equals(getDefaultCardBack())) {
             return 0;
         } else if (deckLimit != null) {
             return deckLimit;
