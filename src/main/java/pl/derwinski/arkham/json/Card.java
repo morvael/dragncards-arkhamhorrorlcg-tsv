@@ -873,7 +873,9 @@ public class Card implements Comparable<Card> {
     }
 
     public String getDefaultCardBack() {
-        if ((spoiler != null && spoiler == 1) || "Story".equals(typeName)) {
+        if ("01117".equals(code)) {
+            return "Player Card";
+        } else if ((spoiler != null && spoiler == 1) || "Story".equals(typeName)) {
             return "Encounter Card";
         } else {
             return "Player Card";

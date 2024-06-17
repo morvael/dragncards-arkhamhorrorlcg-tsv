@@ -1010,6 +1010,7 @@ public class MainExportArkhamDB {
                 writeString(bw, getString(row, idx++)); //imageUrl
                 writeString(bw, getString(row, idx++)); //cardBack
                 writeString(bw, getString(row, idx++)); //type
+                writeString(bw, getString(row, idx++)); //subtype
                 writeString(bw, getString(row, idx++)); //packName
                 writeInteger(bw, getInteger(row, idx++)); //deckbuilderQuantity
                 writeString(bw, getString(row, idx++)); //setUuid
@@ -1054,6 +1055,7 @@ public class MainExportArkhamDB {
         writeString(bw, c.getCardFront()); //imageUrl
         writeString(bw, doubleSided || linked ? "multi_sided" : c.getDefaultCardBack()); //cardBack
         writeString(bw, c.getTypeName()); //type
+        writeString(bw, c.getSubtypeName()); //subtype
         writeString(bw, c.getPackName()); //packName
         writeInteger(bw, c.getDeckbuilderQuantity()); //deckbuilderQuantity
         writeString(bw, c.getPackCode()); //setUuid
@@ -1096,6 +1098,7 @@ public class MainExportArkhamDB {
         writeString(bw, c.getCardBack()); //imageUrl
         writeString(bw, "multi_sided"); //cardBack
         writeString(bw, c.getTypeName()); //type
+        writeString(bw, c.getSubtypeName()); //subtype
         writeString(bw, c.getPackName()); //packName
         writeInteger(bw, c.getDeckbuilderQuantity()); //deckbuilderQuantity
         writeString(bw, c.getPackCode()); //setUuid
@@ -1138,6 +1141,7 @@ public class MainExportArkhamDB {
         writeString(bw, cc.getCardFront()); //imageUrl
         writeString(bw, "multi_sided"); //cardBack
         writeString(bw, cc.getTypeName()); //type
+        writeString(bw, cc.getSubtypeName()); //subtype
         writeString(bw, cc.getPackName()); //packName
         writeInteger(bw, cc.getDeckbuilderQuantity()); //deckbuilderQuantity
         writeString(bw, cc.getPackCode()); //setUuid
@@ -1185,6 +1189,7 @@ public class MainExportArkhamDB {
                 writeString(bw, "imageUrl");
                 writeString(bw, "cardBack");
                 writeString(bw, "type");
+                writeString(bw, "subtype");
                 writeString(bw, "packName");
                 writeString(bw, "deckbuilderQuantity");
                 writeString(bw, "setUuid");
