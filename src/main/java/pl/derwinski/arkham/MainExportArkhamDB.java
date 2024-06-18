@@ -1178,6 +1178,16 @@ public class MainExportArkhamDB {
         newLine(bw);
     }
 
+    private boolean filter(Card c) {
+        if ("Core Set".equals(c.getPackName())) {
+            return true;
+        }
+        if ("Revised Core Set".equals(c.getPackName()) && c.getPosition() >= 183) {
+            return true;
+        }
+        return false;
+    }
+
     protected void exportCards(Cards cards, String predefinedPath, String path) throws Exception {
         File file = new File(path);
         if (cards != null && cards.getCards() != null && cards.getCards().isEmpty() == false) {
@@ -1229,7 +1239,7 @@ public class MainExportArkhamDB {
                     if (c.getHidden() != null && c.getHidden()) {
                         continue;
                     }
-                    if ("Core Set".equals(c.getPackName()) == false) { //skip cards outside core set for now
+                    if (filter(c) == false) { //skip cards outside core set for now
                         continue;
                     }
                     boolean doubleSided = c.getDoubleSided() != null && c.getDoubleSided();
