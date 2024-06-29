@@ -1039,6 +1039,7 @@ public class MainExportArkhamDB {
                 writeInteger(bw, getInteger(row, idx++)); //enemyFight
                 writeInteger(bw, getInteger(row, idx++)); //enemyEvade
                 writeInteger(bw, getInteger(row, idx++)); //shroud
+                writeInteger(bw, getInteger(row, idx++)); //doom
                 writeInteger(bw, getInteger(row, idx++)); //clues
                 writeBoolean(bw, getBoolean(row, idx++)); //cluesFixed
                 writeInteger(bw, getInteger(row, idx++)); //victoryPoints
@@ -1084,6 +1085,7 @@ public class MainExportArkhamDB {
         writeInteger(bw, c.getEnemyFight()); //enemyFight
         writeInteger(bw, c.getEnemyEvade()); //enemyEvade
         writeInteger(bw, c.getShroud()); //shroud
+        writeInteger(bw, c.getDoom()); //doom
         writeInteger(bw, c.getClues()); //clues
         writeBoolean(bw, c.getCluesFixed()); //cluesFixed
         writeInteger(bw, c.getVictory()); //victoryPoints
@@ -1127,6 +1129,7 @@ public class MainExportArkhamDB {
         writeInteger(bw, null); //enemyFight
         writeInteger(bw, null); //enemyEvade
         writeInteger(bw, null); //shroud
+        writeInteger(bw, null); //doom
         writeInteger(bw, null); //clues
         writeBoolean(bw, null); //cluesFixed
         writeInteger(bw, null); //victoryPoints
@@ -1170,6 +1173,7 @@ public class MainExportArkhamDB {
         writeInteger(bw, cc.getEnemyFight()); //enemyFight
         writeInteger(bw, cc.getEnemyEvade()); //enemyEvade
         writeInteger(bw, cc.getShroud()); //shroud
+        writeInteger(bw, cc.getDoom()); //doom
         writeInteger(bw, cc.getClues()); //clues
         writeBoolean(bw, cc.getCluesFixed()); //cluesFixed
         writeInteger(bw, cc.getVictory()); //victoryPoints
@@ -1228,6 +1232,7 @@ public class MainExportArkhamDB {
                 writeString(bw, "enemyFight");
                 writeString(bw, "enemyEvade");
                 writeString(bw, "shroud");
+                writeString(bw, "doom");
                 writeString(bw, "clues");
                 writeString(bw, "cluesFixed");
                 writeString(bw, "victoryPoints");
