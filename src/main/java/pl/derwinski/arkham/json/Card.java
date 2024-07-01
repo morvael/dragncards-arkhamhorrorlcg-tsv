@@ -27,6 +27,8 @@
 package pl.derwinski.arkham.json;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -915,6 +917,18 @@ public class Card implements Comparable<Card> {
             System.out.println("No quantity for " + code);
             return null;
         }
+    }
+
+    private static final Pattern USES = Pattern.compile("Uses \\(([0-9]+) ", Pattern.MULTILINE);
+
+    public Integer getUses() {
+        if (text != null && text.contains("Uses (")) {
+            Matcher m = USES.matcher(text);
+            if (m.find()) {
+                return Integer.valueOf(m.group(1));
+            }
+        }
+        return null;
     }
 
 }

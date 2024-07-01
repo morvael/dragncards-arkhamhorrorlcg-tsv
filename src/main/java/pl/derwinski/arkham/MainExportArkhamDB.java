@@ -1034,6 +1034,7 @@ public class MainExportArkhamDB {
                 writeInteger(bw, getInteger(row, idx++)); //health
                 writeBoolean(bw, getBoolean(row, idx++)); //healthPerInvestigator
                 writeInteger(bw, getInteger(row, idx++)); //sanity
+                writeInteger(bw, getInteger(row, idx++)); //uses
                 writeInteger(bw, getInteger(row, idx++)); //enemyDamage
                 writeInteger(bw, getInteger(row, idx++)); //enemyHorror
                 writeInteger(bw, getInteger(row, idx++)); //enemyFight
@@ -1080,6 +1081,7 @@ public class MainExportArkhamDB {
         writeInteger(bw, c.getHealth()); //health
         writeBoolean(bw, c.getHealthPerInvestigator()); //healthPerInvestigator
         writeInteger(bw, c.getSanity()); //sanity
+        writeInteger(bw, c.getUses()); //uses
         writeInteger(bw, c.getEnemyDamage()); //enemyDamage
         writeInteger(bw, c.getEnemyHorror()); //enemyHorror
         writeInteger(bw, c.getEnemyFight()); //enemyFight
@@ -1124,6 +1126,7 @@ public class MainExportArkhamDB {
         writeInteger(bw, null); //health
         writeBoolean(bw, null); //healthPerInvestigator
         writeInteger(bw, null); //sanity
+        writeInteger(bw, null); //uses
         writeInteger(bw, null); //enemyDamage
         writeInteger(bw, null); //enemyHorror
         writeInteger(bw, null); //enemyFight
@@ -1168,6 +1171,7 @@ public class MainExportArkhamDB {
         writeInteger(bw, cc.getHealth()); //health
         writeBoolean(bw, cc.getHealthPerInvestigator()); //healthPerInvestigator
         writeInteger(bw, cc.getSanity()); //sanity
+        writeInteger(bw, cc.getUses()); //uses
         writeInteger(bw, cc.getEnemyDamage()); //enemyDamage
         writeInteger(bw, cc.getEnemyHorror()); //enemyHorror
         writeInteger(bw, cc.getEnemyFight()); //enemyFight
@@ -1227,6 +1231,7 @@ public class MainExportArkhamDB {
                 writeString(bw, "health");
                 writeString(bw, "healthPerInvestigator");
                 writeString(bw, "sanity");
+                writeString(bw, "uses");
                 writeString(bw, "enemyDamage");
                 writeString(bw, "enemyHorror");
                 writeString(bw, "enemyFight");
