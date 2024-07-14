@@ -37,6 +37,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
@@ -1267,9 +1269,62 @@ public class MainExportArkhamDB {
         }
     }
 
+    protected void line(BufferedWriter bw, String s) throws Exception {
+        bw.write(s);
+        bw.newLine();
+    }
+
+    protected void exportWeaknesses(Cards cards, String path) throws Exception {
+        File file = new File(path);
+        if (cards != null && cards.getCards() != null && cards.getCards().isEmpty() == false) {
+            try (FileOutputStream fos = new FileOutputStream(file, false);
+                    OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
+                    BufferedWriter bw = new BufferedWriter(osw)) {
+                LinkedHashMap<String, ArrayList<String>> map = new LinkedHashMap<>();
+                for (Card c : cards) {
+                    if (c.getHidden() != null && c.getHidden()) {
+                        continue;
+                    }
+                    if (filter(c) == false) { //skip cards outside core set for now
+                        continue;
+                    }
+                    if ("Basic Weakness".equals(c.getSubtypeName())) {
+                        ArrayList<String> list = map.get(c.getPackCode());
+                        if (list == null) {
+                            list = new ArrayList<>();
+                            map.put(c.getPackCode(), list);
+                        }
+                        list.add(c.getCode());
+                    }
+                }
+                line(bw, "{");
+                line(bw, "    \"functions\": {");
+                line(bw, "        \"GET_LIST_OF_WEAKNESSES\": {");
+                line(bw, "            \"args\": [\"$SET_UUID\"],");
+                line(bw, "            \"code\": [");
+                line(bw, "                [\"VALIDATE_NOT_EMPTY\", \"$SET_UUID\", \"GET_LIST_OF_WEAKNESSES.SET_UUID\"],");
+                line(bw, "                [\"COND\",");
+                for (Map.Entry<String, ArrayList<String>> e : map.entrySet()) {
+                    line(bw, String.format("                    [\"EQUAL\", \"$SET_UUID\", \"%s\"],", e.getKey()));
+                    line(bw, String.format("                    [\"LIST\", \"%s\"],", StringUtils.join(e.getValue(), "\", \"")));
+                }
+                line(bw, "                    [\"TRUE\"],");
+                line(bw, "                    [\"LIST\"]");
+                line(bw, "                ]");
+                line(bw, "            ]");
+                line(bw, "        }");
+                line(bw, "    }");
+                line(bw, "}");
+                bw.flush();
+
+            }
+        }
+    }
+
     protected void run() throws Exception {
         Cards cards = loadCards("run/cards.json");
         exportCards(cards, "run/predefined.xlsx", "run/arkhamhorrorlcg.tsv");
+        exportWeaknesses(cards, "run/Core Weakness.json");
     }
 
     public static void main(String[] args) {

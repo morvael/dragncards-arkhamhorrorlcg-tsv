@@ -25,5 +25,6 @@ run/player_cards_pl.json
 run/arkhamhorrorlcg.tsv
 run/arkhamhorrorlcg.xlsx
 run/predefined.xlsx
+run/Core Weakness.json
 /src/main/java/pl/derwinski/arkham/MainCompareTitles.java
 /src/main/java/pl/derwinski/arkham/MainFixEncoding.java
