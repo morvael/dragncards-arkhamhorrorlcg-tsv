@@ -34,6 +34,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -46,6 +47,12 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.jsoup.Jsoup;
+import static pl.derwinski.arkham.Util.log;
+import static pl.derwinski.arkham.Util.readBoolean;
+import static pl.derwinski.arkham.Util.readInteger;
+import static pl.derwinski.arkham.Util.readString;
+import static pl.derwinski.arkham.Util.readStringList;
+import static pl.derwinski.arkham.Util.readStringStringMap;
 import pl.derwinski.arkham.json.BondedCard;
 import pl.derwinski.arkham.json.Card;
 import pl.derwinski.arkham.json.Cards;
@@ -66,6 +73,8 @@ import pl.derwinski.arkham.json.Restrictions;
  */
 public class MainExportArkhamDB {
 
+    protected final HashMap<String, String> mapping;
+
     protected final HashSet<String> unhandledDeckRequirementsRandom = new HashSet<>();
     protected final HashSet<String> unhandledDeckRequirement = new HashSet<>();
     protected final HashSet<String> unhandledDeckOptionLevel = new HashSet<>();
@@ -80,82 +89,8 @@ public class MainExportArkhamDB {
 
     protected boolean writeTab;
 
-    protected String readString(JsonNode c) {
-        if (c == null || c.isNull()) {
-            return null;
-        } else {
-            String s = c.asText();
-            if (s.contains("  ")) {
-                s = s.replace("  ", " ");
-            }
-            if (s.indexOf('\n') != -1) {
-                s = s.replace("\n", "  ");
-            }
-            return s;
-        }
-    }
-
-    @SuppressWarnings("UnnecessaryTemporaryOnConversionFromString")
-    protected Integer readInteger(JsonNode c) {
-        if (c == null || c.isNull()) {
-            return null;
-        } else {
-            try {
-                return Integer.parseInt(c.asText());
-            } catch (NumberFormatException ex) {
-                System.out.println(String.format("Error reading Integer field: %s", c.asText()));
-                return null;
-            }
-        }
-    }
-
-    @SuppressWarnings("UnnecessaryTemporaryOnConversionFromString")
-    protected Boolean readBoolean(JsonNode c) {
-        if (c == null || c.isNull()) {
-            return null;
-        } else {
-            switch (c.asText()) {
-                case "true":
-                    return Boolean.TRUE;
-                case "false":
-                    return Boolean.FALSE;
-                default:
-                    System.out.println(String.format("Error reading Boolean field: %s", c.asText()));
-                    return null;
-            }
-        }
-    }
-
-    protected ArrayList<String> readStringList(JsonNode c) throws Exception {
-        if (c.isArray()) {
-            ArrayList<String> list = new ArrayList<>();
-            for (int i = 0; i < c.size(); i++) {
-                list.add(readString(c.get(i)));
-            }
-            return list;
-        } else {
-            if (c.isNull() == false) {
-                System.out.println(String.format("Error reading StringList field: %s", c.asText()));
-            }
-            return null;
-        }
-    }
-
-    protected LinkedHashMap<String, String> readStringStringMap(JsonNode c) throws Exception {
-        if (c.isObject()) {
-            LinkedHashMap<String, String> map = new LinkedHashMap<>();
-            Iterator<String> it = c.fieldNames();
-            while (it.hasNext()) {
-                String fieldName = it.next();
-                map.put(fieldName, readString(c.get(fieldName)));
-            }
-            return map;
-        } else {
-            if (c.isNull() == false) {
-                System.out.println(String.format("Error reading StringStringMap field: %s", c.asText()));
-            }
-            return null;
-        }
+    public MainExportArkhamDB() throws Exception {
+        mapping = Util.readConfigMap("run/mapping.txt");
     }
 
     protected DeckRequirementsRandom readDeckRequirementsRandom(JsonNode c) throws Exception {
@@ -173,7 +108,7 @@ public class MainExportArkhamDB {
                         break;
                     default:
                         if (unhandledDeckRequirementsRandom.add(fieldName)) {
-                            System.out.println(String.format("Unhandled field name in DeckRequirementsRandom: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType()));
+                            log("Unhandled field name in DeckRequirementsRandom: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType());
                         }
                         break;
                 }
@@ -181,7 +116,7 @@ public class MainExportArkhamDB {
             return randomRequirement;
         } else {
             if (c.isNull() == false) {
-                System.out.println(String.format("Error reading DeckRequirementsRandom field: %s", c.asText()));
+                log("Error reading DeckRequirementsRandom field: %s", c.asText());
             }
             return null;
         }
@@ -208,7 +143,7 @@ public class MainExportArkhamDB {
                             }
                         } else {
                             if (c.isNull() == false) {
-                                System.out.println(String.format("Error reading DeckRequirements object field %s: %s", fieldName, cc.asText()));
+                                log("Error reading DeckRequirements object field %s: %s", fieldName, cc.asText());
                             }
                         }
                         break;
@@ -222,14 +157,14 @@ public class MainExportArkhamDB {
                             }
                         } else {
                             if (c.isNull() == false) {
-                                System.out.println(String.format("Error reading DeckRequirements array field %s: %s", fieldName, cc.asText()));
+                                log("Error reading DeckRequirements array field %s: %s", fieldName, cc.asText());
                             }
                         }
                         break;
                     }
                     default:
                         if (unhandledDeckRequirement.add(fieldName)) {
-                            System.out.println(String.format("Unhandled field name in DeckRequirements: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType()));
+                            log("Unhandled field name in DeckRequirements: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType());
                         }
                         break;
                 }
@@ -237,7 +172,7 @@ public class MainExportArkhamDB {
             return deckRequirements;
         } else {
             if (c.isNull() == false) {
-                System.out.println(String.format("Error reading DeckRequirements field: %s", c.asText()));
+                log("Error reading DeckRequirements field: %s", c.asText());
             }
             return null;
         }
@@ -258,7 +193,7 @@ public class MainExportArkhamDB {
                         break;
                     default:
                         if (unhandledDeckOptionLevel.add(fieldName)) {
-                            System.out.println(String.format("Unhandled field name in DeckOptionLevel: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType()));
+                            log("Unhandled field name in DeckOptionLevel: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType());
                         }
                         break;
                 }
@@ -266,7 +201,7 @@ public class MainExportArkhamDB {
             return deckOptionLevel;
         } else {
             if (c.isNull() == false) {
-                System.out.println(String.format("Error reading DeckOptionLevel field: %s", c.asText()));
+                log("Error reading DeckOptionLevel field: %s", c.asText());
             }
             return null;
         }
@@ -287,7 +222,7 @@ public class MainExportArkhamDB {
                         break;
                     default:
                         if (unhandledDeckOptionAtLeast.add(fieldName)) {
-                            System.out.println(String.format("Unhandled field name in DeckOptionAtLeast: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType()));
+                            log("Unhandled field name in DeckOptionAtLeast: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType());
                         }
                         break;
                 }
@@ -295,7 +230,7 @@ public class MainExportArkhamDB {
             return deckOptionAtLeast;
         } else {
             if (c.isNull() == false) {
-                System.out.println(String.format("Error reading DeckOptionAtLeast field: %s", c.asText()));
+                log("Error reading DeckOptionAtLeast field: %s", c.asText());
             }
             return null;
         }
@@ -362,7 +297,7 @@ public class MainExportArkhamDB {
                             }
                         } else {
                             if (cc.isNull() == false) {
-                                System.out.println(String.format("Error reading DeckOption array field %s: %s", fieldName, cc.asText()));
+                                log("Error reading DeckOption array field %s: %s", fieldName, cc.asText());
                             }
                         }
                         break;
@@ -381,7 +316,7 @@ public class MainExportArkhamDB {
                         break;
                     default:
                         if (unhandledDeckOption.add(fieldName)) {
-                            System.out.println(String.format("Unhandled field name in DeckOption: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType()));
+                            log("Unhandled field name in DeckOption: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType());
                         }
                         break;
                 }
@@ -389,7 +324,7 @@ public class MainExportArkhamDB {
             return deckOption;
         } else {
             if (c.isNull() == false) {
-                System.out.println(String.format("Error reading DeckOption field: %s", c.asText()));
+                log("Error reading DeckOption field: %s", c.asText());
             }
             return null;
         }
@@ -413,7 +348,7 @@ public class MainExportArkhamDB {
                         break;
                     default:
                         if (unhandledErrataDate.add(fieldName)) {
-                            System.out.println(String.format("Unhandled field name in ErrataDate: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType()));
+                            log("Unhandled field name in ErrataDate: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType());
                         }
                         break;
                 }
@@ -421,7 +356,7 @@ public class MainExportArkhamDB {
             return errataDate;
         } else {
             if (c.isNull() == false) {
-                System.out.println(String.format("Error reading ErrataDate field: %s", c.asText()));
+                log("Error reading ErrataDate field: %s", c.asText());
             }
             return null;
         }
@@ -439,7 +374,7 @@ public class MainExportArkhamDB {
                         break;
                     default:
                         if (unhandledRestrictions.add(fieldName)) {
-                            System.out.println(String.format("Unhandled field name in Restrictions: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType()));
+                            log("Unhandled field name in Restrictions: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType());
                         }
                         break;
                 }
@@ -447,7 +382,7 @@ public class MainExportArkhamDB {
             return restrictions;
         } else {
             if (c.isNull() == false) {
-                System.out.println(String.format("Error reading Restrictions field: %s", c.asText()));
+                log("Error reading Restrictions field: %s", c.asText());
             }
             return null;
         }
@@ -468,7 +403,7 @@ public class MainExportArkhamDB {
                         break;
                     default:
                         if (unhandledBondedCard.add(fieldName)) {
-                            System.out.println(String.format("Unhandled field name in BondedCard: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType()));
+                            log("Unhandled field name in BondedCard: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType());
                         }
                         break;
                 }
@@ -476,7 +411,7 @@ public class MainExportArkhamDB {
             return bondedCard;
         } else {
             if (c.isNull() == false) {
-                System.out.println(String.format("Error reading BondedCard field: %s", c.asText()));
+                log("Error reading BondedCard field: %s", c.asText());
             }
             return null;
         }
@@ -497,7 +432,7 @@ public class MainExportArkhamDB {
                         break;
                     default:
                         if (unhandledCustomizationOptionCard.add(fieldName)) {
-                            System.out.println(String.format("Unhandled field name in CustomizationOptionCard: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType()));
+                            log("Unhandled field name in CustomizationOptionCard: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType());
                         }
                         break;
                 }
@@ -505,7 +440,7 @@ public class MainExportArkhamDB {
             return customizationOptionCard;
         } else {
             if (c.isNull() == false) {
-                System.out.println(String.format("Error reading CustomizationOptionCard field: %s", c.asText()));
+                log("Error reading CustomizationOptionCard field: %s", c.asText());
             }
             return null;
         }
@@ -562,7 +497,7 @@ public class MainExportArkhamDB {
                         break;
                     default:
                         if (unhandledCustomizationOption.add(fieldName)) {
-                            System.out.println(String.format("Unhandled field name in CustomizationOption: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType()));
+                            log("Unhandled field name in CustomizationOption: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType());
                         }
                         break;
                 }
@@ -570,7 +505,7 @@ public class MainExportArkhamDB {
             return customizationOption;
         } else {
             if (c.isNull() == false) {
-                System.out.println(String.format("Error reading CustomizationOption field: %s", c.asText()));
+                log("Error reading CustomizationOption field: %s", c.asText());
             }
             return null;
         }
@@ -676,7 +611,7 @@ public class MainExportArkhamDB {
                             }
                         } else {
                             if (cc.isNull() == false) {
-                                System.out.println(String.format("Error reading Card array field %s: %s", fieldName, cc.asText()));
+                                log("Error reading Card array field %s: %s", fieldName, cc.asText());
                             }
                         }
                         break;
@@ -825,7 +760,7 @@ public class MainExportArkhamDB {
                             }
                         } else {
                             if (cc.isNull() == false) {
-                                System.out.println(String.format("Error reading Card array field %s: %s", fieldName, cc.asText()));
+                                log("Error reading Card array field %s: %s", fieldName, cc.asText());
                             }
                         }
                         break;
@@ -869,7 +804,7 @@ public class MainExportArkhamDB {
                             }
                         } else {
                             if (cc.isNull() == false) {
-                                System.out.println(String.format("Error reading Card array field %s: %s", fieldName, cc.asText()));
+                                log("Error reading Card array field %s: %s", fieldName, cc.asText());
                             }
                         }
                         break;
@@ -879,7 +814,7 @@ public class MainExportArkhamDB {
                         break;
                     default:
                         if (unhandledCard.add(fieldName)) {
-                            System.out.println(String.format("Unhandled field name in Card: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType()));
+                            log("Unhandled field name in Card: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType());
                         }
                         break;
                 }
@@ -887,7 +822,7 @@ public class MainExportArkhamDB {
             return card;
         } else {
             if (c.isNull() == false) {
-                System.out.println(String.format("Error reading Card field: %s", c.asText()));
+                log("Error reading Card field: %s", c.asText());
             }
             return null;
         }
@@ -895,10 +830,6 @@ public class MainExportArkhamDB {
 
     protected Cards loadCards(String path) throws Exception {
         File file = new File(path);
-        if (file.exists() == false) {
-            System.out.println(String.format("Download and save https://arkhamdb.com/api/public/cards/?encounter=1 to %s", file.getAbsoluteFile().getCanonicalPath()));
-            return null;
-        }
         JsonNode c = new JsonMapper().readTree(file);
         if (c.isArray()) {
             Cards cards = new Cards();
@@ -910,7 +841,7 @@ public class MainExportArkhamDB {
             return cards;
         } else {
             if (c.isNull() == false) {
-                System.out.println(String.format("Error reading Cards array: %s", c.asText()));
+                log("Error reading Cards array: %s", c.asText());
             }
             return null;
         }
@@ -995,7 +926,29 @@ public class MainExportArkhamDB {
         }
     }
 
-    private void exportDefaultCards(BufferedWriter bw, String predefinedPath) throws Exception {
+    protected String getImageUrl(File imagesDir, String databaseId, Boolean front) throws Exception {
+        if (front == null) {
+            if (imagesDir.exists()) {
+                File imageFile = new File(imagesDir, databaseId);
+                if (imageFile.exists() == false) {
+                    log("Missing image %s", databaseId);
+                }
+            }
+            return databaseId;
+        } else {
+            String id = mapping.getOrDefault(databaseId, databaseId);
+            String imageUrl = String.format("card_images/%s/%s%s.webp", id.substring(0, 2), id, front ? "a" : "b");
+            if (imagesDir.exists()) {
+                File imageFile = new File(imagesDir, imageUrl);
+                if (imageFile.exists() == false) {
+                    log("Missing image %s for id %s %s", imageUrl, databaseId, front ? "front" : "back");
+                }
+            }
+            return imageUrl;
+        }
+    }
+
+    protected void exportDefaultCards(File imagesDir, BufferedWriter bw, String predefinedPath) throws Exception {
         try (Workbook wb = WorkbookFactory.create(new File(predefinedPath))) {
             Sheet sheet = wb.getSheetAt(0);
             for (Row row : sheet) {
@@ -1009,7 +962,7 @@ public class MainExportArkhamDB {
                 }
                 writeString(bw, databaseId); //databaseId
                 writeString(bw, getString(row, idx++)); //name
-                writeString(bw, getString(row, idx++)); //imageUrl
+                writeString(bw, getImageUrl(imagesDir, getString(row, idx++), null)); //imageUrl
                 writeString(bw, getString(row, idx++)); //cardBack
                 writeString(bw, getString(row, idx++)); //type
                 writeString(bw, getString(row, idx++)); //subtype
@@ -1047,16 +1000,18 @@ public class MainExportArkhamDB {
                 writeBoolean(bw, getBoolean(row, idx++)); //cluesFixed
                 writeInteger(bw, getInteger(row, idx++)); //victoryPoints
                 writeInteger(bw, getInteger(row, idx++)); //stage
-                writeHTML(bw, getString(row, idx++)); //text
+                writeBoolean(bw, getBoolean(row, idx++)); //action
+                writeBoolean(bw, getBoolean(row, idx++)); //reaction
+                writeBoolean(bw, getBoolean(row, idx++)); //free
                 newLine(bw);
             }
         }
     }
 
-    protected void exportFrontSide(BufferedWriter bw, Card c, boolean doubleSided, boolean linked) throws Exception {
+    protected void exportFrontSide(File imagesDir, BufferedWriter bw, Card c, boolean doubleSided, boolean linked) throws Exception {
         writeString(bw, c.getCode()); //databaseId
         writeString(bw, c.getFullName(true)); //name
-        writeString(bw, c.getCardFront()); //imageUrl
+        writeString(bw, getImageUrl(imagesDir, c.getCode(), true)); //imageUrl
         writeString(bw, doubleSided || linked ? "multi_sided" : c.getDefaultCardBack()); //cardBack
         writeString(bw, c.getTypeName()); //type
         writeString(bw, c.getSubtypeName()); //subtype
@@ -1094,14 +1049,16 @@ public class MainExportArkhamDB {
         writeBoolean(bw, c.getCluesFixed()); //cluesFixed
         writeInteger(bw, c.getVictory()); //victoryPoints
         writeInteger(bw, c.getStage()); //stage
-        writeHTML(bw, c.getText()); //text
+        writeBoolean(bw, c.getText() != null && c.getText().contains("[action]")); //action
+        writeBoolean(bw, c.getText() != null && c.getText().contains("[reaction]")); //reaction
+        writeBoolean(bw, c.getText() != null && c.getText().contains("[free]")); //free
         newLine(bw);
     }
 
-    protected void exportBackSide(BufferedWriter bw, Card c) throws Exception {
+    protected void exportBackSide(File imagesDir, BufferedWriter bw, Card c) throws Exception {
         writeString(bw, c.getCode()); //databaseId
         writeString(bw, c.getBackName() != null ? c.getBackName() : c.getFullName("Location".equals(c.getTypeName()) == false)); //name
-        writeString(bw, c.getCardBack()); //imageUrl
+        writeString(bw, getImageUrl(imagesDir, c.getCode(), false)); //imageUrl
         writeString(bw, "multi_sided"); //cardBack
         writeString(bw, c.getTypeName()); //type
         writeString(bw, c.getSubtypeName()); //subtype
@@ -1139,14 +1096,16 @@ public class MainExportArkhamDB {
         writeBoolean(bw, null); //cluesFixed
         writeInteger(bw, null); //victoryPoints
         writeInteger(bw, null); //stage
-        writeHTML(bw, c.getBackText()); //text
+        writeBoolean(bw, c.getBackText() != null && c.getBackText().contains("[action]")); //action
+        writeBoolean(bw, c.getBackText() != null && c.getBackText().contains("[reaction]")); //reaction
+        writeBoolean(bw, c.getBackText() != null && c.getBackText().contains("[free]")); //free
         newLine(bw);
     }
 
-    protected void exportLinked(BufferedWriter bw, Card c, Card cc) throws Exception {
+    protected void exportLinked(File imagesDir, BufferedWriter bw, Card c, Card cc) throws Exception {
         writeString(bw, c.getCode()); //databaseId: multi_sided must share
         writeString(bw, cc.getFullName(true)); //name
-        writeString(bw, cc.getCardFront()); //imageUrl
+        writeString(bw, getImageUrl(imagesDir, c.getCode(), false)); //imageUrl
         writeString(bw, "multi_sided"); //cardBack
         writeString(bw, cc.getTypeName()); //type
         writeString(bw, cc.getSubtypeName()); //subtype
@@ -1184,22 +1143,25 @@ public class MainExportArkhamDB {
         writeBoolean(bw, cc.getCluesFixed()); //cluesFixed
         writeInteger(bw, cc.getVictory()); //victoryPoints
         writeInteger(bw, cc.getStage()); //stage
-        writeHTML(bw, cc.getText()); //text
+        writeBoolean(bw, cc.getText() != null && cc.getText().contains("[action]")); //action
+        writeBoolean(bw, cc.getText() != null && cc.getText().contains("[reaction]")); //reaction
+        writeBoolean(bw, cc.getText() != null && cc.getText().contains("[free]")); //free
         newLine(bw);
     }
 
-    private boolean filter(Card c) {
+    protected boolean filter(Card c) {
         if ("Core Set".equals(c.getPackName())) {
             return true;
         }
-        if ("Revised Core Set".equals(c.getPackName()) && c.getPosition() >= 183) {
+        if ("Revised Core Set".equals(c.getPackName()) && (c.getPosition() <= 103 || c.getPosition() >= 183)) {
             return true;
         }
         return false;
     }
 
-    protected void exportCards(Cards cards, String predefinedPath, String path) throws Exception {
+    protected void exportCards(Cards cards, String predefinedPath, String path, String imagesPath) throws Exception {
         File file = new File(path);
+        File imagesDir = new File(imagesPath);
         if (cards != null && cards.getCards() != null && cards.getCards().isEmpty() == false) {
             try (FileOutputStream fos = new FileOutputStream(file, false);
                     OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
@@ -1244,9 +1206,11 @@ public class MainExportArkhamDB {
                 writeString(bw, "cluesFixed");
                 writeString(bw, "victoryPoints");
                 writeString(bw, "stage");
-                writeString(bw, "text");
+                writeString(bw, "action");
+                writeString(bw, "reaction");
+                writeString(bw, "free");
                 newLine(bw);
-                exportDefaultCards(bw, predefinedPath);
+                exportDefaultCards(imagesDir, bw, predefinedPath);
                 for (Card c : cards) {
                     if (c.getHidden() != null && c.getHidden()) {
                         continue;
@@ -1256,12 +1220,12 @@ public class MainExportArkhamDB {
                     }
                     boolean doubleSided = c.getDoubleSided() != null && c.getDoubleSided();
                     boolean linked = c.getLinkedCard() != null;
-                    exportFrontSide(bw, c, doubleSided, linked);
+                    exportFrontSide(imagesDir, bw, c, doubleSided, linked);
                     if (doubleSided) {
-                        exportBackSide(bw, c);
+                        exportBackSide(imagesDir, bw, c);
                     } else if (linked) {
                         Card cc = c.getLinkedCard();
-                        exportLinked(bw, c, cc);
+                        exportLinked(imagesDir, bw, c, cc);
                     }
                 }
                 bw.flush();
@@ -1276,6 +1240,9 @@ public class MainExportArkhamDB {
 
     protected void exportWeaknesses(Cards cards, String path) throws Exception {
         File file = new File(path);
+        if (file.exists() == false) {
+            file = new File("run/Core Weakness.json");
+        }
         if (cards != null && cards.getCards() != null && cards.getCards().isEmpty() == false) {
             try (FileOutputStream fos = new FileOutputStream(file, false);
                     OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
@@ -1321,18 +1288,18 @@ public class MainExportArkhamDB {
         }
     }
 
-    protected void run() throws Exception {
+    public void run() throws Exception {
+        Util.downloadIfOld("https://arkhamdb.com/api/public/cards/?encounter=1", "run/cards.json");
         Cards cards = loadCards("run/cards.json");
-        exportCards(cards, "run/predefined.xlsx", "run/arkhamhorrorlcg.tsv");
-        exportWeaknesses(cards, "run/Core Weakness.json");
+        exportCards(cards, "run/predefined.xlsx", "run/arkhamhorrorlcg.tsv", "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/images");
+        exportWeaknesses(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Weakness.json");
     }
 
     public static void main(String[] args) {
         try {
             new MainExportArkhamDB().run();
         } catch (Exception ex) {
-            System.err.println(ex.getMessage());
-            ex.printStackTrace(System.err);
+            log(ex);
         }
     }
 

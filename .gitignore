@@ -19,12 +19,16 @@ buildNumber.properties
 nb-configuration.xml
 nbactions.xml
 
+run/tts/**
+run/repos/**
 run/cards.json
 run/player_cards_en.json
 run/player_cards_pl.json
 run/arkhamhorrorlcg.tsv
 run/arkhamhorrorlcg.xlsx
-run/predefined.xlsx
 run/Core Weakness.json
-/src/main/java/pl/derwinski/arkham/MainCompareTitles.java
-/src/main/java/pl/derwinski/arkham/MainFixEncoding.java
+run/imgur.jpg
+run/.~lock*
+src/main/java/pl/derwinski/arkham/MainCompareTitles.java
+src/main/java/pl/derwinski/arkham/MainFixEncoding.java
+src/main/java/pl/derwinski/arkham/MainTestImgur.java

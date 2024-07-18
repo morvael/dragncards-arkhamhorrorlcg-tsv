@@ -29,6 +29,7 @@ package pl.derwinski.arkham.json;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import static pl.derwinski.arkham.Util.log;
 
 /**
  *
@@ -829,7 +830,7 @@ public class Card implements Comparable<Card> {
     private long getSortOrder() {
         if (sortOrder == null) {
             if (code == null) {
-                System.out.println("No code for " + name);
+                log("No code for %s", name);
                 return 0;
             }
             if (Character.isLetter(code.charAt(code.length() - 1))) {
@@ -914,7 +915,7 @@ public class Card implements Comparable<Card> {
         } else if (quantity != null) {
             return quantity;
         } else {
-            System.out.println("No quantity for " + code);
+            log("No quantity for %s", code);
             return null;
         }
     }
