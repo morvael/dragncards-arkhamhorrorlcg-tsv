@@ -74,6 +74,8 @@ import pl.derwinski.arkham.json.Restrictions;
 public class MainExportArkhamDB {
 
     protected final HashMap<String, String> mapping;
+    protected final HashMap<String, String> types;
+    protected final HashMap<String, String> weaknesses;
 
     protected final HashSet<String> unhandledDeckRequirementsRandom = new HashSet<>();
     protected final HashSet<String> unhandledDeckRequirement = new HashSet<>();
@@ -91,6 +93,8 @@ public class MainExportArkhamDB {
 
     public MainExportArkhamDB() throws Exception {
         mapping = Util.readConfigMap("run/mapping.txt");
+        types = Util.readConfigMap("run/types.txt");
+        weaknesses = Util.readConfigMap("run/weaknesses.txt");
     }
 
     protected DeckRequirementsRandom readDeckRequirementsRandom(JsonNode c) throws Exception {
@@ -1013,8 +1017,8 @@ public class MainExportArkhamDB {
         writeString(bw, c.getFullName(true)); //name
         writeString(bw, getImageUrl(imagesDir, c.getCode(), true)); //imageUrl
         writeString(bw, doubleSided || linked ? "multi_sided" : c.getDefaultCardBack()); //cardBack
-        writeString(bw, c.getTypeName()); //type
-        writeString(bw, c.getSubtypeName()); //subtype
+        writeString(bw, types.getOrDefault(String.format("%s_%s", c.getCode(), c.getTypeName()), c.getTypeName())); //type
+        writeString(bw, weaknesses.getOrDefault(c.getCode(), c.getSubtypeName())); //subtype
         writeString(bw, c.getPackName()); //packName
         writeInteger(bw, c.getDeckbuilderQuantity()); //deckbuilderQuantity
         writeString(bw, c.getPackCode()); //setUuid
@@ -1060,8 +1064,8 @@ public class MainExportArkhamDB {
         writeString(bw, c.getBackName() != null ? c.getBackName() : c.getFullName("Location".equals(c.getTypeName()) == false)); //name
         writeString(bw, getImageUrl(imagesDir, c.getCode(), false)); //imageUrl
         writeString(bw, "multi_sided"); //cardBack
-        writeString(bw, c.getTypeName()); //type
-        writeString(bw, c.getSubtypeName()); //subtype
+        writeString(bw, types.getOrDefault(String.format("%s_%s", c.getCode(), c.getTypeName()), c.getTypeName())); //type
+        writeString(bw, weaknesses.getOrDefault(c.getCode(), c.getSubtypeName())); //subtype
         writeString(bw, c.getPackName()); //packName
         writeInteger(bw, c.getDeckbuilderQuantity()); //deckbuilderQuantity
         writeString(bw, c.getPackCode()); //setUuid
@@ -1107,8 +1111,8 @@ public class MainExportArkhamDB {
         writeString(bw, cc.getFullName(true)); //name
         writeString(bw, getImageUrl(imagesDir, c.getCode(), false)); //imageUrl
         writeString(bw, "multi_sided"); //cardBack
-        writeString(bw, cc.getTypeName()); //type
-        writeString(bw, cc.getSubtypeName()); //subtype
+        writeString(bw, types.getOrDefault(String.format("%s_%s", c.getCode(), cc.getTypeName()), cc.getTypeName())); //type
+        writeString(bw, weaknesses.getOrDefault(cc.getCode(), cc.getSubtypeName())); //subtype
         writeString(bw, cc.getPackName()); //packName
         writeInteger(bw, cc.getDeckbuilderQuantity()); //deckbuilderQuantity
         writeString(bw, cc.getPackCode()); //setUuid
@@ -1154,6 +1158,9 @@ public class MainExportArkhamDB {
             return true;
         }
         if ("Revised Core Set".equals(c.getPackName()) && (c.getPosition() <= 103 || c.getPosition() >= 183)) {
+            return true;
+        }
+        if ("Return to the Night of the Zealot".equals(c.getPackName())) {
             return true;
         }
         return false;
@@ -1255,7 +1262,7 @@ public class MainExportArkhamDB {
                     if (filter(c) == false) { //skip cards outside core set for now
                         continue;
                     }
-                    if ("Basic Weakness".equals(c.getSubtypeName())) {
+                    if ("Basic Weakness".equals(weaknesses.getOrDefault(c.getCode(), c.getSubtypeName()))) {
                         ArrayList<String> list = map.get(c.getPackCode());
                         if (list == null) {
                             list = new ArrayList<>();
