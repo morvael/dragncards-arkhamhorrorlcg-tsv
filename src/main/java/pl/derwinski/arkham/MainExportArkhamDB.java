@@ -76,6 +76,7 @@ public class MainExportArkhamDB {
     protected final HashMap<String, String> mapping;
     protected final HashMap<String, String> types;
     protected final HashMap<String, String> weaknesses;
+    protected final HashMap<String, String> backOverrides;
 
     protected final HashSet<String> unhandledDeckRequirementsRandom = new HashSet<>();
     protected final HashSet<String> unhandledDeckRequirement = new HashSet<>();
@@ -95,6 +96,7 @@ public class MainExportArkhamDB {
         mapping = Util.readConfigMap("run/mapping.txt");
         types = Util.readConfigMap("run/types.txt");
         weaknesses = Util.readConfigMap("run/weaknesses.txt");
+        backOverrides = Util.readConfigMap("run/backOverrides.txt");
     }
 
     protected DeckRequirementsRandom readDeckRequirementsRandom(JsonNode c) throws Exception {
@@ -1016,7 +1018,7 @@ public class MainExportArkhamDB {
         writeString(bw, c.getCode()); //databaseId
         writeString(bw, c.getFullName(true)); //name
         writeString(bw, getImageUrl(imagesDir, c.getCode(), true)); //imageUrl
-        writeString(bw, doubleSided || linked ? "multi_sided" : c.getDefaultCardBack()); //cardBack
+        writeString(bw, doubleSided || linked ? "multi_sided" : c.getDefaultCardBack(backOverrides)); //cardBack
         writeString(bw, types.getOrDefault(String.format("%s_%s", c.getCode(), c.getTypeName()), c.getTypeName())); //type
         writeString(bw, weaknesses.getOrDefault(c.getCode(), c.getSubtypeName())); //subtype
         writeString(bw, c.getPackName()); //packName
@@ -1154,16 +1156,39 @@ public class MainExportArkhamDB {
     }
 
     protected boolean filter(Card c) {
-        if ("Core Set".equals(c.getPackName())) {
-            return true;
+        if (c.getPackCode() == null) {
+            return false;
         }
-        if ("Revised Core Set".equals(c.getPackName()) && (c.getPosition() <= 103 || c.getPosition() >= 183)) {
-            return true;
+        switch (c.getPackCode()) {
+            //Core Set
+            case "core":
+                return true;
+            //Revised Core Set (only player cards)
+            case "rcore":
+                return c.getPosition() <= 103 || c.getPosition() >= 183;
+            //The Dunwich Legacy
+            case "dwl":
+            case "tmm":
+            case "tece":
+            case "bota":
+            case "uau":
+            case "wda":
+            case "litas":
+                return true;
+            //Return to...
+            case "rtnotz": //Return to the Night of the Zealot
+            case "rtdwl": //Return to the Dunwich Legacy
+                return true;
+            //Investigator Starter Decks
+            case "nat":
+            case "har":
+            case "win":
+            case "jac":
+            case "ste":
+                return true;
+            default:
+                return false;
         }
-        if ("Return to the Night of the Zealot".equals(c.getPackName())) {
-            return true;
-        }
-        return false;
     }
 
     protected void exportCards(Cards cards, String predefinedPath, String path, String imagesPath) throws Exception {

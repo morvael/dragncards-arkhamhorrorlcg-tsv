@@ -27,6 +27,7 @@
 package pl.derwinski.arkham.json;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import static pl.derwinski.arkham.Util.log;
@@ -875,9 +876,9 @@ public class Card implements Comparable<Card> {
         }
     }
 
-    public String getDefaultCardBack() {
-        if ("01117".equals(code)) {
-            return "Player Card";
+    public String getDefaultCardBack(HashMap<String, String> backOverrides) {
+        if (backOverrides != null && backOverrides.containsKey(code)) {
+            return backOverrides.get(code);
         } else if ((spoiler != null && spoiler == 1) || "Story".equals(typeName)) {
             return "Encounter Card";
         } else {
@@ -908,7 +909,7 @@ public class Card implements Comparable<Card> {
     }
 
     public Integer getDeckbuilderQuantity() {
-        if ("Encounter Card".equals(getDefaultCardBack())) {
+        if ("Encounter Card".equals(getDefaultCardBack(null))) {
             return 0;
         } else if (deckLimit != null) {
             return deckLimit;
