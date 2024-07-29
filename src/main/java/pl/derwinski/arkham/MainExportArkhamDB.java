@@ -1250,14 +1250,20 @@ public class MainExportArkhamDB {
                     if (filter(c) == false) { //skip cards outside core set for now
                         continue;
                     }
-                    boolean doubleSided = c.getDoubleSided() != null && c.getDoubleSided();
-                    boolean linked = c.getLinkedCard() != null;
-                    exportFrontSide(imagesDir, bw, c, doubleSided, linked);
-                    if (doubleSided) {
-                        exportBackSide(imagesDir, bw, c);
-                    } else if (linked) {
+                    if ("51026b".equals(c.getCode())) {
                         Card cc = c.getLinkedCard();
-                        exportLinked(imagesDir, bw, c, cc);
+                        exportFrontSide(imagesDir, bw, cc, false, true);
+                        exportLinked(imagesDir, bw, cc, c);
+                    } else {
+                        boolean doubleSided = c.getDoubleSided() != null && c.getDoubleSided();
+                        boolean linked = c.getLinkedCard() != null;
+                        exportFrontSide(imagesDir, bw, c, doubleSided, linked);
+                        if (doubleSided) {
+                            exportBackSide(imagesDir, bw, c);
+                        } else if (linked) {
+                            Card cc = c.getLinkedCard();
+                            exportLinked(imagesDir, bw, c, cc);
+                        }
                     }
                 }
                 bw.flush();
@@ -1280,6 +1286,7 @@ public class MainExportArkhamDB {
                     OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
                     BufferedWriter bw = new BufferedWriter(osw)) {
                 LinkedHashMap<String, ArrayList<String>> map = new LinkedHashMap<>();
+                LinkedHashMap<String, ArrayList<String>> mapMadnessInjuryPact = new LinkedHashMap<>();
                 for (Card c : cards) {
                     if (c.getHidden() != null && c.getHidden()) {
                         continue;
@@ -1288,12 +1295,31 @@ public class MainExportArkhamDB {
                         continue;
                     }
                     if ("Basic Weakness".equals(weaknesses.getOrDefault(c.getCode(), c.getSubtypeName()))) {
+                        Integer qty = c.getDeckbuilderQuantity();
+                        if (qty == null) {
+                            qty = 1;
+                        }
+                        if ("core".equals(c.getPackCode()) || "rcore".equals(c.getPackCode())) {
+                            qty *= 2;
+                        }
                         ArrayList<String> list = map.get(c.getPackCode());
                         if (list == null) {
                             list = new ArrayList<>();
                             map.put(c.getPackCode(), list);
                         }
-                        list.add(c.getCode());
+                        for (int i = 0; i < qty; i++) {
+                            list.add(c.getCode());
+                        }
+                        if (c.getTraits() != null && (c.getTraits().contains("Madness.") || c.getTraits().contains("Injury.") || c.getTraits().contains("Pact."))) {
+                            list = mapMadnessInjuryPact.get(c.getPackCode());
+                            if (list == null) {
+                                list = new ArrayList<>();
+                                mapMadnessInjuryPact.put(c.getPackCode(), list);
+                            }
+                            for (int i = 0; i < qty; i++) {
+                                list.add(c.getCode());
+                            }
+                        }
                     }
                 }
                 line(bw, "{");
@@ -1304,6 +1330,20 @@ public class MainExportArkhamDB {
                 line(bw, "                [\"VALIDATE_NOT_EMPTY\", \"$SET_UUID\", \"GET_LIST_OF_WEAKNESSES.SET_UUID\"],");
                 line(bw, "                [\"COND\",");
                 for (Map.Entry<String, ArrayList<String>> e : map.entrySet()) {
+                    line(bw, String.format("                    [\"EQUAL\", \"$SET_UUID\", \"%s\"],", e.getKey()));
+                    line(bw, String.format("                    [\"LIST\", \"%s\"],", StringUtils.join(e.getValue(), "\", \"")));
+                }
+                line(bw, "                    [\"TRUE\"],");
+                line(bw, "                    [\"LIST\"]");
+                line(bw, "                ]");
+                line(bw, "            ]");
+                line(bw, "        },");
+                line(bw, "        \"GET_LIST_OF_MADNESS_INJURY_PACT_WEAKNESSES\": {");
+                line(bw, "            \"args\": [\"$SET_UUID\"],");
+                line(bw, "            \"code\": [");
+                line(bw, "                [\"VALIDATE_NOT_EMPTY\", \"$SET_UUID\", \"GET_LIST_OF_MADNESS_INJURY_PACT_WEAKNESSES.SET_UUID\"],");
+                line(bw, "                [\"COND\",");
+                for (Map.Entry<String, ArrayList<String>> e : mapMadnessInjuryPact.entrySet()) {
                     line(bw, String.format("                    [\"EQUAL\", \"$SET_UUID\", \"%s\"],", e.getKey()));
                     line(bw, String.format("                    [\"LIST\", \"%s\"],", StringUtils.join(e.getValue(), "\", \"")));
                 }
