@@ -77,6 +77,7 @@ public class MainExportArkhamDB {
     protected final HashMap<String, String> types;
     protected final HashMap<String, String> weaknesses;
     protected final HashMap<String, String> backOverrides;
+    protected final HashSet<String> flipped;
 
     protected final HashSet<String> unhandledDeckRequirementsRandom = new HashSet<>();
     protected final HashSet<String> unhandledDeckRequirement = new HashSet<>();
@@ -97,6 +98,7 @@ public class MainExportArkhamDB {
         types = Util.readConfigMap("run/types.txt");
         weaknesses = Util.readConfigMap("run/weaknesses.txt");
         backOverrides = Util.readConfigMap("run/backOverrides.txt");
+        flipped = Util.readConfigSet("run/flipped.txt");
     }
 
     protected DeckRequirementsRandom readDeckRequirementsRandom(JsonNode c) throws Exception {
@@ -1009,6 +1011,7 @@ public class MainExportArkhamDB {
                 writeBoolean(bw, getBoolean(row, idx++)); //action
                 writeBoolean(bw, getBoolean(row, idx++)); //reaction
                 writeBoolean(bw, getBoolean(row, idx++)); //free
+                writeString(bw, getString(row, idx++)); //text
                 newLine(bw);
             }
         }
@@ -1058,6 +1061,7 @@ public class MainExportArkhamDB {
         writeBoolean(bw, c.getText() != null && c.getText().contains("[action]")); //action
         writeBoolean(bw, c.getText() != null && c.getText().contains("[reaction]")); //reaction
         writeBoolean(bw, c.getText() != null && c.getText().contains("[free]")); //free
+        writeString(bw, c.getText()); //text
         newLine(bw);
     }
 
@@ -1105,6 +1109,7 @@ public class MainExportArkhamDB {
         writeBoolean(bw, c.getBackText() != null && c.getBackText().contains("[action]")); //action
         writeBoolean(bw, c.getBackText() != null && c.getBackText().contains("[reaction]")); //reaction
         writeBoolean(bw, c.getBackText() != null && c.getBackText().contains("[free]")); //free
+        writeString(bw, c.getBackText()); //text
         newLine(bw);
     }
 
@@ -1152,6 +1157,7 @@ public class MainExportArkhamDB {
         writeBoolean(bw, cc.getText() != null && cc.getText().contains("[action]")); //action
         writeBoolean(bw, cc.getText() != null && cc.getText().contains("[reaction]")); //reaction
         writeBoolean(bw, cc.getText() != null && cc.getText().contains("[free]")); //free
+        writeString(bw, cc.getText()); //text
         newLine(bw);
     }
 
@@ -1175,9 +1181,19 @@ public class MainExportArkhamDB {
             case "wda":
             case "litas":
                 return true;
+            //The Path to Carcosa
+            case "ptc":
+            case "eotp":
+            case "tuo":
+            case "apot":
+            case "tpm":
+            case "bsr":
+            case "dca":
+                return true;
             //Return to...
             case "rtnotz": //Return to the Night of the Zealot
             case "rtdwl": //Return to the Dunwich Legacy
+            case "rtptc": //Return to the Path to Carcosa
                 return true;
             //Investigator Starter Decks
             case "nat":
@@ -1241,6 +1257,7 @@ public class MainExportArkhamDB {
                 writeString(bw, "action");
                 writeString(bw, "reaction");
                 writeString(bw, "free");
+                writeString(bw, "text");
                 newLine(bw);
                 exportDefaultCards(imagesDir, bw, predefinedPath);
                 for (Card c : cards) {
@@ -1250,7 +1267,7 @@ public class MainExportArkhamDB {
                     if (filter(c) == false) { //skip cards outside core set for now
                         continue;
                     }
-                    if ("51026b".equals(c.getCode())) {
+                    if (flipped.contains(c.getCode())) {
                         Card cc = c.getLinkedCard();
                         exportFrontSide(imagesDir, bw, cc, false, true);
                         exportLinked(imagesDir, bw, cc, c);
