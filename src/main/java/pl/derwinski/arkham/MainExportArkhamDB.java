@@ -74,6 +74,7 @@ import pl.derwinski.arkham.json.Restrictions;
 public class MainExportArkhamDB {
 
     protected final HashMap<String, String> mapping;
+    protected final HashMap<String, String> titles;
     protected final HashMap<String, String> types;
     protected final HashMap<String, String> weaknesses;
     protected final HashMap<String, String> backOverrides;
@@ -97,6 +98,7 @@ public class MainExportArkhamDB {
 
     public MainExportArkhamDB() throws Exception {
         mapping = Util.readConfigMap("run/mapping.txt");
+        titles = Util.readConfigMap("run/titles.txt");
         types = Util.readConfigMap("run/types.txt");
         weaknesses = Util.readConfigMap("run/weaknesses.txt");
         backOverrides = Util.readConfigMap("run/backOverrides.txt");
@@ -1030,7 +1032,7 @@ public class MainExportArkhamDB {
 
     protected void exportFrontSide(File imagesDir, BufferedWriter bw, Card c, boolean doubleSided, boolean linked) throws Exception {
         writeString(bw, c.getCode()); //databaseId
-        writeString(bw, c.getFullName(true)); //name
+        writeString(bw, titles.getOrDefault(String.format("%s_A", c.getCode()), c.getFullName(true))); //name
         writeString(bw, getImageUrl(imagesDir, c.getCode(), true)); //imageUrl
         writeString(bw, doubleSided || linked ? "multi_sided" : c.getDefaultCardBack(backOverrides)); //cardBack
         writeString(bw, types.getOrDefault(String.format("%s_%s", c.getCode(), c.getTypeName()), c.getTypeName())); //type
@@ -1079,7 +1081,7 @@ public class MainExportArkhamDB {
 
     protected void exportBackSide(File imagesDir, BufferedWriter bw, Card c) throws Exception {
         writeString(bw, c.getCode()); //databaseId
-        writeString(bw, c.getBackName() != null ? c.getBackName() : c.getFullName("Location".equals(c.getTypeName()) == false)); //name
+        writeString(bw, titles.getOrDefault(String.format("%s_B", c.getCode()), c.getBackName() != null ? c.getBackName() : c.getFullName("Location".equals(c.getTypeName()) == false))); //name
         writeString(bw, getImageUrl(imagesDir, c.getCode(), false)); //imageUrl
         writeString(bw, "multi_sided"); //cardBack
         writeString(bw, types.getOrDefault(String.format("%s_%s", c.getCode(), c.getTypeName()), c.getTypeName())); //type
@@ -1128,7 +1130,7 @@ public class MainExportArkhamDB {
 
     protected void exportLinked(File imagesDir, BufferedWriter bw, Card c, Card cc) throws Exception {
         writeString(bw, c.getCode()); //databaseId: multi_sided must share
-        writeString(bw, cc.getFullName(true)); //name
+        writeString(bw, titles.getOrDefault(String.format("%s_B", c.getCode()), cc.getFullName(true))); //name
         writeString(bw, getImageUrl(imagesDir, c.getCode(), false)); //imageUrl
         writeString(bw, "multi_sided"); //cardBack
         writeString(bw, types.getOrDefault(String.format("%s_%s", c.getCode(), cc.getTypeName()), cc.getTypeName())); //type

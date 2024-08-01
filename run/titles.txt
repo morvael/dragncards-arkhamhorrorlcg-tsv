@@ -1,0 +1,13 @@
+02054_B|Faculty Offices: The Night is Still Young
+02055_B|Faculty Offices: The Hour is Late
+02320_B|Another Dimension: Unfettered by Reality
+03168_B|Asylum Halls: Western Patient Wing
+03169_B|Asylum Halls: Western Patient Wing
+03170_B|Asylum Halls: Eastern Patient Wing
+03171_B|Asylum Halls: Eastern Patient Wing
+03211_B|Grand Guignol: Theatre of the Great Puppet
+50013_B|Study: Aberrant Gateway
+51033_B|Village Commons: Silent Decay
+51048_B|Base of the Hill: Warped and Twisted
+51049_B|Ascending Path: Warped and Twisted
+52042_B|Grand Guignol: Theatre of the Great Puppet
