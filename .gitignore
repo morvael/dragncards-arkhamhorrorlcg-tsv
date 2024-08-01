@@ -27,6 +27,7 @@ run/player_cards_pl.json
 run/arkhamhorrorlcg.tsv
 run/arkhamhorrorlcg.xlsx
 run/Core Weakness.json
+run/Core Bonded.json
 run/imgur.jpg
 run/.~lock*
 src/main/java/pl/derwinski/arkham/MainCompareTitles.java

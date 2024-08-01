@@ -91,6 +91,8 @@ public class MainExportArkhamDB {
     protected final HashSet<String> unhandledCustomizationOption = new HashSet<>();
     protected final HashSet<String> unhandledCard = new HashSet<>();
 
+    protected final HashMap<String, ArrayList<Card>> bondedCards = new HashMap<>();
+
     protected boolean writeTab;
 
     public MainExportArkhamDB() throws Exception {
@@ -827,6 +829,14 @@ public class MainExportArkhamDB {
                         break;
                 }
             }
+            if (card.getBondedTo() != null && card.getBondedTo().length() > 0 && card.getBondedCount() != null && card.getBondedCount() > 0) {
+                ArrayList<Card> list = bondedCards.get(card.getBondedTo());
+                if (list == null) {
+                    list = new ArrayList<>();
+                    bondedCards.put(card.getBondedTo(), list);
+                }
+                list.add(card);
+            }
             return card;
         } else {
             if (c.isNull() == false) {
@@ -1011,6 +1021,7 @@ public class MainExportArkhamDB {
                 writeBoolean(bw, getBoolean(row, idx++)); //action
                 writeBoolean(bw, getBoolean(row, idx++)); //reaction
                 writeBoolean(bw, getBoolean(row, idx++)); //free
+                writeBoolean(bw, getBoolean(row, idx++)); //hasBonded
                 writeString(bw, getString(row, idx++)); //text
                 newLine(bw);
             }
@@ -1061,6 +1072,7 @@ public class MainExportArkhamDB {
         writeBoolean(bw, c.getText() != null && c.getText().contains("[action]")); //action
         writeBoolean(bw, c.getText() != null && c.getText().contains("[reaction]")); //reaction
         writeBoolean(bw, c.getText() != null && c.getText().contains("[free]")); //free
+        writeBoolean(bw, bondedCards.containsKey(c.getName())); //hasBonded
         writeString(bw, c.getText()); //text
         newLine(bw);
     }
@@ -1109,6 +1121,7 @@ public class MainExportArkhamDB {
         writeBoolean(bw, c.getBackText() != null && c.getBackText().contains("[action]")); //action
         writeBoolean(bw, c.getBackText() != null && c.getBackText().contains("[reaction]")); //reaction
         writeBoolean(bw, c.getBackText() != null && c.getBackText().contains("[free]")); //free
+        writeBoolean(bw, false); //hasBonded
         writeString(bw, c.getBackText()); //text
         newLine(bw);
     }
@@ -1157,6 +1170,7 @@ public class MainExportArkhamDB {
         writeBoolean(bw, cc.getText() != null && cc.getText().contains("[action]")); //action
         writeBoolean(bw, cc.getText() != null && cc.getText().contains("[reaction]")); //reaction
         writeBoolean(bw, cc.getText() != null && cc.getText().contains("[free]")); //free
+        writeBoolean(bw, false); //hasBonded
         writeString(bw, cc.getText()); //text
         newLine(bw);
     }
@@ -1257,6 +1271,7 @@ public class MainExportArkhamDB {
                 writeString(bw, "action");
                 writeString(bw, "reaction");
                 writeString(bw, "free");
+                writeString(bw, "hasBonded");
                 writeString(bw, "text");
                 newLine(bw);
                 exportDefaultCards(imagesDir, bw, predefinedPath);
@@ -1372,7 +1387,66 @@ public class MainExportArkhamDB {
                 line(bw, "    }");
                 line(bw, "}");
                 bw.flush();
+            }
+        }
+    }
 
+    protected void exportBonded(Cards cards, String path) throws Exception {
+        File file = new File(path);
+        if (file.exists() == false) {
+            file = new File("run/Core Bonded.json");
+        }
+        if (cards != null && cards.getCards() != null && cards.getCards().isEmpty() == false) {
+            try (FileOutputStream fos = new FileOutputStream(file, false);
+                    OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
+                    BufferedWriter bw = new BufferedWriter(osw)) {
+                ArrayList<Card> cardsWithBonded = new ArrayList<>();
+                for (Card c : cards) {
+                    if (c.getHidden() != null && c.getHidden()) {
+                        continue;
+                    }
+                    if (filter(c) == false) { //skip cards outside core set for now
+                        continue;
+                    }
+                    if (bondedCards.containsKey(c.getName())) {
+                        cardsWithBonded.add(c);
+                    }
+                }
+                line(bw, "{");
+                line(bw, "    \"functions\": {");
+                line(bw, "        \"DO_SPAWN_BONDED\": {");
+                line(bw, "            \"args\": [\"$DATABASE_ID\", \"$TARGET_PLAYER\"],");
+                line(bw, "            \"code\": [");
+                line(bw, "                [\"VALIDATE_NOT_EMPTY\", \"$DATABASE_ID\", \"DO_SPAWN_BONDED.DATABASE_ID\"],");
+                line(bw, "                [\"VALIDATE_PLAYER\", \"$TARGET_PLAYER\", \"DO_SPAWN_BONDED.TARGET_PLAYER\"],");
+                line(bw, "                [\"VAR\", \"$TARGET_PLAYER_ASIDE\", [\"GET_CONTROLLER_ASIDE\", \"$TARGET_PLAYER\"]],");
+                line(bw, "                [\"COND\",");
+                for (Card c : cardsWithBonded) {
+                    line(bw, String.format("                    [\"EQUAL\", \"$DATABASE_ID\", \"%s\"],", c.getCode()));
+                    ArrayList<Card> bcs = bondedCards.get(c.getName());
+                    if (c.getCode().equals("10015")) {
+                        line(bw, "                    [\"DO_CREATE_CARDS\", \"$TARGET_PLAYER\", \"Hank Samson\", \"10016\", 1, \"$TARGET_PLAYER_ASIDE\", true, null]");
+                    } else if (bcs.size() == 1) {
+                        Card bc = bcs.get(0);
+                        line(bw, String.format("                    [\"DO_CREATE_CARDS\", \"$TARGET_PLAYER\", \"%s\", \"%s\", %d, \"$TARGET_PLAYER_ASIDE\", true, null],", bc.getName().replace("\"", "\\\""), bc.getCode(), bc.getBondedCount()));
+                    } else {
+                        line(bw, "                    [");
+                        int size = bcs.size();
+                        for (int i = 0; i < size; i++) {
+                            Card bc = bcs.get(i);
+                            line(bw, String.format("                        [\"DO_CREATE_CARDS\", \"$TARGET_PLAYER\", \"%s\", \"%s\", %d, \"$TARGET_PLAYER_ASIDE\", true, null]%s", bc.getName().replace("\"", "\\\""), bc.getCode(), bc.getBondedCount(), i + 1 == size ? "" : ","));
+                        }
+                        line(bw, "                    ],");
+                    }
+                }
+                line(bw, "                    [\"TRUE\"],");
+                line(bw, "                    \"$GAME\"");
+                line(bw, "                ]");
+                line(bw, "            ]");
+                line(bw, "        }");
+                line(bw, "    }");
+                line(bw, "}");
+                bw.flush();
             }
         }
     }
@@ -1382,6 +1456,7 @@ public class MainExportArkhamDB {
         Cards cards = loadCards("run/cards.json");
         exportCards(cards, "run/predefined.xlsx", "run/arkhamhorrorlcg.tsv", "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/images");
         exportWeaknesses(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Weakness.json");
+        exportBonded(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Bonded.json");
     }
 
     public static void main(String[] args) {

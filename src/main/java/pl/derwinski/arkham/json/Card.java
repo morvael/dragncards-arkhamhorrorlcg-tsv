@@ -911,6 +911,8 @@ public class Card implements Comparable<Card> {
     public Integer getDeckbuilderQuantity() {
         if ("Encounter Card".equals(getDefaultCardBack(null))) {
             return 0;
+        } else if (bondedTo != null) {
+            return 0;
         } else if (deckLimit != null) {
             return deckLimit;
         } else if (quantity != null) {
