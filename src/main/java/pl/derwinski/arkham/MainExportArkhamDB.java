@@ -969,7 +969,7 @@ public class MainExportArkhamDB {
     }
 
     protected void exportDefaultCards(File imagesDir, BufferedWriter bw, String predefinedPath) throws Exception {
-        try (Workbook wb = WorkbookFactory.create(new File(predefinedPath))) {
+        try (Workbook wb = WorkbookFactory.create(new File(predefinedPath), null, true)) {
             Sheet sheet = wb.getSheetAt(0);
             for (Row row : sheet) {
                 if (row.getRowNum() == 0) {
