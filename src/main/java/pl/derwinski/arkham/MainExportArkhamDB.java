@@ -1310,6 +1310,49 @@ public class MainExportArkhamDB {
         bw.newLine();
     }
 
+    protected boolean hasTrait(Card c, String[] traits) {
+        if (c.getTraits() == null) {
+            return false;
+        }
+        for (String trait : traits) {
+            if (c.getTraits().contains(trait)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected void fillWeaknessMap(LinkedHashMap<String, ArrayList<String>> map, Card c, Integer qty, String... traits) {
+        ArrayList<String> list;
+        if (traits == null || traits.length == 0 || hasTrait(c, traits)) {
+            list = map.get(c.getPackCode());
+            if (list == null) {
+                list = new ArrayList<>();
+                map.put(c.getPackCode(), list);
+            }
+            for (int i = 0; i < qty; i++) {
+                list.add(c.getCode());
+            }
+        }
+    }
+
+    protected void generateWeaknessFunction(BufferedWriter bw, String name, LinkedHashMap<String, ArrayList<String>> map, boolean last) throws Exception {
+        line(bw, String.format("        \"%s\": {", name));
+        line(bw, "            \"args\": [\"$SET_UUID\"],");
+        line(bw, "            \"code\": [");
+        line(bw, String.format("                [\"VALIDATE_NOT_EMPTY\", \"$SET_UUID\", \"%s.SET_UUID\"],", name));
+        line(bw, "                [\"COND\",");
+        for (Map.Entry<String, ArrayList<String>> e : map.entrySet()) {
+            line(bw, String.format("                    [\"EQUAL\", \"$SET_UUID\", \"%s\"],", e.getKey()));
+            line(bw, String.format("                    [\"LIST\", \"%s\"],", StringUtils.join(e.getValue(), "\", \"")));
+        }
+        line(bw, "                    [\"TRUE\"],");
+        line(bw, "                    [\"LIST\"]");
+        line(bw, "                ]");
+        line(bw, "            ]");
+        line(bw, String.format("        }%s", last ? "" : ","));
+    }
+
     protected void exportWeaknesses(Cards cards, String path) throws Exception {
         File file = new File(path);
         if (file.exists() == false) {
@@ -1321,6 +1364,7 @@ public class MainExportArkhamDB {
                     BufferedWriter bw = new BufferedWriter(osw)) {
                 LinkedHashMap<String, ArrayList<String>> map = new LinkedHashMap<>();
                 LinkedHashMap<String, ArrayList<String>> mapMadnessInjuryPact = new LinkedHashMap<>();
+                LinkedHashMap<String, ArrayList<String>> mapMadnessPactCultistDetective = new LinkedHashMap<>();
                 for (Card c : cards) {
                     if (c.getHidden() != null && c.getHidden()) {
                         continue;
@@ -1336,56 +1380,16 @@ public class MainExportArkhamDB {
                         if ("core".equals(c.getPackCode()) || "rcore".equals(c.getPackCode())) {
                             qty *= 2;
                         }
-                        ArrayList<String> list = map.get(c.getPackCode());
-                        if (list == null) {
-                            list = new ArrayList<>();
-                            map.put(c.getPackCode(), list);
-                        }
-                        for (int i = 0; i < qty; i++) {
-                            list.add(c.getCode());
-                        }
-                        if (c.getTraits() != null && (c.getTraits().contains("Madness.") || c.getTraits().contains("Injury.") || c.getTraits().contains("Pact."))) {
-                            list = mapMadnessInjuryPact.get(c.getPackCode());
-                            if (list == null) {
-                                list = new ArrayList<>();
-                                mapMadnessInjuryPact.put(c.getPackCode(), list);
-                            }
-                            for (int i = 0; i < qty; i++) {
-                                list.add(c.getCode());
-                            }
-                        }
+                        fillWeaknessMap(map, c, qty);
+                        fillWeaknessMap(mapMadnessInjuryPact, c, qty, "Madness.", "Injury.", "Pact.");
+                        fillWeaknessMap(mapMadnessPactCultistDetective, c, qty, "Madness.", "Pact.", "Cultist.", "Detective.");
                     }
                 }
                 line(bw, "{");
                 line(bw, "    \"functions\": {");
-                line(bw, "        \"GET_LIST_OF_WEAKNESSES\": {");
-                line(bw, "            \"args\": [\"$SET_UUID\"],");
-                line(bw, "            \"code\": [");
-                line(bw, "                [\"VALIDATE_NOT_EMPTY\", \"$SET_UUID\", \"GET_LIST_OF_WEAKNESSES.SET_UUID\"],");
-                line(bw, "                [\"COND\",");
-                for (Map.Entry<String, ArrayList<String>> e : map.entrySet()) {
-                    line(bw, String.format("                    [\"EQUAL\", \"$SET_UUID\", \"%s\"],", e.getKey()));
-                    line(bw, String.format("                    [\"LIST\", \"%s\"],", StringUtils.join(e.getValue(), "\", \"")));
-                }
-                line(bw, "                    [\"TRUE\"],");
-                line(bw, "                    [\"LIST\"]");
-                line(bw, "                ]");
-                line(bw, "            ]");
-                line(bw, "        },");
-                line(bw, "        \"GET_LIST_OF_MADNESS_INJURY_PACT_WEAKNESSES\": {");
-                line(bw, "            \"args\": [\"$SET_UUID\"],");
-                line(bw, "            \"code\": [");
-                line(bw, "                [\"VALIDATE_NOT_EMPTY\", \"$SET_UUID\", \"GET_LIST_OF_MADNESS_INJURY_PACT_WEAKNESSES.SET_UUID\"],");
-                line(bw, "                [\"COND\",");
-                for (Map.Entry<String, ArrayList<String>> e : mapMadnessInjuryPact.entrySet()) {
-                    line(bw, String.format("                    [\"EQUAL\", \"$SET_UUID\", \"%s\"],", e.getKey()));
-                    line(bw, String.format("                    [\"LIST\", \"%s\"],", StringUtils.join(e.getValue(), "\", \"")));
-                }
-                line(bw, "                    [\"TRUE\"],");
-                line(bw, "                    [\"LIST\"]");
-                line(bw, "                ]");
-                line(bw, "            ]");
-                line(bw, "        }");
+                generateWeaknessFunction(bw, "GET_LIST_OF_MADNESS_PACT_CULTIST_DETECTIVE_WEAKNESSES", mapMadnessPactCultistDetective, false);
+                generateWeaknessFunction(bw, "GET_LIST_OF_MADNESS_INJURY_PACT_WEAKNESSES", mapMadnessInjuryPact, false);
+                generateWeaknessFunction(bw, "GET_LIST_OF_WEAKNESSES", map, true);
                 line(bw, "    }");
                 line(bw, "}");
                 bw.flush();
