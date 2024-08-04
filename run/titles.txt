@@ -11,3 +11,9 @@
 51048_B|Base of the Hill: Warped and Twisted
 51049_B|Ascending Path: Warped and Twisted
 52042_B|Grand Guignol: Theatre of the Great Puppet
+04248_B|Halls of Pnakotus: Northern Corridors
+04249_B|Halls of Pnakotus: Eastern Corridors
+04250_B|Halls of Pnakotus: Western Corridors
+04324_B|Nexus of N'kai: Unraveling the Threads
+53019_B|Entryway: Rearranged by Time
+53055_B|Halls of Pnakotus: Southern Corridors

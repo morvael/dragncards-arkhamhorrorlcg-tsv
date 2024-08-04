@@ -1206,10 +1206,20 @@ public class MainExportArkhamDB {
             case "bsr":
             case "dca":
                 return true;
+            //The Forgotten Age
+            case "tfa":
+            case "tof":
+            case "tbb":
+            case "hote":
+            case "tcoa":
+            case "tdoy":
+            case "sha":
+                return true;
             //Return to...
             case "rtnotz": //Return to the Night of the Zealot
             case "rtdwl": //Return to the Dunwich Legacy
             case "rtptc": //Return to the Path to Carcosa
+            case "rttfa": //Return to the Forgotten Age
                 return true;
             //Investigator Starter Decks
             case "nat":
