@@ -1019,6 +1019,7 @@ public class MainExportArkhamDB {
                 writeInteger(bw, getInteger(row, idx++)); //clues
                 writeBoolean(bw, getBoolean(row, idx++)); //cluesFixed
                 writeInteger(bw, getInteger(row, idx++)); //victoryPoints
+                writeInteger(bw, getInteger(row, idx++)); //vengeance
                 writeInteger(bw, getInteger(row, idx++)); //stage
                 writeBoolean(bw, getBoolean(row, idx++)); //action
                 writeBoolean(bw, getBoolean(row, idx++)); //reaction
@@ -1070,6 +1071,7 @@ public class MainExportArkhamDB {
         writeInteger(bw, c.getClues()); //clues
         writeBoolean(bw, c.getCluesFixed()); //cluesFixed
         writeInteger(bw, c.getVictory()); //victoryPoints
+        writeInteger(bw, c.getVengeance()); //vengeance
         writeInteger(bw, c.getStage()); //stage
         writeBoolean(bw, c.getText() != null && c.getText().contains("[action]")); //action
         writeBoolean(bw, c.getText() != null && c.getText().contains("[reaction]")); //reaction
@@ -1119,6 +1121,7 @@ public class MainExportArkhamDB {
         writeInteger(bw, null); //clues
         writeBoolean(bw, null); //cluesFixed
         writeInteger(bw, null); //victoryPoints
+        writeInteger(bw, null); //vengeance
         writeInteger(bw, null); //stage
         writeBoolean(bw, c.getBackText() != null && c.getBackText().contains("[action]")); //action
         writeBoolean(bw, c.getBackText() != null && c.getBackText().contains("[reaction]")); //reaction
@@ -1168,6 +1171,7 @@ public class MainExportArkhamDB {
         writeInteger(bw, cc.getClues()); //clues
         writeBoolean(bw, cc.getCluesFixed()); //cluesFixed
         writeInteger(bw, cc.getVictory()); //victoryPoints
+        writeInteger(bw, cc.getVengeance()); //vengeance
         writeInteger(bw, cc.getStage()); //stage
         writeBoolean(bw, cc.getText() != null && cc.getText().contains("[action]")); //action
         writeBoolean(bw, cc.getText() != null && cc.getText().contains("[reaction]")); //reaction
@@ -1279,6 +1283,7 @@ public class MainExportArkhamDB {
                 writeString(bw, "clues");
                 writeString(bw, "cluesFixed");
                 writeString(bw, "victoryPoints");
+                writeString(bw, "vengeance");
                 writeString(bw, "stage");
                 writeString(bw, "action");
                 writeString(bw, "reaction");
