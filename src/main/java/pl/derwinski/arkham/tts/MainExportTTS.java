@@ -58,6 +58,7 @@ import static pl.derwinski.arkham.Util.download;
 import static pl.derwinski.arkham.Util.log;
 import static pl.derwinski.arkham.Util.readBoolean;
 import static pl.derwinski.arkham.Util.readInteger;
+import static pl.derwinski.arkham.Util.readStringList;
 import static pl.derwinski.arkham.Util.readStringRaw;
 import pl.derwinski.arkham.tts.json.Card;
 import pl.derwinski.arkham.tts.json.CustomDeck;
@@ -162,6 +163,9 @@ public class MainExportTTS {
                     case "id":
                         gmNotes.setId(readStringRaw(c.get(fieldName)));
                         break;
+                    case "alternate_ids":
+                        gmNotes.setAlternateIds(readStringList(c.get(fieldName)));
+                        break;
                     case "type":
                         gmNotes.setType(readStringRaw(c.get(fieldName)));
                         break;
@@ -181,7 +185,7 @@ public class MainExportTTS {
         }
     }
 
-    protected Card readCard(JsonMapper mapper, File file, CustomDecks parentCustomDecks, JsonNode c) throws Exception {
+    protected Card readCard(JsonMapper mapper, File file, CustomDecks parentCustomDecks, JsonNode c, String state) throws Exception {
         if (c.isObject()) {
             Card card = new Card();
             card.setFile(file);
@@ -227,6 +231,29 @@ public class MainExportTTS {
             if (card.getCustomDecks() == null) {
                 card.setCustomDecks(parentCustomDecks);
             }
+            if (card.getGMNotes() != null && card.getGMNotes().getAlternateIds() != null && card.getGMNotes().getAlternateIds().isEmpty() == false) {
+                ArrayList<String> alternateIds = card.getGMNotes().getAlternateIds();
+                String promoId = null;
+                String revisedId = null;
+                for (String id : alternateIds) {
+                    if (id.startsWith("9")) {
+                        promoId = id;
+                    } else {
+                        revisedId = id;
+                    }
+                }
+                if ("3".equals(state)) {
+                    if (promoId != null) {
+                        card.getGMNotes().setId(promoId);
+                    }
+                } else if ("2".equals(state)) {
+                    if (revisedId != null) {
+                        card.getGMNotes().setId(revisedId);
+                    } else if (promoId != null) {
+                        card.getGMNotes().setId(promoId);
+                    }
+                }
+            }
             return card;
         } else {
             if (c.isNull() == false) {
@@ -236,11 +263,11 @@ public class MainExportTTS {
         }
     }
 
-    protected void searchForCards(JsonMapper mapper, File file, ArrayList<Card> result, int[] count, CustomDecks parentCustomDecks, JsonNode node) throws Exception {
+    protected void searchForCards(JsonMapper mapper, File file, ArrayList<Card> result, int[] count, CustomDecks parentCustomDecks, JsonNode node, String state) throws Exception {
         if (node.isObject()) {
             JsonNode name = node.get("Name");
             if (name != null && name.isTextual() && ("Card".equals(name.textValue()) || "CardCustom".equals(name.textValue()))) {
-                Card card = readCard(mapper, file, parentCustomDecks, node);
+                Card card = readCard(mapper, file, parentCustomDecks, node, state);
                 if (card.isValid()) {
                     if (card.isSkippable() == false) {
                         result.add(card);
@@ -259,7 +286,15 @@ public class MainExportTTS {
                 }
                 int size = containedObjects.size();
                 for (int i = 0; i < size; i++) {
-                    searchForCards(mapper, file, result, count, customDecks, containedObjects.get(i));
+                    searchForCards(mapper, file, result, count, customDecks, containedObjects.get(i), null);
+                }
+            }
+            JsonNode states = node.get("States");
+            if (states != null && states.isObject()) {
+                Iterator<String> it = states.fieldNames();
+                while (it.hasNext()) {
+                    String fieldName = it.next();
+                    searchForCards(mapper, file, result, count, parentCustomDecks, states.get(fieldName), fieldName);
                 }
             }
         }
@@ -267,7 +302,7 @@ public class MainExportTTS {
 
     protected void loadTTSCards(JsonMapper mapper, File file, ArrayList<Card> result) throws Exception {
         int[] count = new int[]{0};
-        searchForCards(mapper, file, result, count, null, mapper.readTree(file));
+        searchForCards(mapper, file, result, count, null, mapper.readTree(file), null);
         if (count[0] == 0) {
             log("No cards in %s", file.getAbsoluteFile().getCanonicalPath());
         }

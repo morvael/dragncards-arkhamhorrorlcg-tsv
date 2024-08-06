@@ -79,6 +79,7 @@ public class MainExportArkhamDB {
     protected final HashMap<String, String> weaknesses;
     protected final HashMap<String, String> backOverrides;
     protected final HashSet<String> flipped;
+    protected final HashSet<String> unhidden;
 
     protected final HashSet<String> unhandledDeckRequirementsRandom = new HashSet<>();
     protected final HashSet<String> unhandledDeckRequirement = new HashSet<>();
@@ -103,6 +104,7 @@ public class MainExportArkhamDB {
         weaknesses = Util.readConfigMap("run/weaknesses.txt");
         backOverrides = Util.readConfigMap("run/backOverrides.txt");
         flipped = Util.readConfigSet("run/flipped.txt");
+        unhidden = Util.readConfigSet("run/unhidden.txt");
     }
 
     protected DeckRequirementsRandom readDeckRequirementsRandom(JsonNode c) throws Exception {
@@ -1182,6 +1184,9 @@ public class MainExportArkhamDB {
     }
 
     protected boolean filter(Card c) {
+        if (c.getHidden() != null && c.getHidden() && unhidden.contains(c.getCode()) == false) {
+            return false;
+        }
         if (c.getPackCode() == null) {
             return false;
         }
@@ -1231,6 +1236,17 @@ public class MainExportArkhamDB {
             case "win":
             case "jac":
             case "ste":
+                return true;
+            //Promotional
+            case "books":
+            case "hoth":
+            case "tdor":
+            case "iotv":
+            case "tdg":
+            case "tftbw":
+            case "bob":
+            case "dre":
+            case "promo":
                 return true;
             default:
                 return false;
@@ -1293,9 +1309,6 @@ public class MainExportArkhamDB {
                 newLine(bw);
                 exportDefaultCards(imagesDir, bw, predefinedPath);
                 for (Card c : cards) {
-                    if (c.getHidden() != null && c.getHidden()) {
-                        continue;
-                    }
                     if (filter(c) == false) { //skip cards outside core set for now
                         continue;
                     }
@@ -1381,9 +1394,6 @@ public class MainExportArkhamDB {
                 LinkedHashMap<String, ArrayList<String>> mapMadnessInjuryPact = new LinkedHashMap<>();
                 LinkedHashMap<String, ArrayList<String>> mapMadnessPactCultistDetective = new LinkedHashMap<>();
                 for (Card c : cards) {
-                    if (c.getHidden() != null && c.getHidden()) {
-                        continue;
-                    }
                     if (filter(c) == false) { //skip cards outside core set for now
                         continue;
                     }
@@ -1423,9 +1433,6 @@ public class MainExportArkhamDB {
                     BufferedWriter bw = new BufferedWriter(osw)) {
                 ArrayList<Card> cardsWithBonded = new ArrayList<>();
                 for (Card c : cards) {
-                    if (c.getHidden() != null && c.getHidden()) {
-                        continue;
-                    }
                     if (filter(c) == false) { //skip cards outside core set for now
                         continue;
                     }

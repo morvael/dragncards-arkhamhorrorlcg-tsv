@@ -26,6 +26,9 @@
  */
 package pl.derwinski.arkham.tts.json;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /**
  *
  * @author morvael
@@ -33,6 +36,7 @@ package pl.derwinski.arkham.tts.json;
 public class GMNotes {
 
     private String id;
+    private ArrayList<String> alternateIds;
     private String type;
 
     public String getId() {
@@ -41,6 +45,14 @@ public class GMNotes {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public ArrayList<String> getAlternateIds() {
+        return alternateIds;
+    }
+
+    public void setAlternateIds(ArrayList<String> alternateIds) {
+        this.alternateIds = alternateIds;
     }
 
     public String getType() {
@@ -64,6 +76,7 @@ public class GMNotes {
         StringBuilder sb = new StringBuilder();
         sb.append("GMNotes{");
         sb.append("id=").append(id);
+        sb.append(", alternateIds=").append(alternateIds != null ? Arrays.toString(alternateIds.toArray()) : "null");
         sb.append(", type=").append(type);
         sb.append('}');
         return sb.toString();
