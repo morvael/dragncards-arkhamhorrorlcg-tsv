@@ -923,13 +923,18 @@ public class Card implements Comparable<Card> {
         }
     }
 
-    private static final Pattern USES = Pattern.compile("Uses \\(([0-9]+) ", Pattern.MULTILINE);
+    private static final Pattern USES = Pattern.compile("Uses \\(([0-9X]+) ", Pattern.MULTILINE);
 
     public Integer getUses() {
         if (text != null && text.contains("Uses (")) {
             Matcher m = USES.matcher(text);
             if (m.find()) {
-                return Integer.valueOf(m.group(1));
+                String value = m.group(1);
+                if ("X".equals(value)) {
+                    return -2;
+                } else {
+                    return Integer.valueOf(m.group(1));
+                }
             }
         }
         return null;
