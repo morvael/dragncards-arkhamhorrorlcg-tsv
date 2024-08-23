@@ -1224,11 +1224,21 @@ public class MainExportArkhamDB {
             case "tdoy":
             case "sha":
                 return true;
+            //The Circle Undone
+            case "tcu":
+            case "tsn":
+            case "wos":
+            case "fgg":
+            case "uad":
+            case "icc":
+            case "bbt":
+                return true;
             //Return to...
             case "rtnotz": //Return to the Night of the Zealot
             case "rtdwl": //Return to the Dunwich Legacy
             case "rtptc": //Return to the Path to Carcosa
             case "rttfa": //Return to the Forgotten Age
+            case "rttcu": //Return to the Curcle Undone
                 return true;
             //Investigator Starter Decks
             case "nat":

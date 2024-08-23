@@ -20,4 +20,13 @@
 04264|Player Card
 04303|Player Card
 04343|Player Card
+05150|Player Card
+05177|Player Card
+05227|Player Card
+05228|Player Card
+05258|Player Card
+05259|Player Card
+05260|Player Card
+05261|Player Card
 51052|Player Card
+54041|Player Card

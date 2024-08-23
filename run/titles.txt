@@ -15,5 +15,15 @@
 04249_B|Halls of Pnakotus: Eastern Corridors
 04250_B|Halls of Pnakotus: Western Corridors
 04324_B|Nexus of N'kai: Unraveling the Threads
+05204_B|Lodge Gates: We've Been Expecting You
+05205_B|Lodge Gates: Members Only
+05206_B|Lobby: We've Been Expecting You
+05207_B|Lobby: Members Only
+05208_B|Lodge Cellar: We've Been Expecting You
+05208_B|Lodge Cellar: Members Only
+05302_B|Hangman's Hill: Where It All Ends
+05303_B|Silver Twilight Lodge: Shrouded In Mystery
+05304_B|Hangman's Hill: Shrouded In Mystery
+05305_B|Silver Twilight Lodge: Where It All Ends
 53019_B|Entryway: Rearranged by Time
 53055_B|Halls of Pnakotus: Southern Corridors
