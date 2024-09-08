@@ -20,7 +20,7 @@
 05206_B|Lobby: We've Been Expecting You
 05207_B|Lobby: Members Only
 05208_B|Lodge Cellar: We've Been Expecting You
-05208_B|Lodge Cellar: Members Only
+05209_B|Lodge Cellar: Members Only
 05302_B|Hangman's Hill: Where It All Ends
 05303_B|Silver Twilight Lodge: Shrouded In Mystery
 05304_B|Hangman's Hill: Shrouded In Mystery

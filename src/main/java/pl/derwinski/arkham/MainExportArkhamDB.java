@@ -46,7 +46,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.jsoup.Jsoup;
 import static pl.derwinski.arkham.Util.log;
 import static pl.derwinski.arkham.Util.readBoolean;
 import static pl.derwinski.arkham.Util.readInteger;
@@ -877,13 +876,6 @@ public class MainExportArkhamDB {
         writeString(bw, number != null ? number.toString() : null);
     }
 
-    protected void writeHTML(BufferedWriter bw, String text) throws Exception {
-        if (text != null) {
-            text = Jsoup.parse(text).text().replace("[[", "").replace("]]", "");
-        }
-        writeString(bw, text);
-    }
-
     protected void writeString(BufferedWriter bw, String text) throws Exception {
         if (writeTab) {
             bw.write('\t');
@@ -891,7 +883,7 @@ public class MainExportArkhamDB {
             writeTab = true;
         }
         if (text != null) {
-            bw.write(text);
+            bw.write(text.replace("’", "'").replace("·", "•").replace("“", "\"").replace("”", "\""));
         }
     }
 
