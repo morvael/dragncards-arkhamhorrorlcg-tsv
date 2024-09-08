@@ -883,7 +883,7 @@ public class MainExportArkhamDB {
             writeTab = true;
         }
         if (text != null) {
-            bw.write(text.replace("’", "'").replace("·", "•").replace("“", "\"").replace("”", "\""));
+            bw.write(text.replace("’", "'").replace("·", "•").replace("“", "\"").replace("”", "\"").replace("–", "-"));
         }
     }
 
