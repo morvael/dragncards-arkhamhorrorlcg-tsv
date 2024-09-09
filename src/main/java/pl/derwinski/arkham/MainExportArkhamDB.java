@@ -79,6 +79,7 @@ public class MainExportArkhamDB {
     protected final HashMap<String, String> backOverrides;
     protected final HashSet<String> flipped;
     protected final HashSet<String> unhidden;
+    protected final HashSet<String> ignoreDoublesided;
 
     protected final HashSet<String> unhandledDeckRequirementsRandom = new HashSet<>();
     protected final HashSet<String> unhandledDeckRequirement = new HashSet<>();
@@ -104,6 +105,7 @@ public class MainExportArkhamDB {
         backOverrides = Util.readConfigMap("run/backOverrides.txt");
         flipped = Util.readConfigSet("run/flipped.txt");
         unhidden = Util.readConfigSet("run/unhidden.txt");
+        ignoreDoublesided = Util.readConfigSet("run/ignoreDoublesided.txt");
     }
 
     protected DeckRequirementsRandom readDeckRequirementsRandom(JsonNode c) throws Exception {
@@ -1322,7 +1324,7 @@ public class MainExportArkhamDB {
                         boolean doubleSided = c.getDoubleSided() != null && c.getDoubleSided();
                         boolean linked = c.getLinkedCard() != null;
                         exportFrontSide(imagesDir, bw, c, doubleSided, linked);
-                        if (doubleSided) {
+                        if (doubleSided && ignoreDoublesided.contains(c.getCode()) == false) {
                             exportBackSide(imagesDir, bw, c);
                         } else if (linked) {
                             Card cc = c.getLinkedCard();
