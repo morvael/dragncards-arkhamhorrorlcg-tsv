@@ -878,9 +878,16 @@ public class Card implements Comparable<Card> {
 
     public String getDefaultCardBack(HashMap<String, String> backOverrides) {
         if (backOverrides != null && backOverrides.containsKey(code)) {
+            if (backOverrides.get(code).equals(getDefaultCardBack(null)) == false) {
+                System.out.println(String.format("Back difference for %s: %s vs %s", code, backOverrides.get(code), getDefaultCardBack(null)));
+            }
             return backOverrides.get(code);
         } else if ((spoiler != null && spoiler == 1) || "Story".equals(typeName)) {
-            return "Encounter Card";
+            if ("mythos".equals(factionCode)) {
+                return "Encounter Card";
+            } else {
+                return "Player Card";
+            }
         } else {
             return "Player Card";
         }

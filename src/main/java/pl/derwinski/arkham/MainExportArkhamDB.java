@@ -32,6 +32,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -1027,7 +1028,83 @@ public class MainExportArkhamDB {
         }
     }
 
-    protected void exportFrontSide(File imagesDir, BufferedWriter bw, Card c, boolean doubleSided, boolean linked) throws Exception {
+    protected HashMap<String, String> readCardOverrides(File imagesDir, String overridesPath) throws Exception {
+        HashMap<String, String> map = new HashMap<>();
+        try (Workbook wb = WorkbookFactory.create(new File(overridesPath), null, true)) {
+            Sheet sheet = wb.getSheetAt(0);
+            for (Row row : sheet) {
+                if (row.getRowNum() == 0) {
+                    continue;
+                }
+                int idx = 0;
+                String databaseId = getString(row, idx++);
+                if (databaseId == null) {
+                    continue;
+                }
+                try (StringWriter sw = new StringWriter();
+                        BufferedWriter bw = new BufferedWriter(sw)) {
+                    writeString(bw, databaseId); //databaseId
+                    writeString(bw, getString(row, idx++)); //name
+                    writeString(bw, getImageUrl(imagesDir, getString(row, idx++), null)); //imageUrl
+                    writeString(bw, getString(row, idx++)); //cardBack
+                    writeString(bw, getString(row, idx++)); //type
+                    writeString(bw, getString(row, idx++)); //subtype
+                    writeString(bw, getString(row, idx++)); //packName
+                    writeInteger(bw, getInteger(row, idx++)); //deckbuilderQuantity
+                    writeString(bw, getString(row, idx++)); //setUuid
+                    writeInteger(bw, getInteger(row, idx++)); //numberInPack
+                    writeString(bw, getString(row, idx++)); //encounterSet
+                    writeInteger(bw, getInteger(row, idx++)); //encounterNumber
+                    writeBoolean(bw, getBoolean(row, idx++)); //unique
+                    writeBoolean(bw, getBoolean(row, idx++)); //permanent
+                    writeBoolean(bw, getBoolean(row, idx++)); //exceptional
+                    writeBoolean(bw, getBoolean(row, idx++)); //myriad
+                    writeString(bw, getString(row, idx++)); //faction
+                    writeString(bw, getString(row, idx++)); //traits
+                    String side = getString(row, idx++);
+                    writeString(bw, side); //side
+                    writeInteger(bw, getInteger(row, idx++)); //xp
+                    writeInteger(bw, getInteger(row, idx++)); //cost
+                    writeInteger(bw, getInteger(row, idx++)); //skillWillpower
+                    writeInteger(bw, getInteger(row, idx++)); //skillIntellect
+                    writeInteger(bw, getInteger(row, idx++)); //skillCombat
+                    writeInteger(bw, getInteger(row, idx++)); //skillAgility
+                    writeInteger(bw, getInteger(row, idx++)); //skillWild
+                    writeInteger(bw, getInteger(row, idx++)); //health
+                    writeBoolean(bw, getBoolean(row, idx++)); //healthPerInvestigator
+                    writeInteger(bw, getInteger(row, idx++)); //sanity
+                    writeInteger(bw, getInteger(row, idx++)); //uses
+                    writeInteger(bw, getInteger(row, idx++)); //enemyDamage
+                    writeInteger(bw, getInteger(row, idx++)); //enemyHorror
+                    writeInteger(bw, getInteger(row, idx++)); //enemyFight
+                    writeInteger(bw, getInteger(row, idx++)); //enemyEvade
+                    writeInteger(bw, getInteger(row, idx++)); //shroud
+                    writeInteger(bw, getInteger(row, idx++)); //doom
+                    writeInteger(bw, getInteger(row, idx++)); //clues
+                    writeBoolean(bw, getBoolean(row, idx++)); //cluesFixed
+                    writeInteger(bw, getInteger(row, idx++)); //victoryPoints
+                    writeInteger(bw, getInteger(row, idx++)); //vengeance
+                    writeInteger(bw, getInteger(row, idx++)); //stage
+                    writeBoolean(bw, getBoolean(row, idx++)); //action
+                    writeBoolean(bw, getBoolean(row, idx++)); //reaction
+                    writeBoolean(bw, getBoolean(row, idx++)); //free
+                    writeBoolean(bw, getBoolean(row, idx++)); //hasBonded
+                    writeString(bw, getString(row, idx++)); //text
+                    newLine(bw);
+                    bw.flush();
+                    map.put(String.format("%s_%s", databaseId, side != null && side.length() > 0 ? side : "null"), sw.toString());
+                }
+            }
+        }
+        return map;
+    }
+
+    protected void exportFrontSide(File imagesDir, BufferedWriter bw, Card c, boolean doubleSided, boolean linked, HashMap<String, String> overrides) throws Exception {
+        String key = String.format("%s_%s", c.getCode(), doubleSided || linked ? "A" : "null");
+        if (overrides.containsKey(key)) {
+            bw.write(overrides.get(key));
+            return;
+        }
         writeString(bw, c.getCode()); //databaseId
         writeString(bw, titles.getOrDefault(String.format("%s_A", c.getCode()), c.getFullName(true))); //name
         writeString(bw, getImageUrl(imagesDir, c.getCode(), true)); //imageUrl
@@ -1077,7 +1154,12 @@ public class MainExportArkhamDB {
         newLine(bw);
     }
 
-    protected void exportBackSide(File imagesDir, BufferedWriter bw, Card c) throws Exception {
+    protected void exportBackSide(File imagesDir, BufferedWriter bw, Card c, HashMap<String, String> overrides) throws Exception {
+        String key = String.format("%s_%s", c.getCode(), "B");
+        if (overrides.containsKey(key)) {
+            bw.write(overrides.get(key));
+            return;
+        }
         writeString(bw, c.getCode()); //databaseId
         writeString(bw, titles.getOrDefault(String.format("%s_B", c.getCode()), c.getBackName() != null ? c.getBackName() : c.getFullName("Location".equals(c.getTypeName()) == false))); //name
         writeString(bw, getImageUrl(imagesDir, c.getCode(), false)); //imageUrl
@@ -1127,7 +1209,12 @@ public class MainExportArkhamDB {
         newLine(bw);
     }
 
-    protected void exportLinked(File imagesDir, BufferedWriter bw, Card c, Card cc) throws Exception {
+    protected void exportLinked(File imagesDir, BufferedWriter bw, Card c, Card cc, HashMap<String, String> overrides) throws Exception {
+        String key = String.format("%s_%s", c.getCode(), "B");
+        if (overrides.containsKey(key)) {
+            bw.write(overrides.get(key));
+            return;
+        }
         writeString(bw, c.getCode()); //databaseId: multi_sided must share
         writeString(bw, titles.getOrDefault(String.format("%s_B", c.getCode()), cc.getFullName(true))); //name
         writeString(bw, getImageUrl(imagesDir, c.getCode(), false)); //imageUrl
@@ -1227,6 +1314,15 @@ public class MainExportArkhamDB {
             case "icc":
             case "bbt":
                 return true;
+            //The Dream-Eaters
+            case "tde":
+            case "sfk":
+            case "tsh":
+            case "dsm":
+            case "pnr":
+            case "wgd":
+            case "woc":
+                return true;
             //Return to...
             case "rtnotz": //Return to the Night of the Zealot
             case "rtdwl": //Return to the Dunwich Legacy
@@ -1257,7 +1353,7 @@ public class MainExportArkhamDB {
         }
     }
 
-    protected void exportCards(Cards cards, String predefinedPath, String path, String imagesPath) throws Exception {
+    protected void exportCards(Cards cards, String predefinedPath, String overridesPath, String path, String imagesPath) throws Exception {
         File file = new File(path);
         File imagesDir = new File(imagesPath);
         if (cards != null && cards.getCards() != null && cards.getCards().isEmpty() == false) {
@@ -1312,23 +1408,27 @@ public class MainExportArkhamDB {
                 writeString(bw, "text");
                 newLine(bw);
                 exportDefaultCards(imagesDir, bw, predefinedPath);
+                HashMap<String, String> overrides = readCardOverrides(imagesDir, overridesPath);
                 for (Card c : cards) {
                     if (filter(c) == false) { //skip cards outside core set for now
                         continue;
                     }
                     if (flipped.contains(c.getCode())) {
                         Card cc = c.getLinkedCard();
-                        exportFrontSide(imagesDir, bw, cc, false, true);
-                        exportLinked(imagesDir, bw, cc, c);
+                        exportFrontSide(imagesDir, bw, cc, false, true, overrides);
+                        exportLinked(imagesDir, bw, cc, c, overrides);
                     } else {
                         boolean doubleSided = c.getDoubleSided() != null && c.getDoubleSided();
                         boolean linked = c.getLinkedCard() != null;
-                        exportFrontSide(imagesDir, bw, c, doubleSided, linked);
+                        if (doubleSided && linked && ignoreDoublesided.contains(c.getCode()) == false) {
+                            System.out.println(String.format("Double-sided and linked for %s", c.getCode()));
+                        }
+                        exportFrontSide(imagesDir, bw, c, doubleSided, linked, overrides);
                         if (doubleSided && ignoreDoublesided.contains(c.getCode()) == false) {
-                            exportBackSide(imagesDir, bw, c);
+                            exportBackSide(imagesDir, bw, c, overrides);
                         } else if (linked) {
                             Card cc = c.getLinkedCard();
-                            exportLinked(imagesDir, bw, c, cc);
+                            exportLinked(imagesDir, bw, c, cc, overrides);
                         }
                     }
                 }
@@ -1486,7 +1586,7 @@ public class MainExportArkhamDB {
     public void run() throws Exception {
         Util.downloadIfOld("https://arkhamdb.com/api/public/cards/?encounter=1", "run/cards.json");
         Cards cards = loadCards("run/cards.json");
-        exportCards(cards, "run/predefined.xlsx", "run/arkhamhorrorlcg.tsv", "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/images");
+        exportCards(cards, "run/predefined.xlsx", "run/overrides.xlsx", "run/arkhamhorrorlcg.tsv", "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/images");
         exportWeaknesses(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Weakness.json");
         exportBonded(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Bonded.json");
     }

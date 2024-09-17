@@ -25,5 +25,9 @@
 05303_B|Silver Twilight Lodge: Shrouded In Mystery
 05304_B|Hangman's Hill: Shrouded In Mystery
 05305_B|Silver Twilight Lodge: Where It All Ends
+06045_B|Seventy Steps: Of Lighter Slumber
+06047_B|Seven Hundred Steps: Of Deeper Slumber
+06219_B|Caverns Beneath the Moon: Dark Side
+06221_B|Caverns Beneath the Moon: Light Side
 53019_B|Entryway: Rearranged by Time
 53055_B|Halls of Pnakotus: Southern Corridors

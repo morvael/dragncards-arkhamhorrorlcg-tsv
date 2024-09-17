@@ -28,5 +28,15 @@
 05259|Player Card
 05260|Player Card
 05261|Player Card
+06059|Player Card
+06079|Player Card
+06080|Player Card
+06144|Player Card
+06189|Player Card
+06224|Player Card
+06225|Player Card
+06233|Player Card
+06266|Player Card
+06275|Player Card
 51052|Player Card
 54041|Player Card
