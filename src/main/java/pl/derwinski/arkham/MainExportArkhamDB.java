@@ -81,6 +81,8 @@ public class MainExportArkhamDB {
     protected final HashSet<String> flipped;
     protected final HashSet<String> unhidden;
     protected final HashSet<String> ignoreDoublesided;
+    protected final HashSet<String> skipBonded;
+    protected final HashSet<String> bondedForEach;
 
     protected final HashSet<String> unhandledDeckRequirementsRandom = new HashSet<>();
     protected final HashSet<String> unhandledDeckRequirement = new HashSet<>();
@@ -107,6 +109,8 @@ public class MainExportArkhamDB {
         flipped = Util.readConfigSet("run/flipped.txt");
         unhidden = Util.readConfigSet("run/unhidden.txt");
         ignoreDoublesided = Util.readConfigSet("run/ignoreDoublesided.txt");
+        skipBonded = Util.readConfigSet("run/skipBonded.txt");
+        bondedForEach = Util.readConfigSet("run/bondedForEach.txt");
     }
 
     protected DeckRequirementsRandom readDeckRequirementsRandom(JsonNode c) throws Exception {
@@ -1540,7 +1544,7 @@ public class MainExportArkhamDB {
                     if (filter(c) == false) { //skip cards outside core set for now
                         continue;
                     }
-                    if (bondedCards.containsKey(c.getName())) {
+                    if (bondedCards.containsKey(c.getName()) && skipBonded.contains(c.getCode()) == false) {
                         cardsWithBonded.add(c);
                     }
                 }
@@ -1557,16 +1561,16 @@ public class MainExportArkhamDB {
                     line(bw, String.format("                    [\"EQUAL\", \"$DATABASE_ID\", \"%s\"],", c.getCode()));
                     ArrayList<Card> bcs = bondedCards.get(c.getName());
                     if (c.getCode().equals("10015")) {
-                        line(bw, "                    [\"DO_CREATE_CARDS\", \"$TARGET_PLAYER\", \"Hank Samson\", \"10016\", 1, \"$TARGET_PLAYER_ASIDE\", true, null]");
+                        line(bw, "                    [\"DO_CREATE_MISSING_CARDS\", \"$TARGET_PLAYER\", \"Hank Samson\", \"10016\", 1, \"$TARGET_PLAYER_ASIDE\", true, null]");
                     } else if (bcs.size() == 1) {
                         Card bc = bcs.get(0);
-                        line(bw, String.format("                    [\"DO_CREATE_CARDS\", \"$TARGET_PLAYER\", \"%s\", \"%s\", %d, \"$TARGET_PLAYER_ASIDE\", true, null],", bc.getName().replace("\"", "\\\""), bc.getCode(), bc.getBondedCount()));
+                        line(bw, String.format("                    [\"%s\", \"$TARGET_PLAYER\", \"%s\", \"%s\", %d, \"$TARGET_PLAYER_ASIDE\", true, null],", bondedForEach.contains(bc.getCode()) ? "DO_CREATE_CARDS" : "DO_CREATE_MISSING_CARDS", bc.getName().replace("\"", "\\\""), bc.getCode(), bc.getBondedCount()));
                     } else {
                         line(bw, "                    [");
                         int size = bcs.size();
                         for (int i = 0; i < size; i++) {
                             Card bc = bcs.get(i);
-                            line(bw, String.format("                        [\"DO_CREATE_CARDS\", \"$TARGET_PLAYER\", \"%s\", \"%s\", %d, \"$TARGET_PLAYER_ASIDE\", true, null]%s", bc.getName().replace("\"", "\\\""), bc.getCode(), bc.getBondedCount(), i + 1 == size ? "" : ","));
+                            line(bw, String.format("                        [\"%s\", \"$TARGET_PLAYER\", \"%s\", \"%s\", %d, \"$TARGET_PLAYER_ASIDE\", true, null]%s", bondedForEach.contains(bc.getCode()) ? "DO_CREATE_CARDS" : "DO_CREATE_MISSING_CARDS", bc.getName().replace("\"", "\\\""), bc.getCode(), bc.getBondedCount(), i + 1 == size ? "" : ","));
                         }
                         line(bw, "                    ],");
                     }
