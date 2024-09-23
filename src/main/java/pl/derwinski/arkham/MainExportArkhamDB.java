@@ -1419,6 +1419,9 @@ public class MainExportArkhamDB {
                     }
                     if (flipped.contains(c.getCode())) {
                         Card cc = c.getLinkedCard();
+                        String ccCode = cc.getCode();
+                        cc.setCode(c.getCode());
+                        c.setCode(ccCode);
                         exportFrontSide(imagesDir, bw, cc, false, true, overrides);
                         exportLinked(imagesDir, bw, cc, c, overrides);
                     } else {
