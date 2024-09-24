@@ -26,11 +26,13 @@
  */
 package pl.derwinski.arkham.json;
 
+import pl.derwinski.arkham.Copyable;
+
 /**
  *
  * @author morvael
  */
-public class DeckOptionAtLeast {
+public class DeckOptionAtLeast implements Copyable<DeckOptionAtLeast> {
 
     private Integer factions;
     private Integer min;
@@ -53,6 +55,14 @@ public class DeckOptionAtLeast {
 
     public void setMin(Integer min) {
         this.min = min;
+    }
+
+    @Override
+    public DeckOptionAtLeast copy() {
+        DeckOptionAtLeast o = new DeckOptionAtLeast();
+        o.factions = factions;
+        o.min = min;
+        return o;
     }
 
 }

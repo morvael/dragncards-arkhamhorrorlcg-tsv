@@ -26,11 +26,14 @@
  */
 package pl.derwinski.arkham.json;
 
+import pl.derwinski.arkham.Copyable;
+import pl.derwinski.arkham.Util;
+
 /**
  *
  * @author morvael
  */
-public class CustomizationOption {
+public class CustomizationOption implements Copyable<CustomizationOption> {
 
     private Integer xp;
     private String realTraits;
@@ -161,6 +164,26 @@ public class CustomizationOption {
 
     public void setDeckLimit(Integer deckLimit) {
         this.deckLimit = deckLimit;
+    }
+
+    @Override
+    public CustomizationOption copy() {
+        CustomizationOption o = new CustomizationOption();
+        o.xp = xp;
+        o.realTraits = realTraits;
+        o.realSlot = realSlot;
+        o.textChange = textChange;
+        o.health = health;
+        o.sanity = sanity;
+        o.cost = cost;
+        o.realText = realText;
+        o.tags = tags;
+        o.position = position;
+        o.choice = choice;
+        o.quantity = quantity;
+        o.card = Util.copy(card);
+        o.deckLimit = deckLimit;
+        return o;
     }
 
 }

@@ -26,11 +26,13 @@
  */
 package pl.derwinski.arkham.json;
 
+import pl.derwinski.arkham.Copyable;
+
 /**
  *
  * @author morvael
  */
-public class ErrataDate {
+public class ErrataDate implements Copyable<ErrataDate> {
 
     private String date;
     private Integer timezoneType;
@@ -62,6 +64,15 @@ public class ErrataDate {
 
     public void setTimezone(String timezone) {
         this.timezone = timezone;
+    }
+
+    @Override
+    public ErrataDate copy() {
+        ErrataDate o = new ErrataDate();
+        o.date = date;
+        o.timezoneType = timezoneType;
+        o.timezone = timezone;
+        return o;
     }
 
 }

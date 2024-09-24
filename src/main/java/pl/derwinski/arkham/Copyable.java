@@ -24,45 +24,14 @@
  *
  * For more information, please refer to <http://unlicense.org/>
  */
-package pl.derwinski.arkham.json;
-
-import pl.derwinski.arkham.Copyable;
+package pl.derwinski.arkham;
 
 /**
  *
  * @author morvael
  */
-public class DeckRequirementsRandom implements Copyable<DeckRequirementsRandom> {
+public interface Copyable<T> {
 
-    private String target;
-    private String value;
-
-    public DeckRequirementsRandom() {
-
-    }
-
-    public String getTarget() {
-        return target;
-    }
-
-    public void setTarget(String target) {
-        this.target = target;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    @Override
-    public DeckRequirementsRandom copy() {
-        DeckRequirementsRandom o = new DeckRequirementsRandom();
-        o.target = target;
-        o.value = value;
-        return o;
-    }
+    T copy();
 
 }

@@ -28,12 +28,14 @@ package pl.derwinski.arkham.json;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import pl.derwinski.arkham.Copyable;
+import pl.derwinski.arkham.Util;
 
 /**
  *
  * @author morvael
  */
-public class DeckRequirements {
+public class DeckRequirements implements Copyable<DeckRequirements> {
 
     private Integer size;
     private LinkedHashMap<String, LinkedHashMap<String, String>> card;
@@ -65,6 +67,15 @@ public class DeckRequirements {
 
     public void setRandom(ArrayList<DeckRequirementsRandom> random) {
         this.random = random;
+    }
+
+    @Override
+    public DeckRequirements copy() {
+        DeckRequirements o = new DeckRequirements();
+        o.size = size;
+        o.card = Util.simpleMapMapCopy(card);
+        o.random = Util.copy(random);
+        return o;
     }
 
 }

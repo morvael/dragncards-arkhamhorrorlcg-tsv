@@ -41,6 +41,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
@@ -231,6 +232,50 @@ public final class Util {
     public static void log(Throwable t) {
         System.err.println(t.getMessage());
         t.printStackTrace(System.err);
+    }
+
+    public static ArrayList< String> simpleListCopy(ArrayList< String> list) {
+        if (list == null) {
+            return null;
+        } else {
+            return new ArrayList<>(list);
+        }
+    }
+
+    public static LinkedHashMap<String, String> simpleMapCopy(LinkedHashMap<String, String> map) {
+        if (map == null) {
+            return null;
+        } else {
+            return new LinkedHashMap<>(map);
+        }
+    }
+
+    public static LinkedHashMap<String, LinkedHashMap<String, String>> simpleMapMapCopy(LinkedHashMap<String, LinkedHashMap<String, String>> map) {
+        if (map == null) {
+            return null;
+        } else {
+            LinkedHashMap<String, LinkedHashMap<String, String>> result = new LinkedHashMap<>(map.size());
+            for (Map.Entry<String, LinkedHashMap<String, String>> e : map.entrySet()) {
+                result.put(e.getKey(), simpleMapCopy(e.getValue()));
+            }
+            return result;
+        }
+    }
+
+    public static <T extends Copyable<T>> T copy(T t) {
+        return t != null ? t.copy() : null;
+    }
+
+    public static <T extends Copyable<T>> ArrayList<T> copy(ArrayList<T> list) {
+        if (list == null) {
+            return null;
+        } else {
+            ArrayList<T> result = new ArrayList<>(list.size());
+            for (T t : list) {
+                result.add(t.copy());
+            }
+            return result;
+        }
     }
 
 }

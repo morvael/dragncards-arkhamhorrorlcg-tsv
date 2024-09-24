@@ -27,12 +27,14 @@
 package pl.derwinski.arkham.json;
 
 import java.util.LinkedHashMap;
+import pl.derwinski.arkham.Copyable;
+import pl.derwinski.arkham.Util;
 
 /**
  *
  * @author morvael
  */
-public class Restrictions {
+public class Restrictions implements Copyable<Restrictions> {
 
     private LinkedHashMap<String, String> investigator;
 
@@ -46,6 +48,13 @@ public class Restrictions {
 
     public void setInvestigator(LinkedHashMap<String, String> investigator) {
         this.investigator = investigator;
+    }
+
+    @Override
+    public Restrictions copy() {
+        Restrictions o = new Restrictions();
+        o.investigator = Util.simpleMapCopy(investigator);
+        return o;
     }
 
 }

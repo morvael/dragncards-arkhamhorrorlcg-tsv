@@ -83,6 +83,8 @@ public class MainExportArkhamDB {
     protected final HashSet<String> ignoreDoublesided;
     protected final HashSet<String> skipBonded;
     protected final HashSet<String> bondedForEach;
+    protected final HashMap<String, String> parallel;
+    protected final HashMap<String, String> parallelMini;
 
     protected final HashSet<String> unhandledDeckRequirementsRandom = new HashSet<>();
     protected final HashSet<String> unhandledDeckRequirement = new HashSet<>();
@@ -97,6 +99,7 @@ public class MainExportArkhamDB {
     protected final HashSet<String> unhandledCard = new HashSet<>();
 
     protected final HashMap<String, ArrayList<Card>> bondedCards = new HashMap<>();
+    protected final HashMap<String, Card> parallelCards = new HashMap<>();
 
     protected boolean writeTab;
 
@@ -111,6 +114,11 @@ public class MainExportArkhamDB {
         ignoreDoublesided = Util.readConfigSet("run/ignoreDoublesided.txt");
         skipBonded = Util.readConfigSet("run/skipBonded.txt");
         bondedForEach = Util.readConfigSet("run/bondedForEach.txt");
+        parallel = Util.readConfigMap("run/parallel.txt");
+        for (Map.Entry<String, String> e : parallel.entrySet()) {
+            parallel.put(e.getValue(), e.getKey());
+        }
+        parallelMini = Util.readConfigMap("run/parallelMini.txt");
     }
 
     protected DeckRequirementsRandom readDeckRequirementsRandom(JsonNode c) throws Exception {
@@ -847,6 +855,9 @@ public class MainExportArkhamDB {
                 }
                 list.add(card);
             }
+            if (parallel.containsKey(card.getCode())) {
+                parallelCards.put(card.getCode(), card);
+            }
             return card;
         } else {
             if (c.isNull() == false) {
@@ -864,6 +875,15 @@ public class MainExportArkhamDB {
             cards.setCards(new ArrayList<>(c.size()));
             for (int i = 0; i < c.size(); i++) {
                 cards.getCards().add(readCard(c.get(i)));
+            }
+            for (Map.Entry<String, String> e : parallel.entrySet()) {
+                Card c1 = parallelCards.get(e.getKey());
+                Card c2 = parallelCards.get(e.getValue());
+                if (c1 != null && c2 != null) {
+                    cards.getCards().add(c1.parallelClone(c2));
+                } else {
+                    log("Missing parallel cards data for %s and/or %s", e.getKey(), e.getValue());
+                }
             }
             cards.getCards().sort(null);
             return cards;
@@ -1111,14 +1131,14 @@ public class MainExportArkhamDB {
         }
         writeString(bw, c.getCode()); //databaseId
         writeString(bw, titles.getOrDefault(String.format("%s_A", c.getCode()), c.getFullName(true))); //name
-        writeString(bw, getImageUrl(imagesDir, c.getCode(), true)); //imageUrl
+        writeString(bw, getImageUrl(imagesDir, c.getImageCode(true), true)); //imageUrl
         writeString(bw, doubleSided || linked ? "multi_sided" : c.getDefaultCardBack(backOverrides)); //cardBack
         writeString(bw, types.getOrDefault(String.format("%s_%s", c.getCode(), c.getTypeName()), c.getTypeName())); //type
         writeString(bw, weaknesses.getOrDefault(c.getCode(), c.getSubtypeName())); //subtype
         writeString(bw, c.getPackName()); //packName
         writeInteger(bw, c.getDeckbuilderQuantity()); //deckbuilderQuantity
         writeString(bw, c.getPackCode()); //setUuid
-        writeInteger(bw, c.getPosition()); //numberInPack
+        writeInteger(bw, c.getPosition(true)); //numberInPack
         writeString(bw, c.getEncounterName()); //encounterSet
         writeInteger(bw, c.getEncounterPosition()); //encounterNumber
         writeBoolean(bw, c.getUnique()); //unique
@@ -1166,14 +1186,14 @@ public class MainExportArkhamDB {
         }
         writeString(bw, c.getCode()); //databaseId
         writeString(bw, titles.getOrDefault(String.format("%s_B", c.getCode()), c.getBackName() != null ? c.getBackName() : c.getFullName("Location".equals(c.getTypeName()) == false))); //name
-        writeString(bw, getImageUrl(imagesDir, c.getCode(), false)); //imageUrl
+        writeString(bw, getImageUrl(imagesDir, c.getImageCode(false), false)); //imageUrl
         writeString(bw, "multi_sided"); //cardBack
         writeString(bw, types.getOrDefault(String.format("%s_%s", c.getCode(), c.getTypeName()), c.getTypeName())); //type
         writeString(bw, weaknesses.getOrDefault(c.getCode(), c.getSubtypeName())); //subtype
         writeString(bw, c.getPackName()); //packName
         writeInteger(bw, c.getDeckbuilderQuantity()); //deckbuilderQuantity
         writeString(bw, c.getPackCode()); //setUuid
-        writeInteger(bw, c.getPosition()); //numberInPack
+        writeInteger(bw, c.getPosition(false)); //numberInPack
         writeString(bw, c.getEncounterName()); //encounterSet
         writeInteger(bw, c.getEncounterPosition()); //encounterNumber
         writeBoolean(bw, c.getUnique()); //unique
@@ -1221,14 +1241,14 @@ public class MainExportArkhamDB {
         }
         writeString(bw, c.getCode()); //databaseId: multi_sided must share
         writeString(bw, titles.getOrDefault(String.format("%s_B", c.getCode()), cc.getFullName(true))); //name
-        writeString(bw, getImageUrl(imagesDir, c.getCode(), false)); //imageUrl
+        writeString(bw, getImageUrl(imagesDir, c.getImageCode(false), false)); //imageUrl
         writeString(bw, "multi_sided"); //cardBack
         writeString(bw, types.getOrDefault(String.format("%s_%s", c.getCode(), cc.getTypeName()), cc.getTypeName())); //type
         writeString(bw, weaknesses.getOrDefault(cc.getCode(), cc.getSubtypeName())); //subtype
         writeString(bw, cc.getPackName()); //packName
         writeInteger(bw, cc.getDeckbuilderQuantity()); //deckbuilderQuantity
         writeString(bw, cc.getPackCode()); //setUuid
-        writeInteger(bw, cc.getPosition()); //numberInPack
+        writeInteger(bw, cc.getPosition(false)); //numberInPack
         writeString(bw, cc.getEncounterName()); //encounterSet
         writeInteger(bw, cc.getEncounterPosition()); //encounterNumber
         writeBoolean(bw, cc.getUnique()); //unique
@@ -1351,6 +1371,9 @@ public class MainExportArkhamDB {
             case "bob":
             case "dre":
             case "promo":
+                return true;
+            //Parallel
+            case "rod":
                 return true;
             default:
                 return false;
@@ -1590,12 +1613,46 @@ public class MainExportArkhamDB {
         }
     }
 
+    protected void exportMini(Cards cards, String path) throws Exception {
+        File file = new File(path);
+        if (file.exists() == false) {
+            file = new File("run/Core Mini.json");
+        }
+        if (cards != null && cards.getCards() != null && cards.getCards().isEmpty() == false) {
+            try (FileOutputStream fos = new FileOutputStream(file, false);
+                    OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
+                    BufferedWriter bw = new BufferedWriter(osw)) {
+                line(bw, "{");
+                line(bw, "    \"functions\": {");
+                line(bw, "        \"GET_MINI_ID\": {");
+                line(bw, "            \"args\": [\"$PREFIX\", \"$DATABASE_ID\"],");
+                line(bw, "            \"code\": [");
+                line(bw, "                [\"VALIDATE_NOT_EMPTY\", \"$PREFIX\", \"GET_MINI_ID.$PREFIX\"],");
+                line(bw, "                [\"VALIDATE_NOT_EMPTY\", \"$DATABASE_ID\", \"GET_MINI_ID.DATABASE_ID\"],");
+                line(bw, "                [\"COND\",");
+                for (Map.Entry<String, String> e : parallelMini.entrySet()) {
+                    line(bw, String.format("                    [\"EQUAL\", \"$DATABASE_ID\", \"%s\"],", e.getKey()));
+                    line(bw, String.format("                    \"{{$PREFIX}}%s\",", e.getValue()));
+                }
+                line(bw, "                    [\"TRUE\"],");
+                line(bw, "                    \"{{$PREFIX}}{{$DATABASE_ID}}\"");
+                line(bw, "                ]");
+                line(bw, "            ]");
+                line(bw, "        }");
+                line(bw, "    }");
+                line(bw, "}");
+                bw.flush();
+            }
+        }
+    }
+
     public void run() throws Exception {
         Util.downloadIfOld("https://arkhamdb.com/api/public/cards/?encounter=1", "run/cards.json");
         Cards cards = loadCards("run/cards.json");
         exportCards(cards, "run/predefined.xlsx", "run/overrides.xlsx", "run/arkhamhorrorlcg.tsv", "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/images");
         exportWeaknesses(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Weakness.json");
         exportBonded(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Bonded.json");
+        exportMini(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Mini.json");
     }
 
     public static void main(String[] args) {

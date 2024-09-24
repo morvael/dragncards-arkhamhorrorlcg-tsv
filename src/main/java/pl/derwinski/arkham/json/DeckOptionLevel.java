@@ -26,11 +26,13 @@
  */
 package pl.derwinski.arkham.json;
 
+import pl.derwinski.arkham.Copyable;
+
 /**
  *
  * @author morvael
  */
-public class DeckOptionLevel {
+public class DeckOptionLevel implements Copyable<DeckOptionLevel> {
 
     private Integer min;
     private Integer max;
@@ -53,6 +55,14 @@ public class DeckOptionLevel {
 
     public void setMax(Integer max) {
         this.max = max;
+    }
+
+    @Override
+    public DeckOptionLevel copy() {
+        DeckOptionLevel o = new DeckOptionLevel();
+        o.min = min;
+        o.max = max;
+        return o;
     }
 
 }

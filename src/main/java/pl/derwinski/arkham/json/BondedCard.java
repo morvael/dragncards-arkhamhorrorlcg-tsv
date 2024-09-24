@@ -26,11 +26,13 @@
  */
 package pl.derwinski.arkham.json;
 
+import pl.derwinski.arkham.Copyable;
+
 /**
  *
  * @author morvael
  */
-public class BondedCard {
+public class BondedCard implements Copyable<BondedCard> {
 
     private Integer count;
     private String code;
@@ -53,6 +55,14 @@ public class BondedCard {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    @Override
+    public BondedCard copy() {
+        BondedCard o = new BondedCard();
+        o.count = count;
+        o.code = code;
+        return o;
     }
 
 }

@@ -27,12 +27,14 @@
 package pl.derwinski.arkham.json;
 
 import java.util.ArrayList;
+import pl.derwinski.arkham.Copyable;
+import pl.derwinski.arkham.Util;
 
 /**
  *
  * @author morvael
  */
-public class DeckOption {
+public class DeckOption implements Copyable<DeckOption> {
 
     private ArrayList<String> faction;
     private DeckOptionLevel level;
@@ -217,6 +219,32 @@ public class DeckOption {
 
     public void setSize(Integer size) {
         this.size = size;
+    }
+
+    @Override
+    public DeckOption copy() {
+        DeckOption o = new DeckOption();
+        o.faction = Util.simpleListCopy(faction);
+        o.level = Util.copy(level);
+        o.limit = limit;
+        o.error = error;
+        o.not = not;
+        o.trait = Util.simpleListCopy(trait);
+        o.tag = Util.simpleListCopy(tag);
+        o.atLeast = Util.copy(atLeast);
+        o.uses = Util.simpleListCopy(uses);
+        o.text = Util.simpleListCopy(text);
+        o.name = name;
+        o.factionSelect = Util.simpleListCopy(factionSelect);
+        o.type = Util.simpleListCopy(type);
+        o.deckSizeSelect = Util.simpleListCopy(deckSizeSelect);
+        o.slot = Util.simpleListCopy(slot);
+        o.optionSelect = Util.copy(optionSelect);
+        o.id = id;
+        o.permanent = permanent;
+        o.baseLevel = Util.copy(baseLevel);
+        o.size = size;
+        return o;
     }
 
 }

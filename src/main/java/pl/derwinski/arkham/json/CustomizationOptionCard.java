@@ -27,12 +27,14 @@
 package pl.derwinski.arkham.json;
 
 import java.util.ArrayList;
+import pl.derwinski.arkham.Copyable;
+import pl.derwinski.arkham.Util;
 
 /**
  *
  * @author morvael
  */
-public class CustomizationOptionCard {
+public class CustomizationOptionCard implements Copyable<CustomizationOptionCard> {
 
     private ArrayList<String> type;
     private ArrayList<String> trait;
@@ -55,6 +57,14 @@ public class CustomizationOptionCard {
 
     public void setTrait(ArrayList<String> trait) {
         this.trait = trait;
+    }
+
+    @Override
+    public CustomizationOptionCard copy() {
+        CustomizationOptionCard o = new CustomizationOptionCard();
+        o.type = Util.simpleListCopy(type);
+        o.trait = Util.simpleListCopy(trait);
+        return o;
     }
 
 }

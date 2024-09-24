@@ -30,13 +30,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import pl.derwinski.arkham.Copyable;
+import pl.derwinski.arkham.Util;
 import static pl.derwinski.arkham.Util.log;
 
 /**
  *
  * @author morvael
  */
-public class Card implements Comparable<Card> {
+public class Card implements Comparable<Card>, Copyable<Card> {
 
     private String packCode;
     private String packName;
@@ -126,10 +128,133 @@ public class Card implements Comparable<Card> {
     private ArrayList<CustomizationOption> customizationOptions;
     private Integer id;
 
+    private boolean parallel;
+    private String frontCode;
+    private Integer frontPosition;
+    private String backCode;
+    private Integer backPosition;
+
     private Long sortOrder;
 
     public Card() {
 
+    }
+
+    public Card parallelClone(Card back) {
+        this.hidden = null;
+        back.hidden = null;
+        Card c = copy();
+        c.parallel = true;
+        c.frontCode = c.code;
+        c.frontPosition = c.position;
+        c.backCode = back.code;
+        c.backPosition = back.position;
+        c.code = String.format("%s%s", c.code, back.code);
+        c.backName = back.backName;
+        c.backText = back.backText;
+        c.backFlavor = back.backFlavor;
+        c.backimagesrc = back.backimagesrc;
+        c.packCode = back.code.startsWith("9") ? back.packCode : c.packCode;
+        c.packName = String.format("%s / %s", c.packName, back.packName);
+        return c;
+    }
+
+    @Override
+    public Card copy() {
+        Card o = new Card();
+        o.packCode = packCode;
+        o.packName = packName;
+        o.typeCode = typeCode;
+        o.typeName = typeName;
+        o.factionCode = factionCode;
+        o.factionName = factionName;
+        o.position = position;
+        o.exceptional = exceptional;
+        o.myriad = myriad;
+        o.code = code;
+        o.name = name;
+        o.realName = realName;
+        o.subname = subname;
+        o.text = text;
+        o.realText = realText;
+        o.quantity = quantity;
+        o.skillWillpower = skillWillpower;
+        o.skillIntellect = skillIntellect;
+        o.skillCombat = skillCombat;
+        o.skillAgility = skillAgility;
+        o.health = health;
+        o.healthPerInvestigator = healthPerInvestigator;
+        o.sanity = sanity;
+        o.deckLimit = deckLimit;
+        o.realSlot = realSlot;
+        o.traits = traits;
+        o.realTraits = realTraits;
+        o.deckRequirements = Util.copy(deckRequirements);
+        o.deckOptions = Util.copy(deckOptions);
+        o.flavor = flavor;
+        o.illustrator = illustrator;
+        o.unique = unique;
+        o.permanent = permanent;
+        o.doubleSided = doubleSided;
+        o.backText = backText;
+        o.backFlavor = backFlavor;
+        o.octgnId = octgnId;
+        o.url = url;
+        o.imagesrc = imagesrc;
+        o.backimagesrc = backimagesrc;
+        o.duplicatedBy = Util.simpleListCopy(duplicatedBy);
+        o.alternatedBy = Util.simpleListCopy(alternatedBy);
+        o.cost = cost;
+        o.xp = xp;
+        o.slot = slot;
+        o.subtypeCode = subtypeCode;
+        o.subtypeName = subtypeName;
+        o.errataDate = Util.copy(errataDate);
+        o.skillWild = skillWild;
+        o.restrictions = Util.copy(restrictions);
+        o.encounterCode = encounterCode;
+        o.encounterName = encounterName;
+        o.encounterPosition = encounterPosition;
+        o.spoiler = spoiler;
+        o.enemyDamage = enemyDamage;
+        o.enemyHorror = enemyHorror;
+        o.enemyFight = enemyFight;
+        o.enemyEvade = enemyEvade;
+        o.victory = victory;
+        o.shroud = shroud;
+        o.clues = clues;
+        o.doom = doom;
+        o.stage = stage;
+        o.backName = backName;
+        o.tags = tags;
+        o.linkedToCode = linkedToCode;
+        o.linkedToName = linkedToName;
+        o.linkedCard = Util.copy(linkedCard);
+        o.hidden = hidden;
+        o.cluesFixed = cluesFixed;
+        o.exile = exile;
+        o.vengeance = vengeance;
+        o.faction2Code = faction2Code;
+        o.faction2Name = faction2Name;
+        o.bondedCards = Util.copy(bondedCards);
+        o.bondedTo = bondedTo;
+        o.bondedCount = bondedCount;
+        o.alternateOfCode = alternateOfCode;
+        o.alternateOfName = alternateOfName;
+        o.duplicateOfCode = duplicateOfCode;
+        o.duplicateOfName = duplicateOfName;
+        o.faction3Code = faction3Code;
+        o.faction3Name = faction3Name;
+        o.customizationText = customizationText;
+        o.customizationChange = customizationChange;
+        o.customizationOptions = Util.copy(customizationOptions);
+        o.id = id;
+        o.parallel = parallel;
+        o.frontCode = frontCode;
+        o.frontPosition = frontPosition;
+        o.backCode = backCode;
+        o.backPosition = backPosition;
+        return o;
     }
 
     public String getPackCode() {
@@ -178,6 +303,14 @@ public class Card implements Comparable<Card> {
 
     public void setFactionName(String factionName) {
         this.factionName = factionName;
+    }
+
+    public Integer getPosition(boolean front) {
+        if (parallel) {
+            return front ? frontPosition : backPosition;
+        } else {
+            return position;
+        }
     }
 
     public Integer getPosition() {
@@ -828,16 +961,52 @@ public class Card implements Comparable<Card> {
         this.id = id;
     }
 
+    public boolean isParallel() {
+        return parallel;
+    }
+
+    public void setParallel(boolean parallel) {
+        this.parallel = parallel;
+    }
+
+    public String getFrontCode() {
+        return frontCode;
+    }
+
+    public void setFrontCode(String frontCode) {
+        this.frontCode = frontCode;
+    }
+
+    public String getBackCode() {
+        return backCode;
+    }
+
+    public void setBackCode(String backCode) {
+        this.backCode = backCode;
+    }
+
+    public String getImageCode(boolean front) {
+        if (parallel) {
+            return front ? frontCode : backCode;
+        } else {
+            return code;
+        }
+    }
+
     private long getSortOrder() {
         if (sortOrder == null) {
-            if (code == null) {
+            String c = code;
+            if (parallel) {
+                c = frontCode.startsWith("9") ? String.format("%sb", frontCode) : String.format("%sc", backCode);
+            }
+            if (c == null) {
                 log("No code for %s", name);
                 return 0;
             }
-            if (Character.isLetter(code.charAt(code.length() - 1))) {
-                sortOrder = Long.parseLong(code.substring(0, code.length() - 1)) * 100L + (Character.toLowerCase(code.charAt(code.length() - 1)) - (int) 'a');
+            if (Character.isLetter(c.charAt(c.length() - 1))) {
+                sortOrder = Long.parseLong(c.substring(0, c.length() - 1)) * 100L + (Character.toLowerCase(c.charAt(c.length() - 1)) - (int) 'a');
             } else {
-                sortOrder = Long.parseLong(code) * 100L;
+                sortOrder = Long.parseLong(c) * 100L;
             }
         }
         return sortOrder;
@@ -853,26 +1022,6 @@ public class Card implements Comparable<Card> {
             return String.format("%s: %s", name, subname);
         } else {
             return name;
-        }
-    }
-
-    public String getCardFront() {
-        if (imagesrc == null || imagesrc.length() == 0) {
-            return "missing.png";
-        } else if (imagesrc.startsWith("/bundles/cards/")) {
-            return imagesrc.substring(15);
-        } else {
-            return String.format("https://arkhamdb.com%s", imagesrc);
-        }
-    }
-
-    public String getCardBack() {
-        if (backimagesrc == null || backimagesrc.length() == 0) {
-            return "missing.png";
-        } else if (backimagesrc.startsWith("/bundles/cards/")) {
-            return backimagesrc.substring(15);
-        } else {
-            return String.format("https://arkhamdb.com%s", backimagesrc);
         }
     }
 
