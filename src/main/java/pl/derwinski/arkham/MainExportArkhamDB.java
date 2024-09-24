@@ -115,7 +115,7 @@ public class MainExportArkhamDB {
         skipBonded = Util.readConfigSet("run/skipBonded.txt");
         bondedForEach = Util.readConfigSet("run/bondedForEach.txt");
         parallel = Util.readConfigMap("run/parallel.txt");
-        for (Map.Entry<String, String> e : parallel.entrySet()) {
+        for (Map.Entry<String, String> e : new HashMap<>(parallel).entrySet()) {
             parallel.put(e.getValue(), e.getKey());
         }
         parallelMini = Util.readConfigMap("run/parallelMini.txt");
@@ -1374,6 +1374,16 @@ public class MainExportArkhamDB {
                 return true;
             //Parallel
             case "rod":
+            case "aon":
+            case "bad":
+            case "btb":
+            case "rtr":
+            case "otr":
+            case "ltr":
+            case "ptr":
+            case "rop":
+            case "hfa":
+            case "pap":
                 return true;
             default:
                 return false;
