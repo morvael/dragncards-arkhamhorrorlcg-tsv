@@ -1,0 +1,11 @@
+/background.webp
+/card_backs/encounter.webp
+/card_backs/player.webp
+/card_backs/tarot.webp
+/card_images/random_basic_weakness.webp
+/chaos_tokens/
+/es/
+/micro_investigators/
+/mini_investigators/
+/standard_tokens/
+/tokens/

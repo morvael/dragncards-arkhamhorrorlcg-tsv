@@ -35,11 +35,13 @@ import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -85,6 +87,7 @@ public class MainExportArkhamDB {
     protected final HashSet<String> bondedForEach;
     protected final HashMap<String, String> parallel;
     protected final HashMap<String, String> parallelMini;
+    protected final HashSet<String> ignorePaths;
 
     protected final HashSet<String> unhandledDeckRequirementsRandom = new HashSet<>();
     protected final HashSet<String> unhandledDeckRequirement = new HashSet<>();
@@ -119,6 +122,7 @@ public class MainExportArkhamDB {
             parallel.put(e.getValue(), e.getKey());
         }
         parallelMini = Util.readConfigMap("run/parallelMini.txt");
+        ignorePaths = Util.readConfigSet("run/ignorePaths.txt");
     }
 
     protected DeckRequirementsRandom readDeckRequirementsRandom(JsonNode c) throws Exception {
@@ -1461,7 +1465,7 @@ public class MainExportArkhamDB {
                         boolean doubleSided = c.getDoubleSided() != null && c.getDoubleSided();
                         boolean linked = c.getLinkedCard() != null;
                         if (doubleSided && linked && ignoreDoublesided.contains(c.getCode()) == false) {
-                            System.out.println(String.format("Double-sided and linked for %s", c.getCode()));
+                            log("Double-sided and linked for %s", c.getCode());
                         }
                         exportFrontSide(imagesDir, bw, c, doubleSided, linked, overrides);
                         if (doubleSided && ignoreDoublesided.contains(c.getCode()) == false) {
@@ -1656,6 +1660,55 @@ public class MainExportArkhamDB {
         }
     }
 
+    protected void testImages(Cards cards, String language, String imagesPath) throws Exception {
+        File imagesDir = new File(imagesPath);
+        File languageDir = new File(imagesDir, language);
+        if (languageDir.exists() == false) {
+            log("Missing language %s", language);
+            return;
+        }
+        String base = imagesDir.getAbsoluteFile().getCanonicalPath();
+        HashSet<String> sourceFiles = new HashSet<>();
+        Collection<File> originalFiles = FileUtils.listFiles(imagesDir, new String[]{"webp"}, true);
+        for (File f : originalFiles) {
+            String relativePath = f.getAbsoluteFile().getCanonicalPath().replace(base, "");
+            boolean ignore = false;
+            for (String ip : ignorePaths) {
+                if (relativePath.startsWith(ip)) {
+                    ignore = true;
+                    break;
+                }
+            }
+            if (ignore == false) {
+                sourceFiles.add(relativePath);
+            }
+        }
+        base = languageDir.getAbsoluteFile().getCanonicalPath();
+        Collection<File> languageFiles = FileUtils.listFiles(languageDir, new String[]{"webp"}, true);
+        ArrayList<String> unwanted = new ArrayList<>();
+        for (File f : languageFiles) {
+            String relativePath = f.getAbsoluteFile().getCanonicalPath().replace(base, "");
+            if (sourceFiles.remove(relativePath) == false) {
+                unwanted.add(relativePath);
+            }
+        }
+        ArrayList<String> missing = new ArrayList<>(sourceFiles);
+        if (missing.isEmpty() == false) {
+            log("Missing %s files:", language);
+            missing.sort(null);
+            for (String s : missing) {
+                log("%s%s", language, s);
+            }
+        }
+        if (unwanted.isEmpty() == false) {
+            log("Unwanted %s files:", language);
+            unwanted.sort(null);
+            for (String s : unwanted) {
+                log("%s%s", language, s);
+            }
+        }
+    }
+
     public void run() throws Exception {
         Util.downloadIfOld("https://arkhamdb.com/api/public/cards/?encounter=1", "run/cards.json");
         Cards cards = loadCards("run/cards.json");
@@ -1663,6 +1716,7 @@ public class MainExportArkhamDB {
         exportWeaknesses(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Weakness.json");
         exportBonded(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Bonded.json");
         exportMini(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Mini.json");
+        testImages(cards, "es", "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/images");
     }
 
     public static void main(String[] args) {
