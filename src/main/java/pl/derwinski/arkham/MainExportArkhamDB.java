@@ -1451,7 +1451,7 @@ public class MainExportArkhamDB {
                 exportDefaultCards(imagesDir, bw, predefinedPath);
                 HashMap<String, String> overrides = readCardOverrides(imagesDir, overridesPath);
                 for (Card c : cards) {
-                    if (filter(c) == false) { //skip cards outside core set for now
+                    if (filter(c) == false) {
                         continue;
                     }
                     if (flipped.contains(c.getCode())) {
