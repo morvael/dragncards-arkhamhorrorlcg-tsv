@@ -55,6 +55,7 @@ public class MainTestPlugin {
     private final LinkedHashMap<String, File> rules = new LinkedHashMap<>();
 
     private static final HashSet<String> ignoredFunctions = new HashSet<>();
+    private static final HashSet<String> ignoredPrebuildDecks = new HashSet<>();
 
     static {
         ignoredFunctions.add("\"DISAPPEARANCE_AT_THE_TWILIGHT_ESTATE_PRE_INIT\"");
@@ -62,6 +63,7 @@ public class MainTestPlugin {
         ignoredFunctions.add("\"DISAPPEARANCE_AT_THE_TWILIGHT_ESTATE_SETUP_JEROME\"");
         ignoredFunctions.add("\"DISAPPEARANCE_AT_THE_TWILIGHT_ESTATE_SETUP_VALENTINO\"");
         ignoredFunctions.add("\"DISAPPEARANCE_AT_THE_TWILIGHT_ESTATE_SETUP_PENNY\"");
+        ignoredPrebuildDecks.add("\"The Midnight Masks - Treacheries\"");
     }
 
     private void processNames(File f, String name, JsonNode n, LinkedHashMap<String, File> map) throws Exception {
@@ -142,7 +144,7 @@ public class MainTestPlugin {
         processUsedNames(f, "functions", content, functions, ignoredFunctions);
         processUsedNames(f, "prompts", content, prompts, null);
         processUsedNames(f, "labels", content, labels, null);
-        processUsedNames(f, "preBuiltDecks", content, preBuiltDecks, null);
+        processUsedNames(f, "preBuiltDecks", content, preBuiltDecks, ignoredPrebuildDecks);
         processUsedNames(f, "rules", content, rules, null);
     }
 
