@@ -88,6 +88,7 @@ public class MainExportArkhamDB {
     protected final HashMap<String, String> parallel;
     protected final HashMap<String, String> parallelMini;
     protected final HashSet<String> ignorePaths;
+    protected final HashSet<String> forceDoublesided;
 
     protected final HashSet<String> unhandledDeckRequirementsRandom = new HashSet<>();
     protected final HashSet<String> unhandledDeckRequirement = new HashSet<>();
@@ -123,6 +124,7 @@ public class MainExportArkhamDB {
         }
         parallelMini = Util.readConfigMap("run/parallelMini.txt");
         ignorePaths = Util.readConfigSet("run/ignorePaths.txt");
+        forceDoublesided = Util.readConfigSet("run/forceDoublesided.txt");
     }
 
     protected DeckRequirementsRandom readDeckRequirementsRandom(JsonNode c) throws Exception {
@@ -1120,7 +1122,7 @@ public class MainExportArkhamDB {
                     writeString(bw, getString(row, idx++)); //text
                     newLine(bw);
                     bw.flush();
-                    map.put(String.format("%s_%s", databaseId, side != null && side.length() > 0 ? side : "null"), sw.toString());
+                    map.put(String.format("%s_%s", databaseId, side != null && side.length() > 0 ? side : "A"), sw.toString());
                 }
             }
         }
@@ -1128,7 +1130,7 @@ public class MainExportArkhamDB {
     }
 
     protected void exportFrontSide(File imagesDir, BufferedWriter bw, Card c, boolean doubleSided, boolean linked, HashMap<String, String> overrides) throws Exception {
-        String key = String.format("%s_%s", c.getCode(), doubleSided || linked ? "A" : "null");
+        String key = String.format("%s_%s", c.getCode(), "A");
         if (overrides.containsKey(key)) {
             bw.write(overrides.get(key));
             return;
@@ -1462,7 +1464,7 @@ public class MainExportArkhamDB {
                         exportFrontSide(imagesDir, bw, cc, false, true, overrides);
                         exportLinked(imagesDir, bw, cc, c, overrides);
                     } else {
-                        boolean doubleSided = c.getDoubleSided() != null && c.getDoubleSided();
+                        boolean doubleSided = c.getDoubleSided() != null && c.getDoubleSided() || forceDoublesided.contains(c.getCode());
                         boolean linked = c.getLinkedCard() != null;
                         if (doubleSided && linked && ignoreDoublesided.contains(c.getCode()) == false) {
                             log("Double-sided and linked for %s", c.getCode());
