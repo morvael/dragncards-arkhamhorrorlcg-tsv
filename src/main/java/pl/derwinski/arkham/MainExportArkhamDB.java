@@ -89,6 +89,9 @@ public class MainExportArkhamDB {
     protected final HashMap<String, String> parallelMini;
     protected final HashSet<String> ignorePaths;
     protected final HashSet<String> forceDoublesided;
+    protected final HashSet<String> ignoreCards;
+    protected final HashSet<String> backOverridesVerified;
+    protected final HashMap<String, String> quantities;
 
     protected final HashSet<String> unhandledDeckRequirementsRandom = new HashSet<>();
     protected final HashSet<String> unhandledDeckRequirement = new HashSet<>();
@@ -125,6 +128,9 @@ public class MainExportArkhamDB {
         parallelMini = Util.readConfigMap("run/parallelMini.txt");
         ignorePaths = Util.readConfigSet("run/ignorePaths.txt");
         forceDoublesided = Util.readConfigSet("run/forceDoublesided.txt");
+        ignoreCards = Util.readConfigSet("run/ignoreCards.txt");
+        backOverridesVerified = Util.readConfigSet("run/backOverridesVerified.txt");
+        quantities = Util.readConfigMap("run/quantities.txt");
     }
 
     protected DeckRequirementsRandom readDeckRequirementsRandom(JsonNode c) throws Exception {
@@ -880,7 +886,11 @@ public class MainExportArkhamDB {
             Cards cards = new Cards();
             cards.setCards(new ArrayList<>(c.size()));
             for (int i = 0; i < c.size(); i++) {
-                cards.getCards().add(readCard(c.get(i)));
+                Card cc = readCard(c.get(i));
+                if (ignoreCards.contains(cc.getCode())) {
+                    continue;
+                }
+                cards.getCards().add(cc);
             }
             for (Map.Entry<String, String> e : parallel.entrySet()) {
                 Card c1 = parallelCards.get(e.getKey());
@@ -1135,14 +1145,15 @@ public class MainExportArkhamDB {
             bw.write(overrides.get(key));
             return;
         }
+        String cardBack = doubleSided || linked ? "multi_sided" : c.getDefaultCardBack(backOverrides, backOverridesVerified);
         writeString(bw, c.getCode()); //databaseId
         writeString(bw, titles.getOrDefault(String.format("%s_A", c.getCode()), c.getFullName(true))); //name
         writeString(bw, getImageUrl(imagesDir, c.getImageCode(true), true)); //imageUrl
-        writeString(bw, doubleSided || linked ? "multi_sided" : c.getDefaultCardBack(backOverrides)); //cardBack
+        writeString(bw, cardBack); //cardBack
         writeString(bw, types.getOrDefault(String.format("%s_%s", c.getCode(), c.getTypeName()), c.getTypeName())); //type
         writeString(bw, weaknesses.getOrDefault(c.getCode(), c.getSubtypeName())); //subtype
         writeString(bw, c.getPackName()); //packName
-        writeInteger(bw, c.getDeckbuilderQuantity()); //deckbuilderQuantity
+        writeInteger(bw, c.getDeckbuilderQuantity(quantities, cardBack)); //deckbuilderQuantity
         writeString(bw, c.getPackCode()); //setUuid
         writeInteger(bw, c.getPosition(true)); //numberInPack
         writeString(bw, c.getEncounterName()); //encounterSet
@@ -1197,7 +1208,7 @@ public class MainExportArkhamDB {
         writeString(bw, types.getOrDefault(String.format("%s_%s", c.getCode(), c.getTypeName()), c.getTypeName())); //type
         writeString(bw, weaknesses.getOrDefault(c.getCode(), c.getSubtypeName())); //subtype
         writeString(bw, c.getPackName()); //packName
-        writeInteger(bw, c.getDeckbuilderQuantity()); //deckbuilderQuantity
+        writeInteger(bw, c.getDeckbuilderQuantity(quantities, "multi_sided")); //deckbuilderQuantity
         writeString(bw, c.getPackCode()); //setUuid
         writeInteger(bw, c.getPosition(false)); //numberInPack
         writeString(bw, c.getEncounterName()); //encounterSet
@@ -1252,7 +1263,7 @@ public class MainExportArkhamDB {
         writeString(bw, types.getOrDefault(String.format("%s_%s", c.getCode(), cc.getTypeName()), cc.getTypeName())); //type
         writeString(bw, weaknesses.getOrDefault(cc.getCode(), cc.getSubtypeName())); //subtype
         writeString(bw, cc.getPackName()); //packName
-        writeInteger(bw, cc.getDeckbuilderQuantity()); //deckbuilderQuantity
+        writeInteger(bw, cc.getDeckbuilderQuantity(quantities, "multi_sided")); //deckbuilderQuantity
         writeString(bw, cc.getPackCode()); //setUuid
         writeInteger(bw, cc.getPosition(false)); //numberInPack
         writeString(bw, cc.getEncounterName()); //encounterSet
@@ -1353,6 +1364,15 @@ public class MainExportArkhamDB {
             case "wgd":
             case "woc":
                 return true;
+            //The Innsmouth Conspiracy
+            case "tic":
+            case "itd":
+            case "def":
+            case "hhg":
+            case "lif":
+            case "lod":
+            case "itm":
+                return true;
             //Return to...
             case "rtnotz": //Return to the Night of the Zealot
             case "rtdwl": //Return to the Dunwich Legacy
@@ -1390,6 +1410,7 @@ public class MainExportArkhamDB {
             case "rop":
             case "hfa":
             case "pap":
+            case "aof":
                 return true;
             default:
                 return false;
@@ -1548,7 +1569,7 @@ public class MainExportArkhamDB {
                         continue;
                     }
                     if ("Basic Weakness".equals(weaknesses.getOrDefault(c.getCode(), c.getSubtypeName()))) {
-                        Integer qty = c.getDeckbuilderQuantity();
+                        Integer qty = c.getDeckbuilderQuantity(quantities, "Player Card");
                         if (qty == null) {
                             qty = 1;
                         }
@@ -1718,7 +1739,7 @@ public class MainExportArkhamDB {
         exportWeaknesses(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Weakness.json");
         exportBonded(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Bonded.json");
         exportMini(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Mini.json");
-        testImages(cards, "es", "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/images");
+        //testImages(cards, "es", "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/images");
     }
 
     public static void main(String[] args) {

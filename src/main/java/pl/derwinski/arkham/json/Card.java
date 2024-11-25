@@ -28,6 +28,7 @@ package pl.derwinski.arkham.json;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import pl.derwinski.arkham.Copyable;
@@ -1025,16 +1026,21 @@ public class Card implements Comparable<Card>, Copyable<Card> {
         }
     }
 
-    public String getDefaultCardBack(HashMap<String, String> backOverrides) {
+    public String getDefaultCardBack(HashMap<String, String> backOverrides, HashSet<String> backOverridesVerified) {
         if (backOverrides != null && backOverrides.containsKey(code)) {
-            if (backOverrides.get(code).equals(getDefaultCardBack(null)) == false) {
-                System.out.println(String.format("Back difference for %s: %s vs %s", code, backOverrides.get(code), getDefaultCardBack(null)));
+            if (backOverrides.get(code).equals(getDefaultCardBack(null, null)) == false) {
+                if (backOverridesVerified == null || backOverridesVerified.contains(code) == false) {
+                    System.out.println(String.format("Back difference for %s: %s vs %s", code, backOverrides.get(code), getDefaultCardBack(null, null)));
+                }
             }
             return backOverrides.get(code);
         } else if ((spoiler != null && spoiler == 1) || "Story".equals(typeName)) {
             if ("mythos".equals(factionCode)) {
                 return "Encounter Card";
             } else {
+                if (backOverrides != null && backOverrides.containsKey(code) == false) {
+                    System.out.println(String.format("Add back override for %s", code));
+                }
                 return "Player Card";
             }
         } else {
@@ -1064,8 +1070,12 @@ public class Card implements Comparable<Card>, Copyable<Card> {
         }
     }
 
-    public Integer getDeckbuilderQuantity() {
-        if ("Encounter Card".equals(getDefaultCardBack(null))) {
+    public Integer getDeckbuilderQuantity(HashMap<String, String> quantities, String cardBack) {
+        if (quantities.containsKey(code)) {
+            return Integer.valueOf(quantities.get(code));
+        } else if ("Investigator".equals(typeName)) {
+            return 1;
+        } else if ("Encounter Card".equals(cardBack) || "multi_sided".equals(cardBack)) {
             return 0;
         } else if (bondedTo != null) {
             return 0;

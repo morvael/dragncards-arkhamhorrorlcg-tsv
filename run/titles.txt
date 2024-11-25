@@ -29,5 +29,9 @@
 06047_B|Seven Hundred Steps: Of Deeper Slumber
 06219_B|Caverns Beneath the Moon: Dark Side
 06221_B|Caverns Beneath the Moon: Light Side
+07245_B|Sunken Grotto: Lower Depths
+07246_B|Sunken Grotto: Final Depths
+07328_B|Lair of Dagon: Sanctuary of Father Dagon
+07329_B|Lair of Hydra: High Temple of Mother Hydra
 53019_B|Entryway: Rearranged by Time
 53055_B|Halls of Pnakotus: Southern Corridors
