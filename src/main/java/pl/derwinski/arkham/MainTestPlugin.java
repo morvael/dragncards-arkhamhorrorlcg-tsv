@@ -64,6 +64,11 @@ public class MainTestPlugin {
         ignoredFunctions.add("\"DISAPPEARANCE_AT_THE_TWILIGHT_ESTATE_SETUP_VALENTINO\"");
         ignoredFunctions.add("\"DISAPPEARANCE_AT_THE_TWILIGHT_ESTATE_SETUP_PENNY\"");
         ignoredPrebuildDecks.add("\"The Midnight Masks - Treacheries\"");
+        ignoredPrebuildDecks.add("\"The Midnight Masks - Arkham\"");
+        ignoredPrebuildDecks.add("\"The Midnight Masks - Southside\"");
+        ignoredPrebuildDecks.add("\"The Midnight Masks - Downtown\"");
+        ignoredPrebuildDecks.add("\"The Midnight Masks - Cult of Umôrdhoth\"");
+        ignoredPrebuildDecks.add("\"Laid to Rest\"");
     }
 
     private void processNames(File f, String name, JsonNode n, LinkedHashMap<String, File> map) throws Exception {
