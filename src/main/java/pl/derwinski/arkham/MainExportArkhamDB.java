@@ -1387,6 +1387,9 @@ public class MainExportArkhamDB {
             case "jac":
             case "ste":
                 return true;
+            //Side Stories
+            case "cotr": //Curse of the Rougarou
+                return true;
             //Promotional
             case "books":
             case "hoth":

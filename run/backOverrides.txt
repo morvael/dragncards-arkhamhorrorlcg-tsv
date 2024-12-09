@@ -64,3 +64,12 @@
 53037|Player Card
 54041|Player Card
 54061|Encounter Card
+81019|Player Card
+81020|Encounter Card
+81021|Encounter Card
+81029|Player Card
+81030|Player Card
+90073|Encounter Card
+90074|Encounter Card
+90075|Encounter Card
+90076|Encounter Card
