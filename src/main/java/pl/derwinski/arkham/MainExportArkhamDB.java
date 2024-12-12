@@ -1373,6 +1373,15 @@ public class MainExportArkhamDB {
             case "lod":
             case "itm":
                 return true;
+            //Edge of the Earth
+            case "eoep":
+                return true;
+            //The Scarlet Keys
+            case "tskp":
+                return true;
+            //The Feast of Hemlock Vale
+            case "fhvp":
+                return true;
             //Return to...
             case "rtnotz": //Return to the Night of the Zealot
             case "rtdwl": //Return to the Dunwich Legacy
@@ -1627,7 +1636,7 @@ public class MainExportArkhamDB {
                     line(bw, String.format("                    [\"EQUAL\", \"$DATABASE_ID\", \"%s\"],", c.getCode()));
                     ArrayList<Card> bcs = bondedCards.get(c.getName());
                     if (c.getCode().equals("10015")) {
-                        line(bw, "                    [\"DO_CREATE_MISSING_CARDS\", \"$TARGET_PLAYER\", \"Hank Samson\", \"10016\", 1, \"$TARGET_PLAYER_ASIDE\", true, null]");
+                        line(bw, "                    [\"DO_CREATE_MISSING_CARDS\", \"$TARGET_PLAYER\", \"Hank Samson\", \"10016\", 1, \"$TARGET_PLAYER_ASIDE\", true, null],");
                     } else if (bcs.size() == 1) {
                         Card bc = bcs.get(0);
                         line(bw, String.format("                    [\"%s\", \"$TARGET_PLAYER\", \"%s\", \"%s\", %d, \"$TARGET_PLAYER_ASIDE\", true, null],", bondedForEach.contains(bc.getCode()) ? "DO_CREATE_CARDS" : "DO_CREATE_MISSING_CARDS", bc.getName().replace("\"", "\\\""), bc.getCode(), bc.getBondedCount()));
