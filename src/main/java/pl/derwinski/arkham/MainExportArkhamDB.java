@@ -1695,6 +1695,32 @@ public class MainExportArkhamDB {
         }
     }
 
+    protected void exportNames(Cards cards, String path) throws Exception {
+        File file = new File(path);
+        if (file.exists() == false) {
+            file = new File("run/data.tsv");
+        }
+        if (cards != null && cards.getCards() != null && cards.getCards().isEmpty() == false) {
+            try (FileOutputStream fos = new FileOutputStream(file, false);
+                    OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
+                    BufferedWriter bw = new BufferedWriter(osw)) {
+                LinkedHashMap<String, String> names = new LinkedHashMap<>();
+                for (Card c : cards) {
+                    if (filter(c) == false) { //skip cards outside core set for now
+                        continue;
+                    }
+                    if (c.getTypeName() != null && c.getTypeName().equals("Asset") && c.getTraits() != null && (c.getTraits().contains("Tome.") || c.getTraits().contains("Spell."))) {
+                        names.put(c.getCode(), c.getName());
+                    }
+                }
+                for (var e : names.entrySet()) {
+                    line(bw, String.format("%s\t%s", e.getKey(), e.getValue()));
+                }
+                bw.flush();
+            }
+        }
+    }
+
     protected void testImages(Cards cards, String language, String imagesPath) throws Exception {
         File imagesDir = new File(imagesPath);
         File languageDir = new File(imagesDir, language);
@@ -1751,6 +1777,7 @@ public class MainExportArkhamDB {
         exportWeaknesses(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Weakness.json");
         exportBonded(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Bonded.json");
         exportMini(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Mini.json");
+        exportNames(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-php/data.tsv");
         //testImages(cards, "es", "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/images");
     }
 
