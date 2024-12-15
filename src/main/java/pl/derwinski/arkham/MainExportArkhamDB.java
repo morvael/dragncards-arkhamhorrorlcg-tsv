@@ -41,6 +41,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -1695,10 +1696,10 @@ public class MainExportArkhamDB {
         }
     }
 
-    protected void exportNames(Cards cards, String path) throws Exception {
+    protected void exportRavenQuill(Cards cards, String path) throws Exception {
         File file = new File(path);
         if (file.exists() == false) {
-            file = new File("run/data.tsv");
+            file = new File("run/raven_quill.tsv");
         }
         if (cards != null && cards.getCards() != null && cards.getCards().isEmpty() == false) {
             try (FileOutputStream fos = new FileOutputStream(file, false);
@@ -1706,11 +1707,37 @@ public class MainExportArkhamDB {
                     BufferedWriter bw = new BufferedWriter(osw)) {
                 LinkedHashMap<String, String> names = new LinkedHashMap<>();
                 for (Card c : cards) {
-                    if (filter(c) == false) { //skip cards outside core set for now
-                        continue;
-                    }
                     if (c.getTypeName() != null && c.getTypeName().equals("Asset") && c.getTraits() != null && (c.getTraits().contains("Tome.") || c.getTraits().contains("Spell."))) {
                         names.put(c.getCode(), c.getName());
+                    }
+                }
+                for (var e : names.entrySet()) {
+                    line(bw, String.format("%s\t%s", e.getKey(), e.getValue()));
+                }
+                bw.flush();
+            }
+        }
+    }
+
+    protected void exportTraits(Cards cards, String path) throws Exception {
+        File file = new File(path);
+        if (file.exists() == false) {
+            file = new File("run/traits.tsv");
+        }
+        if (cards != null && cards.getCards() != null && cards.getCards().isEmpty() == false) {
+            try (FileOutputStream fos = new FileOutputStream(file, false);
+                    OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
+                    BufferedWriter bw = new BufferedWriter(osw)) {
+                TreeMap<String, String> names = new TreeMap<>();
+                for (Card c : cards) {
+                    if (c.getTraits() != null) {
+                        String[] traits = c.getTraits().split("\\.");
+                        for (String trait : traits) {
+                            String t = trait.trim();
+                            if (t.length() > 0) {
+                                names.put(t.replace(" ", "").replace("'", "").replace("-", "").replace("?", "Q"), t);
+                            }
+                        }
                     }
                 }
                 for (var e : names.entrySet()) {
@@ -1777,7 +1804,8 @@ public class MainExportArkhamDB {
         exportWeaknesses(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Weakness.json");
         exportBonded(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Bonded.json");
         exportMini(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Mini.json");
-        exportNames(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-php/data.tsv");
+        exportRavenQuill(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-php/raven_quill.tsv");
+        exportTraits(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-php/traits.tsv");
         //testImages(cards, "es", "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/images");
     }
 
