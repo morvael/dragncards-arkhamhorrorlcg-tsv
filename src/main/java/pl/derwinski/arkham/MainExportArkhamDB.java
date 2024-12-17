@@ -41,7 +41,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.TreeSet;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -927,7 +927,7 @@ public class MainExportArkhamDB {
             writeTab = true;
         }
         if (text != null) {
-            bw.write(text.replace("’", "'").replace("·", "•").replace("“", "\"").replace("”", "\"").replace("–", "-").replace("…", "..."));
+            bw.write(text.replace("’", "'").replace("·", "•").replace("“", "\"").replace("”", "\"").replace("–", "-").replace("…", "...").replace("[free]", "[fast]"));
         }
     }
 
@@ -1190,7 +1190,7 @@ public class MainExportArkhamDB {
         writeInteger(bw, c.getStage()); //stage
         writeBoolean(bw, c.getText() != null && c.getText().contains("[action]")); //action
         writeBoolean(bw, c.getText() != null && c.getText().contains("[reaction]")); //reaction
-        writeBoolean(bw, c.getText() != null && c.getText().contains("[free]")); //free
+        writeBoolean(bw, c.getText() != null && (c.getText().contains("[free]") || c.getText().contains("[fast]"))); //free
         writeBoolean(bw, bondedCards.containsKey(c.getName())); //hasBonded
         writeString(bw, c.getText()); //text
         newLine(bw);
@@ -1245,7 +1245,7 @@ public class MainExportArkhamDB {
         writeInteger(bw, null); //stage
         writeBoolean(bw, c.getBackText() != null && c.getBackText().contains("[action]")); //action
         writeBoolean(bw, c.getBackText() != null && c.getBackText().contains("[reaction]")); //reaction
-        writeBoolean(bw, c.getBackText() != null && c.getBackText().contains("[free]")); //free
+        writeBoolean(bw, c.getBackText() != null && (c.getBackText().contains("[free]") || c.getBackText().contains("[fast]"))); //free
         writeBoolean(bw, false); //hasBonded
         writeString(bw, c.getBackText()); //text
         newLine(bw);
@@ -1300,7 +1300,7 @@ public class MainExportArkhamDB {
         writeInteger(bw, cc.getStage()); //stage
         writeBoolean(bw, cc.getText() != null && cc.getText().contains("[action]")); //action
         writeBoolean(bw, cc.getText() != null && cc.getText().contains("[reaction]")); //reaction
-        writeBoolean(bw, cc.getText() != null && cc.getText().contains("[free]")); //free
+        writeBoolean(bw, cc.getText() != null && (cc.getText().contains("[free]") || cc.getText().contains("[fast]"))); //free
         writeBoolean(bw, false); //hasBonded
         writeString(bw, cc.getText()); //text
         newLine(bw);
@@ -1696,6 +1696,16 @@ public class MainExportArkhamDB {
         }
     }
 
+    protected LinkedHashMap<String, String> getRavenQuillNames(Cards cards) {
+        var names = new LinkedHashMap<String, String>();
+        for (var c : cards) {
+            if (c.getTypeName() != null && c.getTypeName().equals("Asset") && c.getTraits() != null && (c.getTraits().contains("Tome.") || c.getTraits().contains("Spell."))) {
+                names.put(c.getCode(), c.getName());
+            }
+        }
+        return names;
+    }
+
     protected void exportRavenQuill(Cards cards, String path) throws Exception {
         File file = new File(path);
         if (file.exists() == false) {
@@ -1705,18 +1715,29 @@ public class MainExportArkhamDB {
             try (FileOutputStream fos = new FileOutputStream(file, false);
                     OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
                     BufferedWriter bw = new BufferedWriter(osw)) {
-                LinkedHashMap<String, String> names = new LinkedHashMap<>();
-                for (Card c : cards) {
-                    if (c.getTypeName() != null && c.getTypeName().equals("Asset") && c.getTraits() != null && (c.getTraits().contains("Tome.") || c.getTraits().contains("Spell."))) {
-                        names.put(c.getCode(), c.getName());
-                    }
-                }
-                for (var e : names.entrySet()) {
+                var ravenQuillNames = getRavenQuillNames(cards);
+                for (var e : ravenQuillNames.entrySet()) {
                     line(bw, String.format("%s\t%s", e.getKey(), e.getValue()));
                 }
                 bw.flush();
             }
         }
+    }
+
+    protected TreeSet<String> getTraitNames(Cards cards) {
+        var traits = new TreeSet<String>();
+        for (var c : cards) {
+            if (c.getTraits() != null) {
+                var traitArray = c.getTraits().split("\\.");
+                for (var trait : traitArray) {
+                    String t = trait.trim();
+                    if (t.length() > 0) {
+                        traits.add(t);
+                    }
+                }
+            }
+        }
+        return traits;
     }
 
     protected void exportTraits(Cards cards, String path) throws Exception {
@@ -1728,21 +1749,94 @@ public class MainExportArkhamDB {
             try (FileOutputStream fos = new FileOutputStream(file, false);
                     OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
                     BufferedWriter bw = new BufferedWriter(osw)) {
-                TreeMap<String, String> names = new TreeMap<>();
-                for (Card c : cards) {
-                    if (c.getTraits() != null) {
-                        String[] traits = c.getTraits().split("\\.");
-                        for (String trait : traits) {
-                            String t = trait.trim();
-                            if (t.length() > 0) {
-                                names.put(t.replace(" ", "").replace("'", "").replace("-", "").replace("?", "Q"), t);
-                            }
-                        }
-                    }
+                var traits = getTraitNames(cards);
+                for (var trait : traits) {
+                    line(bw, trait);
                 }
-                for (var e : names.entrySet()) {
-                    line(bw, String.format("%s\t%s", e.getKey(), e.getValue()));
+                bw.flush();
+            }
+        }
+    }
+
+    protected TreeSet<String> getSkillNames() {
+        var skills = new TreeSet<String>();
+        skills.add("willpower");
+        skills.add("intelligence");
+        skills.add("combat");
+        skills.add("agility");
+        return skills;
+    }
+
+    protected void exportCustomizationGenerated(Cards cards, String path) throws Exception {
+        File file = new File(path);
+        if (file.exists() == false) {
+            file = new File("run/Core Customization Generated.json");
+        }
+        if (cards != null && cards.getCards() != null && cards.getCards().isEmpty() == false) {
+            try (FileOutputStream fos = new FileOutputStream(file, false);
+                    OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
+                    BufferedWriter bw = new BufferedWriter(osw)) {
+                line(bw, "{");
+                line(bw, "    \"functions\": {");
+                var ravenQuillNames = getRavenQuillNames(cards);
+                line(bw, "        \"GET_VALID_RAVEN_QUILL_CARD_NAME\": {");
+                line(bw, "            \"args\": [\"$DATABASE_ID\"],");
+                line(bw, "            \"code\": [");
+                line(bw, "                [\"VALIDATE_NOT_NULL\", \"$DATABASE_ID\", \"GET_VALID_RAVEN_QUILL_CARD_NAME.DATABASE_ID\"],");
+                line(bw, "                [\"COND\",");
+                line(bw, "                    [\"EQUAL\", \"$DATABASE_ID\", \"\"],");
+                line(bw, "                    \"?\",");
+                line(bw, "                    [\"EQUAL\", \"$DATABASE_ID\", \" \"],");
+                line(bw, "                    \"?\",");
+                for (var e : ravenQuillNames.entrySet()) {
+                    line(bw, String.format("                    [\"EQUAL\", \"$DATABASE_ID\", \"%s\"],", e.getKey().replace("\"", "\\\"")));
+                    line(bw, String.format("                    \"%s\",", e.getValue().replace("\"", "\\\"")));
                 }
+                line(bw, "                    [\"TRUE\"],");
+                line(bw, "                    \"?\"");
+                line(bw, "                ]");
+                line(bw, "            ]");
+                line(bw, "        },");
+                var traits = getTraitNames(cards);
+                line(bw, "        \"GET_VALID_TRAIT_NAME\": {");
+                line(bw, "            \"args\": [\"$TRAIT_NAME\"],");
+                line(bw, "            \"code\": [");
+                line(bw, "                [\"VALIDATE_NOT_NULL\", \"$TRAIT_NAME\", \"GET_VALID_TRAIT_NAME.TRAIT_NAME\"],");
+                line(bw, "                [\"COND\",");
+                line(bw, "                    [\"EQUAL\", \"$TRAIT_NAME\", \"\"],");
+                line(bw, "                    \"?\",");
+                line(bw, "                    [\"EQUAL\", \"$TRAIT_NAME\", \" \"],");
+                line(bw, "                    \"?\",");
+                for (var trait : traits) {
+                    line(bw, String.format("                    [\"EQUAL\", \"$TRAIT_NAME\", \"%s\"],", trait.replace("\"", "\\\"")));
+                    line(bw, String.format("                    \"%s\",", trait.replace("\"", "\\\"")));
+                }
+                line(bw, "                    [\"TRUE\"],");
+                line(bw, "                    \"?\"");
+                line(bw, "                ]");
+                line(bw, "            ]");
+                line(bw, "        },");
+                var skills = getSkillNames();
+                line(bw, "        \"GET_VALID_SKILL_NAME\": {");
+                line(bw, "            \"args\": [\"SKILL_NAME\"],");
+                line(bw, "            \"code\": [");
+                line(bw, "                [\"VALIDATE_NOT_NULL\", \"SKILL_NAME\", \"GET_VALID_SKILL_NAME.SKILL_NAME\"],");
+                line(bw, "                [\"COND\",");
+                line(bw, "                    [\"EQUAL\", \"SKILL_NAME\", \"\"],");
+                line(bw, "                    \"?\",");
+                line(bw, "                    [\"EQUAL\", \"SKILL_NAME\", \" \"],");
+                line(bw, "                    \"?\",");
+                for (var skill : skills) {
+                    line(bw, String.format("                    [\"EQUAL\", \"SKILL_NAME\", \"%s\"],", skill.replace("\"", "\\\"")));
+                    line(bw, String.format("                    \"%s\",", skill.replace("\"", "\\\"")));
+                }
+                line(bw, "                    [\"TRUE\"],");
+                line(bw, "                    \"?\"");
+                line(bw, "                ]");
+                line(bw, "            ]");
+                line(bw, "        }");
+                line(bw, "    }");
+                line(bw, "}");
                 bw.flush();
             }
         }
@@ -1806,6 +1900,7 @@ public class MainExportArkhamDB {
         exportMini(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Mini.json");
         exportRavenQuill(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-php/raven_quill.tsv");
         exportTraits(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-php/traits.tsv");
+        exportCustomizationGenerated(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Customization Generated.json");
         //testImages(cards, "es", "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/images");
     }
 
