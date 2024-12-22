@@ -41,6 +41,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -1696,11 +1698,25 @@ public class MainExportArkhamDB {
         }
     }
 
+    protected boolean isRavenQuillCard(Card c) {
+        return c != null && c.getTypeName() != null && c.getTypeName().equals("Asset") && c.getTraits() != null && (c.getTraits().contains("Tome.") || c.getTraits().contains("Spell."));
+    }
+
     protected LinkedHashMap<String, String> getRavenQuillNames(Cards cards) {
         var names = new LinkedHashMap<String, String>();
         for (var c : cards) {
-            if (c.getTypeName() != null && c.getTypeName().equals("Asset") && c.getTraits() != null && (c.getTraits().contains("Tome.") || c.getTraits().contains("Spell."))) {
+            if (isRavenQuillCard(c)) {
                 names.put(c.getCode(), c.getName());
+            }
+        }
+        return names;
+    }
+
+    protected TreeMap<String, String> getRavenQuillNamesReversed(Cards cards) {
+        var names = new TreeMap<String, String>();
+        for (var c : cards) {
+            if (isRavenQuillCard(c) && names.get(c.getName()) == null) {
+                names.put(c.getName(), c.getCode());
             }
         }
         return names;
@@ -1724,18 +1740,23 @@ public class MainExportArkhamDB {
         }
     }
 
+    protected void addTraitNames(Card c, Set<String> traits) {
+        if (c != null && c.getTraits() != null) {
+            var traitArray = c.getTraits().split("\\.");
+            for (var trait : traitArray) {
+                String t = trait.trim();
+                if (t.length() > 0) {
+                    traits.add(t);
+                }
+            }
+        }
+    }
+
     protected TreeSet<String> getTraitNames(Cards cards) {
         var traits = new TreeSet<String>();
         for (var c : cards) {
-            if (c.getTraits() != null) {
-                var traitArray = c.getTraits().split("\\.");
-                for (var trait : traitArray) {
-                    String t = trait.trim();
-                    if (t.length() > 0) {
-                        traits.add(t);
-                    }
-                }
-            }
+            addTraitNames(c, traits);
+            addTraitNames(c.getLinkedCard(), traits);
         }
         return traits;
     }
@@ -1778,6 +1799,28 @@ public class MainExportArkhamDB {
                     BufferedWriter bw = new BufferedWriter(osw)) {
                 line(bw, "{");
                 line(bw, "    \"functions\": {");
+                var ravenQuillNamesReversed = getRavenQuillNamesReversed(cards);
+                line(bw, "        \"GET_RAVEN_QUILL_OPTIONS_LIST\": {");
+                line(bw, "            \"args\": [],");
+                line(bw, "            \"code\": [");
+                bw.write("                [\"LIST\"");
+                for (var e : ravenQuillNamesReversed.entrySet()) {
+                    bw.write(String.format(", \"%s\", \"%s\"", e.getKey().replace("\"", "\\\""), e.getValue().replace("\"", "\\\"")));
+                }
+                line(bw, "]");
+                line(bw, "            ]");
+                line(bw, "        },");
+                var traits = getTraitNames(cards);
+                line(bw, "        \"GET_TRAIT_OPTIONS_LIST\": {");
+                line(bw, "            \"args\": [],");
+                line(bw, "            \"code\": [");
+                bw.write("                [\"LIST\"");
+                for (var e : traits) {
+                    bw.write(String.format(", \"%s\"", e.replace("\"", "\\\"")));
+                }
+                line(bw, "]");
+                line(bw, "            ]");
+                line(bw, "        },");
                 var ravenQuillNames = getRavenQuillNames(cards);
                 line(bw, "        \"GET_VALID_RAVEN_QUILL_CARD_NAME\": {");
                 line(bw, "            \"args\": [\"$DATABASE_ID\"],");
@@ -1797,7 +1840,6 @@ public class MainExportArkhamDB {
                 line(bw, "                ]");
                 line(bw, "            ]");
                 line(bw, "        },");
-                var traits = getTraitNames(cards);
                 line(bw, "        \"GET_VALID_TRAIT_NAME\": {");
                 line(bw, "            \"args\": [\"$TRAIT_NAME\"],");
                 line(bw, "            \"code\": [");
@@ -1818,16 +1860,16 @@ public class MainExportArkhamDB {
                 line(bw, "        },");
                 var skills = getSkillNames();
                 line(bw, "        \"GET_VALID_SKILL_NAME\": {");
-                line(bw, "            \"args\": [\"SKILL_NAME\"],");
+                line(bw, "            \"args\": [\"$SKILL_NAME\"],");
                 line(bw, "            \"code\": [");
-                line(bw, "                [\"VALIDATE_NOT_NULL\", \"SKILL_NAME\", \"GET_VALID_SKILL_NAME.SKILL_NAME\"],");
+                line(bw, "                [\"VALIDATE_NOT_NULL\", \"$SKILL_NAME\", \"GET_VALID_SKILL_NAME.SKILL_NAME\"],");
                 line(bw, "                [\"COND\",");
-                line(bw, "                    [\"EQUAL\", \"SKILL_NAME\", \"\"],");
+                line(bw, "                    [\"EQUAL\", \"$SKILL_NAME\", \"\"],");
                 line(bw, "                    \"?\",");
-                line(bw, "                    [\"EQUAL\", \"SKILL_NAME\", \" \"],");
+                line(bw, "                    [\"EQUAL\", \"$SKILL_NAME\", \" \"],");
                 line(bw, "                    \"?\",");
                 for (var skill : skills) {
-                    line(bw, String.format("                    [\"EQUAL\", \"SKILL_NAME\", \"%s\"],", skill.replace("\"", "\\\"")));
+                    line(bw, String.format("                    [\"EQUAL\", \"$SKILL_NAME\", \"%s\"],", skill.replace("\"", "\\\"")));
                     line(bw, String.format("                    \"%s\",", skill.replace("\"", "\\\"")));
                 }
                 line(bw, "                    [\"TRUE\"],");
