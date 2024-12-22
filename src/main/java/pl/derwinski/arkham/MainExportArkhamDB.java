@@ -1782,7 +1782,7 @@ public class MainExportArkhamDB {
     protected TreeSet<String> getSkillNames() {
         var skills = new TreeSet<String>();
         skills.add("willpower");
-        skills.add("intelligence");
+        skills.add("intellect");
         skills.add("combat");
         skills.add("agility");
         return skills;
