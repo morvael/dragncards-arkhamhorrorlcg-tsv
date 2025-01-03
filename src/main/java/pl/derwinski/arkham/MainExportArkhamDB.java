@@ -1804,6 +1804,7 @@ public class MainExportArkhamDB {
                 line(bw, "            \"args\": [],");
                 line(bw, "            \"code\": [");
                 bw.write("                [\"LIST\"");
+                bw.write(", \"None\", \"\"");
                 for (var e : ravenQuillNamesReversed.entrySet()) {
                     bw.write(String.format(", \"%s\", \"%s\"", e.getKey().replace("\"", "\\\""), e.getValue().replace("\"", "\\\"")));
                 }
@@ -1815,6 +1816,7 @@ public class MainExportArkhamDB {
                 line(bw, "            \"args\": [],");
                 line(bw, "            \"code\": [");
                 bw.write("                [\"LIST\"");
+                bw.write(", \"None\", \"\"");
                 for (var e : traits) {
                     bw.write(String.format(", \"%s\", \"%s\"", e.replace("\"", "\\\""), e.replace("\"", "\\\"")));
                 }

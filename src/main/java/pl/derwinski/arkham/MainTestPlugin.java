@@ -38,6 +38,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
+import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.commons.io.FileUtils;
 import static pl.derwinski.arkham.Util.log;
 
@@ -47,6 +48,7 @@ import static pl.derwinski.arkham.Util.log;
  */
 public class MainTestPlugin {
 
+    private final LinkedHashMap<String, File> systemFunctions = new LinkedHashMap<>();
     private final LinkedHashMap<String, File> actionLists = new LinkedHashMap<>();
     private final LinkedHashMap<String, File> functions = new LinkedHashMap<>();
     private final LinkedHashMap<String, File> prompts = new LinkedHashMap<>();
@@ -83,6 +85,16 @@ public class MainTestPlugin {
         }
     }
 
+    private void processSystemFuctionNames(File f, JsonNode n) throws Exception {
+        Iterator<String> it = n.fieldNames();
+        while (it.hasNext()) {
+            String functionName = it.next();
+            if (systemFunctions.containsKey(functionName)) {
+                System.out.println(String.format("Duplicate system function name %s in %s and %s", functionName, systemFunctions.get(functionName).getName(), f.getName()));
+            }
+        }
+    }
+
     private void processFile(JsonMapper mapper, File f) throws Exception {
         JsonNode c = mapper.readTree(f);
         if (c.isObject()) {
@@ -95,6 +107,7 @@ public class MainTestPlugin {
                         break;
                     case "functions":
                         processNames(f, fieldName, c.get(fieldName), functions);
+                        processSystemFuctionNames(f, c.get(fieldName));
                         break;
                     case "prompts":
                         processNames(f, fieldName, c.get(fieldName), prompts);
@@ -159,6 +172,11 @@ public class MainTestPlugin {
                 .configure(JsonParser.Feature.ALLOW_COMMENTS, true)
                 .build();
 
+        File functionsDir = new File("../../cards/arkham/dragncards/backend/lib/dragncards_game/evaluate/functions");
+        Collection<File> functionFiles = FileUtils.listFiles(functionsDir, new String[]{"ex"}, true);
+        for (File f : functionFiles) {
+            systemFunctions.put(FileNameUtils.getBaseName(f.getName()), f);
+        }
         File dir = new File("../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons");
         Collection<File> files = FileUtils.listFiles(dir, new String[]{"json"}, true);
         for (File f : files) {
