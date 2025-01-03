@@ -1816,7 +1816,18 @@ public class MainExportArkhamDB {
                 line(bw, "            \"code\": [");
                 bw.write("                [\"LIST\"");
                 for (var e : traits) {
-                    bw.write(String.format(", \"%s\"", e.replace("\"", "\\\"")));
+                    bw.write(String.format(", \"%s\", \"%s\"", e.replace("\"", "\\\""), e.replace("\"", "\\\"")));
+                }
+                line(bw, "]");
+                line(bw, "            ]");
+                line(bw, "        },");
+                var skills = getSkillNames();
+                line(bw, "        \"GET_SKILL_OPTIONS_LIST\": {");
+                line(bw, "            \"args\": [],");
+                line(bw, "            \"code\": [");
+                bw.write("                [\"LIST\"");
+                for (var e : skills) {
+                    bw.write(String.format(", \"%s\", \"%s\"", StringUtils.capitalize(e).replace("\"", "\\\""), e.replace("\"", "\\\"")));
                 }
                 line(bw, "]");
                 line(bw, "            ]");
@@ -1858,7 +1869,6 @@ public class MainExportArkhamDB {
                 line(bw, "                ]");
                 line(bw, "            ]");
                 line(bw, "        },");
-                var skills = getSkillNames();
                 line(bw, "        \"GET_VALID_SKILL_NAME\": {");
                 line(bw, "            \"args\": [\"$SKILL_NAME\"],");
                 line(bw, "            \"code\": [");
