@@ -1821,17 +1821,6 @@ public class MainExportArkhamDB {
                 line(bw, "]");
                 line(bw, "            ]");
                 line(bw, "        },");
-                var skills = getSkillNames();
-                line(bw, "        \"GET_SKILL_OPTIONS_LIST\": {");
-                line(bw, "            \"args\": [],");
-                line(bw, "            \"code\": [");
-                bw.write("                [\"LIST\"");
-                for (var e : skills) {
-                    bw.write(String.format(", \"%s\", \"%s\"", StringUtils.capitalize(e).replace("\"", "\\\""), e.replace("\"", "\\\"")));
-                }
-                line(bw, "]");
-                line(bw, "            ]");
-                line(bw, "        },");
                 var ravenQuillNames = getRavenQuillNames(cards);
                 line(bw, "        \"GET_VALID_RAVEN_QUILL_CARD_NAME\": {");
                 line(bw, "            \"args\": [\"$DATABASE_ID\"],");
@@ -1878,6 +1867,7 @@ public class MainExportArkhamDB {
                 line(bw, "                    \"?\",");
                 line(bw, "                    [\"EQUAL\", \"$SKILL_NAME\", \" \"],");
                 line(bw, "                    \"?\",");
+                var skills = getSkillNames();
                 for (var skill : skills) {
                     line(bw, String.format("                    [\"EQUAL\", \"$SKILL_NAME\", \"%s\"],", skill.replace("\"", "\\\"")));
                     line(bw, String.format("                    \"%s\",", skill.replace("\"", "\\\"")));
