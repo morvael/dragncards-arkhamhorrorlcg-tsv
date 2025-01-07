@@ -1402,6 +1402,8 @@ public class MainExportArkhamDB {
             //Side Stories
             case "cotr": //Curse of the Rougarou
                 return true;
+            case "coh": //Carnevale of Horrors
+                return true;
             //Promotional
             case "books":
             case "hoth":
