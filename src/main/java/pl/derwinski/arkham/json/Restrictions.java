@@ -26,6 +26,7 @@
  */
 package pl.derwinski.arkham.json;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import pl.derwinski.arkham.Copyable;
 import pl.derwinski.arkham.Util;
@@ -37,6 +38,7 @@ import pl.derwinski.arkham.Util;
 public class Restrictions implements Copyable<Restrictions> {
 
     private LinkedHashMap<String, String> investigator;
+    private ArrayList<String> trait;
 
     public Restrictions() {
 
@@ -50,10 +52,19 @@ public class Restrictions implements Copyable<Restrictions> {
         this.investigator = investigator;
     }
 
+    public ArrayList<String> getTrait() {
+        return trait;
+    }
+
+    public void setTrait(ArrayList<String> trait) {
+        this.trait = trait;
+    }
+
     @Override
     public Restrictions copy() {
         Restrictions o = new Restrictions();
         o.investigator = Util.simpleMapCopy(investigator);
+        o.trait = Util.simpleListCopy(trait);
         return o;
     }
 

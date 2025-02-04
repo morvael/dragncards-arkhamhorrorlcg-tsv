@@ -415,6 +415,9 @@ public class MainExportArkhamDB {
                     case "investigator":
                         restrictions.setInvestigator(readStringStringMap(c.get(fieldName)));
                         break;
+                    case "trait":
+                        restrictions.setTrait(readStringList(c.get(fieldName)));
+                        break;
                     default:
                         if (unhandledRestrictions.add(fieldName)) {
                             log("Unhandled field name in Restrictions: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType());
@@ -1403,6 +1406,10 @@ public class MainExportArkhamDB {
             case "cotr": //Curse of the Rougarou
                 return true;
             case "coh": //Carnevale of Horrors
+                return true;
+            case "lol": //The Labyrinths of Lunacy
+                return true;
+            case "guardians": //Guardians of the Abyss
                 return true;
             //Promotional
             case "books":

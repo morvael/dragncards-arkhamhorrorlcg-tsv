@@ -64,6 +64,15 @@
 53037|Player Card
 54041|Player Card
 54061|Encounter Card
+70039|Encounter Card
+70040|Encounter Card
+70041|Encounter Card
+70042|Encounter Card
+70043|Encounter Card
+70044|Encounter Card
+70045|Encounter Card
+70046|Encounter Card
+70047|Encounter Card
 81019|Player Card
 81020|Encounter Card
 81021|Encounter Card
@@ -74,6 +83,10 @@
 82024|Player Card
 82025|Player Card
 82026|Player Card
+83055|Player Card
+83056|Player Card
+83057|Player Card
+83058|Player Card
 90073|Encounter Card
 90074|Encounter Card
 90075|Encounter Card

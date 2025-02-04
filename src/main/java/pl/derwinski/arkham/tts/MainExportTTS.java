@@ -185,6 +185,17 @@ public class MainExportTTS {
         }
     }
 
+    protected File getExistingFile(File dir, String path) {
+        do {
+            File f = new File(dir, path);
+            if (f.exists()) {
+                return f;
+            }
+            dir = dir.getParentFile();
+        } while (dir != null);
+        return null;
+    }
+
     protected Card readCard(JsonMapper mapper, File file, CustomDecks parentCustomDecks, JsonNode c, String state) throws Exception {
         if (c.isObject()) {
             Card card = new Card();
@@ -214,7 +225,7 @@ public class MainExportTTS {
                         break;
                     case "GMNotes_path":
                         try {
-                            File f = new File(file.getParentFile().getParentFile(), c.get(fieldName).textValue());
+                            File f = getExistingFile(file.getParentFile(), c.get(fieldName).textValue());
                             card.setGMNotes(readGMNotes(mapper.readTree(FileUtils.readFileToString(f, StandardCharsets.UTF_8))));
                         } catch (JsonParseException ex) {
                             log("Error parsing JSON from Card.GMNotes_path field: %s", ex.getMessage());
@@ -589,10 +600,10 @@ public class MainExportTTS {
 
     public void run() throws Exception {
         if (Util.checkExistence("run/repos/SCED", "Clone https://github.com/argonui/SCED or its fork into %s.")
-                && Util.checkExistence("run/repos/loadable-objects", "Clone https://github.com/Chr1Z93/loadable-objects or its fork into %s.")) {
+                && Util.checkExistence("run/repos/SCED-downloads", "Clone https://github.com/Chr1Z93/SCED-downloads or its fork into %s.")) {
             ArrayList<CardSide> cardSides = loadTTSCards("run/repos/SCED/objects/AllPlayerCards.15bb07",
-                    "run/repos/loadable-objects/campaigns",
-                    "run/repos/loadable-objects/scenarios");
+                    "run/repos/SCED-downloads/decomposed/campaign",
+                    "run/repos/SCED-downloads/decomposed/scenario");
             log("Loaded %d TTS card sides", cardSides.size());
             File tmpDir = new File("run/tts");
             downloadTTSImages(cardSides, tmpDir);
