@@ -1951,8 +1951,8 @@ public class MainExportArkhamDB {
         exportWeaknesses(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Weakness.json");
         exportBonded(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Bonded.json");
         exportMini(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Mini.json");
-        exportRavenQuill(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-php/raven_quill.tsv");
-        exportTraits(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-php/traits.tsv");
+        exportRavenQuill(cards, "../dragncards-arkhamhorrorlcg-php/raven_quill.tsv");
+        exportTraits(cards, "../dragncards-arkhamhorrorlcg-php/traits.tsv");
         exportCustomizationGenerated(cards, "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Customization Generated.json");
         //testImages(cards, "es", "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/images");
     }
