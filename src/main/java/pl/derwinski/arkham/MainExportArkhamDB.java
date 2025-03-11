@@ -1388,6 +1388,9 @@ public class MainExportArkhamDB {
             //The Feast of Hemlock Vale
             case "fhvp":
                 return true;
+            //The Drowned City
+            case "tdcp":
+                return true;
             //Return to...
             case "rtnotz": //Return to the Night of the Zealot
             case "rtdwl": //Return to the Dunwich Legacy
@@ -1707,6 +1710,46 @@ public class MainExportArkhamDB {
         }
     }
 
+    protected boolean isTransfigurationCard(Card c) {
+        return c != null && c.getTypeName() != null && c.getTypeName().equals("Investigator")
+                && parallelMini.containsKey(c.getCode()) == false //variants of fronts/backs not needed since only front is used
+                && "04244".equals(c.getCode()) == false //Body of a Yithian
+                && "05046".equals(c.getCode()) == false //Gavriella Mizrah
+                && "05047".equals(c.getCode()) == false //Jerome Davids
+                && "05048".equals(c.getCode()) == false //Valentino Rivas
+                && "05049".equals(c.getCode()) == false //Penny White
+                && "10016a".equals(c.getCode()) == false && "10016b".equals(c.getCode()) == false //Hank Samson bonded
+                && "10661".equals(c.getCode()) == false //Shattered Self
+                && "11068b".equals(c.getCode()) == false; //Lost Homunculus
+    }
+
+    protected String getTransfigurationCardName(Card c) {
+        return String.format("%s (%s)", c.getName(), c.getCode());
+    }
+
+    protected LinkedHashMap<String, String> getTransfigurationNames(Cards cards) {
+        var names = new LinkedHashMap<String, String>();
+        for (var c : cards) {
+            if (isTransfigurationCard(c)) {
+                names.put(c.getCode(), c.getName());
+            }
+        }
+        return names;
+    }
+
+    protected LinkedHashMap<String, String> getTransfigurationNamesReversed(Cards cards) {
+        var names = new LinkedHashMap<String, String>();
+        for (var c : cards) {
+            if (isTransfigurationCard(c)) {
+                var name = getTransfigurationCardName(c);
+                if (names.get(name) == null) {
+                    names.put(name, c.getCode());
+                }
+            }
+        }
+        return names;
+    }
+
     protected boolean isRavenQuillCard(Card c) {
         return c != null && c.getTypeName() != null && c.getTypeName().equals("Asset") && c.getTraits() != null && (c.getTraits().contains("Tome.") || c.getTraits().contains("Spell."));
     }
@@ -1808,6 +1851,18 @@ public class MainExportArkhamDB {
                     BufferedWriter bw = new BufferedWriter(osw)) {
                 line(bw, "{");
                 line(bw, "    \"functions\": {");
+                var transfigurationNamesReversed = getTransfigurationNamesReversed(cards);
+                line(bw, "        \"GET_TRANSFIGURATION_OPTIONS_LIST\": {");
+                line(bw, "            \"args\": [],");
+                line(bw, "            \"code\": [");
+                bw.write("                [\"LIST\"");
+                bw.write(", \"None\", \"\"");
+                for (var e : transfigurationNamesReversed.entrySet()) {
+                    bw.write(String.format(", \"%s\", \"%s\"", e.getKey().replace("\"", "\\\""), e.getValue().replace("\"", "\\\"")));
+                }
+                line(bw, "]");
+                line(bw, "            ]");
+                line(bw, "        },");
                 var ravenQuillNamesReversed = getRavenQuillNamesReversed(cards);
                 line(bw, "        \"GET_RAVEN_QUILL_OPTIONS_LIST\": {");
                 line(bw, "            \"args\": [],");
@@ -1830,6 +1885,25 @@ public class MainExportArkhamDB {
                     bw.write(String.format(", \"%s\", \"%s\"", e.replace("\"", "\\\""), e.replace("\"", "\\\"")));
                 }
                 line(bw, "]");
+                line(bw, "            ]");
+                line(bw, "        },");
+                var transfigurationNames = getTransfigurationNames(cards);
+                line(bw, "        \"GET_VALID_TRANSFIGURATION_CARD_NAME\": {");
+                line(bw, "            \"args\": [\"$DATABASE_ID\"],");
+                line(bw, "            \"code\": [");
+                line(bw, "                [\"VALIDATE_NOT_NULL\", \"$DATABASE_ID\", \"GET_VALID_TRANSFIGURATION_CARD_NAME.DATABASE_ID\"],");
+                line(bw, "                [\"COND\",");
+                line(bw, "                    [\"EQUAL\", \"$DATABASE_ID\", \"\"],");
+                line(bw, "                    \"?\",");
+                line(bw, "                    [\"EQUAL\", \"$DATABASE_ID\", \" \"],");
+                line(bw, "                    \"?\",");
+                for (var e : transfigurationNames.entrySet()) {
+                    line(bw, String.format("                    [\"EQUAL\", \"$DATABASE_ID\", \"%s\"],", e.getKey().replace("\"", "\\\"")));
+                    line(bw, String.format("                    \"%s\",", e.getValue().replace("\"", "\\\"")));
+                }
+                line(bw, "                    [\"TRUE\"],");
+                line(bw, "                    \"?\"");
+                line(bw, "                ]");
                 line(bw, "            ]");
                 line(bw, "        },");
                 var ravenQuillNames = getRavenQuillNames(cards);
