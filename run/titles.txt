@@ -35,3 +35,5 @@
 07329_B|Lair of Hydra: High Temple of Mother Hydra
 53019_B|Entryway: Rearranged by Time
 53055_B|Halls of Pnakotus: Southern Corridors
+88022_B|Relic Room: Sanctum of Fortune
+86024_B|Hub Dimension: Unsealed

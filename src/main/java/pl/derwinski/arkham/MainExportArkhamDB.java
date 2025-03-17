@@ -1407,12 +1407,16 @@ public class MainExportArkhamDB {
                 return true;
             //Side Stories
             case "cotr": //Curse of the Rougarou
-                return true;
             case "coh": //Carnevale of Horrors
-                return true;
             case "lol": //The Labyrinths of Lunacy
-                return true;
             case "guardians": //Guardians of the Abyss
+            case "hotel": //Murder at the Excelsior Hotel
+            case "blob": //The Blob That Ate Everything
+            case "wog": //War of the Outer Gods
+            case "mtt": //Machinations Through Time
+            case "fof": //Fortune and Folly
+            case "blbe": //The Blob That Ate Everything ELSE!
+            case "tmg": //The Midwinter Gala
                 return true;
             //Promotional
             case "books":
