@@ -37,3 +37,5 @@
 53055_B|Halls of Pnakotus: Southern Corridors
 88022_B|Relic Room: Sanctum of Fortune
 86024_B|Hub Dimension: Unsealed
+88045_A|The Wellspring of Fortune: Symbol of Providence
+88045_B|The Wellspring of Fortune: Symbol of Providence
