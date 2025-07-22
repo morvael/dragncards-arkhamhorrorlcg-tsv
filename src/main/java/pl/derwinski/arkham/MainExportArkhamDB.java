@@ -1381,6 +1381,7 @@ public class MainExportArkhamDB {
                 return true;
             //Edge of the Earth
             case "eoep":
+            case "eoec":
                 return true;
             //The Scarlet Keys
             case "tskp":

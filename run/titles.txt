@@ -33,6 +33,9 @@
 07246_B|Sunken Grotto: Final Depths
 07328_B|Lair of Dagon: Sanctuary of Father Dagon
 07329_B|Lair of Hydra: High Temple of Mother Hydra
+08630_B|Hidden Tunnel: Entrance to the Depths
+08649_B|The Gate of Y'quaa: Primordial Seal
+08686_B|Hidden Tunnel: A Way Out
 53019_B|Entryway: Rearranged by Time
 53055_B|Halls of Pnakotus: Southern Corridors
 88022_B|Relic Room: Sanctum of Fortune
