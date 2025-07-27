@@ -71,6 +71,11 @@ public class MainTestPlugin {
         ignoredPrebuildDecks.add("\"The Midnight Masks - Downtown\"");
         ignoredPrebuildDecks.add("\"The Midnight Masks - Cult of Umôrdhoth\"");
         ignoredPrebuildDecks.add("\"Laid to Rest\"");
+        ignoredPrebuildDecks.add("\"Sands of Egypt - Locations\"");
+        ignoredPrebuildDecks.add("\"Sands of Egypt\"");
+        ignoredPrebuildDecks.add("\"The Blob That Ate Everything\"");
+        ignoredPrebuildDecks.add("\"Ice and Death Pt 2\"");
+        ignoredPrebuildDecks.add("\"Ice and Death Pt 3\"");
     }
 
     private void processNames(File f, String name, JsonNode n, LinkedHashMap<String, File> map) throws Exception {
