@@ -37,6 +37,7 @@ import com.fasterxml.jackson.databind.node.MissingNode;
 import com.luciad.imageio.webp.WebPWriteParam;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -77,6 +78,7 @@ public class MainExportTTS {
     protected final HashSet<String> falsePositive;
     protected final HashSet<String> miniCards;
     protected final HashSet<String> skipOverrides;
+    protected final HashSet<String> excluded;
 
     protected final HashSet<String> unhandledCustomDeck = new HashSet<>();
 
@@ -88,6 +90,7 @@ public class MainExportTTS {
         falsePositive = Util.readConfigSet("run/falsePositive.txt");
         miniCards = Util.readConfigSet("run/miniCards.txt");
         skipOverrides = Util.readConfigSet("run/skipOverrides.txt");
+        excluded = Util.readConfigSet("run/excluded.txt");
     }
 
     protected CustomDeck readCustomDeck(String id, JsonNode c) throws Exception {
@@ -199,6 +202,8 @@ public class MainExportTTS {
     protected Card readCard(JsonMapper mapper, File file, CustomDecks parentCustomDecks, JsonNode c, String state) throws Exception {
         if (c.isObject()) {
             Card card = new Card();
+            card.setDescription("");
+            card.setSidewaysCard(false);
             card.setFile(file);
             Iterator<String> it = c.fieldNames();
             while (it.hasNext()) {
@@ -285,6 +290,7 @@ public class MainExportTTS {
                     }
                     count[0]++;
                 } else {
+                    count[1]++;
                     log("Invalid card (%s) in %s", card.toString(), file.getAbsoluteFile().getCanonicalPath());
                 }
             }
@@ -312,11 +318,21 @@ public class MainExportTTS {
     }
 
     protected void loadTTSCards(JsonMapper mapper, File file, ArrayList<Card> result) throws Exception {
-        int[] count = new int[]{0};
+        int[] count = new int[]{0, 0};
         searchForCards(mapper, file, result, count, null, mapper.readTree(file), null);
-        if (count[0] == 0) {
-            log("No cards in %s", file.getAbsoluteFile().getCanonicalPath());
+        if (count[0] == 0 && count[1] > 0) {
+            log("No valid cards in %s", file.getAbsoluteFile().getCanonicalPath());
         }
+    }
+
+    protected boolean isExcluded(File f) throws IOException {
+        String s = f.getAbsoluteFile().getCanonicalPath();
+        for (String ex : excluded) {
+            if (s.contains(ex)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected ArrayList<CardSide> loadTTSCards(String... paths) throws Exception {
@@ -336,10 +352,12 @@ public class MainExportTTS {
                         Collection<File> list = FileUtils.listFiles(file, new String[]{"json"}, true);
                         if (list != null && list.isEmpty() == false) {
                             for (File f : list) {
-                                loadTTSCards(mapper, f, tmpList);
+                                if (isExcluded(f) == false) {
+                                    loadTTSCards(mapper, f, tmpList);
+                                }
                             }
                         }
-                    } else if (file.isFile()) {
+                    } else if (file.isFile() && isExcluded(file) == false) {
                         loadTTSCards(mapper, file, tmpList);
                     }
                 }
