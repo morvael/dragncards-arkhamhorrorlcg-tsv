@@ -220,15 +220,15 @@ public class MainExportTTS {
                         try {
                             card.setGMNotes(readGMNotes(mapper.readTree(readStringRaw(c.get(fieldName)))));
                         } catch (JsonParseException ex) {
-                            log("Error parsing JSON from Card.GMNotes field: %s", ex.getMessage());
+                            log("Error parsing JSON from Card.GMNotes field \"%s\" in %s (%s)", readStringRaw(c.get(fieldName)), file.getAbsoluteFile().getCanonicalPath(), ex.getMessage());
                         }
                         break;
                     case "GMNotes_path":
                         try {
                             File f = getExistingFile(file.getParentFile(), c.get(fieldName).textValue());
                             card.setGMNotes(readGMNotes(mapper.readTree(FileUtils.readFileToString(f, StandardCharsets.UTF_8))));
-                        } catch (JsonParseException ex) {
-                            log("Error parsing JSON from Card.GMNotes_path field: %s", ex.getMessage());
+                        } catch (Exception ex) {
+                            log("Error parsing JSON from Card.GMNotes_path field \"%s\" in %s (%s)", c.get(fieldName).textValue(), file.getAbsoluteFile().getCanonicalPath(), ex.getMessage());
                         }
                         break;
                     case "CustomDeck":
