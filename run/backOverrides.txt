@@ -38,6 +38,7 @@
 05259|Player Card
 05260|Player Card
 05261|Player Card
+06028|Encounter Card
 06059|Player Card
 06079|Player Card
 06080|Player Card
