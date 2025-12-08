@@ -1,5 +1,0 @@
-01509|Weakness
-01513|Weakness
-01601|Basic Weakness
-01602|Basic Weakness
-01603|Basic Weakness

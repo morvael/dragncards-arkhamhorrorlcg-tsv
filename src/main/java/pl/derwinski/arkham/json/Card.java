@@ -26,113 +26,447 @@
  */
 package pl.derwinski.arkham.json;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import pl.derwinski.arkham.Copyable;
-import pl.derwinski.arkham.Util;
 import static pl.derwinski.arkham.Util.log;
+import static pl.derwinski.arkham.Util.nvl;
+import static pl.derwinski.arkham.Util.readBoolean;
+import static pl.derwinski.arkham.Util.readInteger;
+import static pl.derwinski.arkham.Util.readString;
+import pl.derwinski.arkham.json.configuration.Configuration;
+import pl.derwinski.arkham.json.metadata.Metadata;
 
 /**
  *
  * @author morvael
  */
-public class Card implements Comparable<Card>, Copyable<Card> {
+public final class Card implements Comparable<Card>, Copyable<Card> {
 
-    private String packCode;
-    private String packName;
-    private String typeCode;
-    private String typeName;
-    private String factionCode;
-    private String factionName;
-    private Integer position;
-    private Boolean exceptional;
-    private Boolean myriad;
-    private String code;
-    private String name;
-    private String realName;
-    private String subname;
-    private String text;
-    private String realText;
-    private Integer quantity;
-    private Integer skillWillpower;
-    private Integer skillIntellect;
-    private Integer skillCombat;
-    private Integer skillAgility;
-    private Integer health;
-    private Boolean healthPerInvestigator;
-    private Integer sanity;
-    private Integer deckLimit;
-    private String realSlot;
-    private String traits;
-    private String realTraits;
-    private DeckRequirements deckRequirements;
-    private ArrayList<DeckOption> deckOptions;
-    private String flavor;
-    private String illustrator;
-    private Boolean unique;
-    private Boolean permanent;
-    private Boolean doubleSided;
-    private String backText;
+    private static final HashSet<String> unhandled = new HashSet<>();
+
+    public static ArrayList<Card> readCards(Configuration configuration, Metadata metadata, JsonNode c) throws Exception {
+        if (c.isArray()) {
+            var result = new ArrayList<Card>();
+            for (var i = 0; i < c.size(); i++) {
+                var o = readCard(configuration, metadata, c.get(i));
+                configuration.override(metadata, o);
+                if (configuration.isIgnored(o) == false) {
+                    configuration.register(metadata, o);
+                    result.add(o);
+                }
+            }
+            configuration.process(metadata, result);
+            return result;
+        } else {
+            if (c.isNull() == false) {
+                log("Error reading Card array: %s", c.asText());
+            }
+            return null;
+        }
+    }
+
+    private static void readCard(Configuration configuration, Metadata metadata, JsonNode c, Card o, boolean override) throws Exception {
+        var it = c.fieldNames();
+        while (it.hasNext()) {
+            var fieldName = it.next();
+            switch (fieldName) {
+                case "back_flavor":
+                    o.backFlavor = readString(c, fieldName);
+                    break;
+                case "real_back_flavor":
+                    o.realBackFlavor = readString(c, fieldName);
+                    o.backFlavor = nvl(o.backFlavor, o.realBackFlavor);
+                    break;
+                case "back_illustrator":
+                    o.backIllustrator = readString(c, fieldName);
+                    break;
+                case "back_link_id":
+                    o.backLinkId = readString(c, fieldName);
+                    break;
+                case "back_name":
+                    o.backName = readString(c, fieldName);
+                    break;
+                case "real_back_name":
+                    o.realBackName = readString(c, fieldName);
+                    o.backName = nvl(o.backName, o.realBackName);
+                    break;
+                case "back_subname":
+                    o.backSubname = readString(c, fieldName);
+                    break;
+                case "real_back_subname":
+                    o.realBackSubname = readString(c, fieldName);
+                    o.backSubname = nvl(o.backSubname, o.realBackSubname);
+                    break;
+                case "back_text":
+                    o.backText = readString(c, fieldName);
+                    break;
+                case "real_back_text":
+                    o.realBackText = readString(c, fieldName);
+                    o.backText = nvl(o.backText, o.realBackText);
+                    break;
+                case "back_traits":
+                    o.backTraits = readString(c, fieldName);
+                    break;
+                case "real_back_traits":
+                    o.realBackTraits = readString(c, fieldName);
+                    o.backTraits = nvl(o.backTraits, o.realBackTraits);
+                    break;
+                case "clues_fixed":
+                    o.cluesFixed = nvl(readBoolean(c, fieldName), false);
+                    break;
+                case "clues":
+                    o.clues = readInteger(c, fieldName);
+                    break;
+                case "code":
+                    o.code = readString(c, fieldName);
+                    break;
+                case "cost":
+                    o.cost = readInteger(c, fieldName);
+                    break;
+                case "deck_limit":
+                    o.deckLimit = readInteger(c, fieldName);
+                    break;
+                case "doom_per_investigator":
+                    o.doomPerInvestigator = nvl(readBoolean(c, fieldName), false);
+                    break;
+                case "doom":
+                    o.doom = readInteger(c, fieldName);
+                    break;
+                case "double_sided":
+                    o.doubleSided = nvl(readBoolean(c, fieldName), false);
+                    break;
+                case "encounter_code":
+                    o.encounterCode = readString(c, fieldName);
+                    o.encounterName = metadata.getEncounterName(o.encounterCode);
+                    break;
+                case "encounter_position":
+                    o.encounterPosition = readInteger(c, fieldName);
+                    break;
+                case "enemy_damage":
+                    o.enemyDamage = readInteger(c, fieldName);
+                    break;
+                case "enemy_evade_per_investigator":
+                    o.enemyEvadePerInvestigator = nvl(readBoolean(c, fieldName), false);
+                    break;
+                case "enemy_evade":
+                    o.enemyEvade = readInteger(c, fieldName);
+                    break;
+                case "enemy_fight_per_investigator":
+                    o.enemyFightPerInvestigator = nvl(readBoolean(c, fieldName), false);
+                    break;
+                case "enemy_fight":
+                    o.enemyFight = readInteger(c, fieldName);
+                    break;
+                case "enemy_horror":
+                    o.enemyHorror = readInteger(c, fieldName);
+                    break;
+                case "errata_date":
+                    o.errataDate = readString(c, fieldName);
+                    break;
+                case "exceptional":
+                    o.exceptional = nvl(readBoolean(c, fieldName), false);
+                    break;
+                case "exile":
+                    o.exile = nvl(readBoolean(c, fieldName), false);
+                    break;
+                case "faction2_code":
+                    o.faction2Code = readString(c, fieldName);
+                    o.faction2Name = metadata.getFactionName(o.faction2Code);
+                    break;
+                case "faction3_code":
+                    o.faction3Code = readString(c, fieldName);
+                    o.faction3Name = metadata.getFactionName(o.faction3Code);
+                    break;
+                case "faction_code":
+                    o.factionCode = readString(c, fieldName);
+                    o.factionName = metadata.getFactionName(o.factionCode);
+                    break;
+                case "flavor":
+                    o.flavor = readString(c, fieldName);
+                    break;
+                case "real_flavor":
+                    o.realFlavor = readString(c, fieldName);
+                    o.flavor = nvl(o.flavor, o.realFlavor);
+                    break;
+                case "health_per_investigator":
+                    o.healthPerInvestigator = nvl(readBoolean(c, fieldName), false);
+                    break;
+                case "health":
+                    o.health = readInteger(c, fieldName);
+                    break;
+                case "hidden":
+                    o.hidden = nvl(readBoolean(c, fieldName), false);
+                    break;
+                case "id":
+                    o.id = readString(c, fieldName);
+                    break;
+                case "illustrator":
+                    o.illustrator = readString(c, fieldName);
+                    break;
+                case "is_unique":
+                    o.isUnique = nvl(readBoolean(c, fieldName), false);
+                    break;
+                case "linked":
+                    o.linked = nvl(readBoolean(c, fieldName), false);
+                    break;
+                case "locale":
+                    o.locale = readString(c, fieldName);
+                    break;
+                case "myriad":
+                    o.myriad = nvl(readBoolean(c, fieldName), false);
+                    break;
+                case "name":
+                    o.name = readString(c, fieldName);
+                    break;
+                case "real_name":
+                    o.realName = readString(c, fieldName);
+                    o.name = nvl(o.name, o.realName);
+                    break;
+                case "official":
+                    o.official = nvl(readBoolean(c, fieldName), true);
+                    break;
+                case "pack_code":
+                    o.packCode = readString(c, fieldName);
+                    o.packName = metadata.getPackName(o.packCode);
+                    break;
+                case "pack_position":
+                    o.packPosition = readInteger(c, fieldName);
+                    break;
+                case "permanent":
+                    o.permanent = nvl(readBoolean(c, fieldName), false);
+                    break;
+                case "position":
+                    o.position = readInteger(c, fieldName);
+                    break;
+                case "preview":
+                    o.preview = nvl(readBoolean(c, fieldName), false);
+                    break;
+                case "quantity":
+                    o.quantity = readInteger(c, fieldName);
+                    break;
+                case "sanity":
+                    o.sanity = readInteger(c, fieldName);
+                    break;
+                case "shroud_per_investigator":
+                    o.shroudPerInvestigator = nvl(readBoolean(c, fieldName), false);
+                    break;
+                case "shroud":
+                    o.shroud = readInteger(c, fieldName);
+                    break;
+                case "skill_agility":
+                    o.skillAgility = readInteger(c, fieldName);
+                    break;
+                case "skill_combat":
+                    o.skillCombat = readInteger(c, fieldName);
+                    break;
+                case "skill_intellect":
+                    o.skillIntellect = readInteger(c, fieldName);
+                    break;
+                case "skill_wild":
+                    o.skillWild = readInteger(c, fieldName);
+                    break;
+                case "skill_willpower":
+                    o.skillWillpower = readInteger(c, fieldName);
+                    break;
+                case "slot":
+                    o.slot = readString(c, fieldName);
+                    break;
+                case "real_slot":
+                    o.realSlot = readString(c, fieldName);
+                    o.slot = nvl(o.slot, o.realSlot);
+                    break;
+                case "stage":
+                    o.stage = readInteger(c, fieldName);
+                    break;
+                case "subname":
+                    o.subname = readString(c, fieldName);
+                    break;
+                case "real_subname":
+                    o.realSubname = readString(c, fieldName);
+                    o.subname = nvl(o.subname, o.realSubname);
+                    break;
+                case "subtype_code":
+                    o.subtypeCode = readString(c, fieldName);
+                    o.subtypeName = metadata.getSubtypeName(o.subtypeCode);
+                    break;
+                case "taboo_set_id":
+                    o.tabooSetId = readInteger(c, fieldName);
+                    break;
+                case "taboo_xp":
+                    o.tabooXp = readInteger(c, fieldName);
+                    break;
+                case "text":
+                    o.text = readString(c, fieldName);
+                    break;
+                case "real_text":
+                    o.realText = readString(c, fieldName);
+                    o.text = nvl(o.text, o.realText);
+                    break;
+                case "traits":
+                    o.traits = readString(c, fieldName);
+                    break;
+                case "real_traits":
+                    o.realTraits = readString(c, fieldName);
+                    o.traits = nvl(o.traits, o.realTraits);
+                    break;
+                case "type_code":
+                    o.typeCode = readString(c, fieldName);
+                    o.typeName = metadata.getTypeName(o.typeCode);
+                    break;
+                case "vengeance":
+                    o.vengeance = readInteger(c, fieldName);
+                    break;
+                case "victory":
+                    o.victory = readInteger(c, fieldName);
+                    break;
+                case "xp":
+                    o.xp = readInteger(c, fieldName);
+                    break;
+                // ignored fields
+                case "alt_art_investigator":
+                case "alternate_of_code":
+                case "bonded_count":
+                case "bonded_to":
+                case "customization_change":
+                case "customization_options":
+                case "customization_text":
+                case "deck_options":
+                case "deck_requirements":
+                case "duplicate_of_code":
+                case "heals_damage":
+                case "heals_horror":
+                case "real_customization_change":
+                case "real_customization_text":
+                case "real_taboo_text_change":
+                case "restrictions":
+                case "side_deck_options":
+                case "side_deck_requirements":
+                case "starts_in_hand":
+                case "starts_in_play":
+                case "sticky_mulligan":
+                case "taboo_text_change":
+                case "tags":
+                    break;
+                default:
+                    if (unhandled.add(fieldName)) {
+                        log("Unhandled field name in Card: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType());
+                    }
+                    break;
+            }
+        }
+    }
+
+    public static Card readCard(Configuration configuration, Metadata metadata, JsonNode c) throws Exception {
+        if (c.isObject()) {
+            var o = new Card();
+            readCard(configuration, metadata, c, o, false);
+            o.cardBack = configuration.getCardBack(o);
+            return o;
+        } else {
+            if (c.isNull() == false) {
+                log("Error reading Card object: %s", c.asText());
+            }
+            return null;
+        }
+    }
+
     private String backFlavor;
-    private String octgnId;
-    private String url;
-    private String imagesrc;
-    private String backimagesrc;
-    private ArrayList<String> duplicatedBy;
-    private ArrayList<String> alternatedBy;
+    private String realBackFlavor;
+    private String backIllustrator;
+    private String backLinkId;
+    private String backName;
+    private String realBackName;
+    private String backSubname;
+    private String realBackSubname;
+    private String backText;
+    private String realBackText;
+    private String backTraits;
+    private String realBackTraits;
+    private Boolean cluesFixed = false;
+    private Integer clues;
+    private String code;
     private Integer cost;
-    private Integer xp;
-    private String slot;
-    private String subtypeCode;
-    private String subtypeName;
-    private ErrataDate errataDate;
-    private Integer skillWild;
-    private Restrictions restrictions;
+    private Integer deckLimit;
+    private Boolean doomPerInvestigator = false;
+    private Integer doom;
+    private Boolean doubleSided = false;
     private String encounterCode;
     private String encounterName;
     private Integer encounterPosition;
-    private Integer spoiler;
     private Integer enemyDamage;
-    private Integer enemyHorror;
-    private Integer enemyFight;
+    private Boolean enemyEvadePerInvestigator = false;
     private Integer enemyEvade;
-    private Integer victory;
-    private Integer shroud;
-    private Integer clues;
-    private Integer doom;
-    private Integer stage;
-    private String backName;
-    private String tags;
-    private String linkedToCode;
-    private String linkedToName;
-    private Card linkedCard;
-    private Boolean hidden;
-    private Boolean cluesFixed;
-    private Boolean exile;
-    private Integer vengeance;
+    private Boolean enemyFightPerInvestigator = false;
+    private Integer enemyFight;
+    private Integer enemyHorror;
+    private String errataDate;
+    private Boolean exceptional = false;
+    private Boolean exile = false;
     private String faction2Code;
     private String faction2Name;
-    private ArrayList<BondedCard> bondedCards;
-    private String bondedTo;
-    private Integer bondedCount;
-    private String alternateOfCode;
-    private String alternateOfName;
-    private String duplicateOfCode;
-    private String duplicateOfName;
     private String faction3Code;
     private String faction3Name;
-    private String customizationText;
-    private String customizationChange;
-    private ArrayList<CustomizationOption> customizationOptions;
-    private Integer id;
-
+    private String factionCode;
+    private String factionName;
+    private String flavor;
+    private String realFlavor;
+    private Boolean healthPerInvestigator = false;
+    private Integer health;
+    private Boolean hidden = false;
+    private String id;
+    private String illustrator;
+    private Boolean isUnique = false;
+    private Boolean linked = false;
+    private String locale;
+    private Boolean myriad = false;
+    private String name;
+    private String realName;
+    private Boolean official = true;
+    private String packCode;
+    private String packName;
+    @Deprecated
+    private Integer packPosition;
+    private Boolean permanent = false;
+    private Integer position;
+    private Boolean preview = false;
+    private Integer quantity;
+    private Integer sanity;
+    private Boolean shroudPerInvestigator = false;
+    private Integer shroud;
+    private Integer skillAgility;
+    private Integer skillCombat;
+    private Integer skillIntellect;
+    private Integer skillWild;
+    private Integer skillWillpower;
+    private String slot;
+    private String realSlot;
+    private Integer stage;
+    private String subname;
+    private String realSubname;
+    private String subtypeCode;
+    private String subtypeName;
+    private Integer tabooSetId;
+    private Integer tabooXp;
+    private String text;
+    private String realText;
+    private String traits;
+    private String realTraits;
+    private String typeCode;
+    private String typeName;
+    private Integer vengeance;
+    private Integer victory;
+    private Integer xp;
+    //
+    private String cardBack;
     private boolean parallel;
-    private String frontCode;
+    private String frontId;
     private Integer frontPosition;
-    private String backCode;
+    private String backId;
     private Integer backPosition;
 
     private Long sortOrder;
@@ -146,868 +480,480 @@ public class Card implements Comparable<Card>, Copyable<Card> {
         back.hidden = null;
         Card c = copy();
         c.parallel = true;
-        c.frontCode = c.code;
-        c.frontPosition = c.position;
-        c.backCode = back.code;
+        c.frontId = id;
+        c.frontPosition = position;
+        c.backId = back.id;
         c.backPosition = back.position;
-        c.code = String.format("%s%s", c.code, back.code);
-        c.backName = back.backName;
-        c.backText = back.backText;
+        //
         c.backFlavor = back.backFlavor;
-        c.backimagesrc = back.backimagesrc;
-        c.packCode = back.code.startsWith("9") ? back.packCode : c.packCode;
-        c.packName = String.format("%s / %s", c.packName, back.packName);
+        c.realBackFlavor = back.realBackFlavor;
+        c.backName = back.backName;
+        c.realBackName = back.realBackName;
+        c.backSubname = back.backSubname;
+        c.realBackSubname = back.realBackSubname;
+        c.backText = back.backText;
+        c.realBackText = back.realBackText;
+        c.backTraits = back.backTraits;
+        c.realBackTraits = back.realBackTraits;
+        c.code = String.format("%s%s", code, back.code);
+        if (id.contains("-") || back.id.contains("-")) {
+            c.id = String.format("%s%s-%d", code, back.code, Math.max(nvl(tabooSetId, 0), nvl(back.tabooSetId, 0)));
+        } else {
+            c.id = String.format("%s%s", code, back.code);
+        }
+        c.packCode = back.id.startsWith("9") ? back.packCode : packCode;
+        c.packName = String.format("%s / %s", packName, back.packName);
         return c;
     }
 
     @Override
     public Card copy() {
         Card o = new Card();
-        o.packCode = packCode;
-        o.packName = packName;
-        o.typeCode = typeCode;
-        o.typeName = typeName;
-        o.factionCode = factionCode;
-        o.factionName = factionName;
-        o.position = position;
-        o.exceptional = exceptional;
-        o.myriad = myriad;
-        o.code = code;
-        o.name = name;
-        o.realName = realName;
-        o.subname = subname;
-        o.text = text;
-        o.realText = realText;
-        o.quantity = quantity;
-        o.skillWillpower = skillWillpower;
-        o.skillIntellect = skillIntellect;
-        o.skillCombat = skillCombat;
-        o.skillAgility = skillAgility;
-        o.health = health;
-        o.healthPerInvestigator = healthPerInvestigator;
-        o.sanity = sanity;
-        o.deckLimit = deckLimit;
-        o.realSlot = realSlot;
-        o.traits = traits;
-        o.realTraits = realTraits;
-        o.deckRequirements = Util.copy(deckRequirements);
-        o.deckOptions = Util.copy(deckOptions);
-        o.flavor = flavor;
-        o.illustrator = illustrator;
-        o.unique = unique;
-        o.permanent = permanent;
-        o.doubleSided = doubleSided;
-        o.backText = backText;
         o.backFlavor = backFlavor;
-        o.octgnId = octgnId;
-        o.url = url;
-        o.imagesrc = imagesrc;
-        o.backimagesrc = backimagesrc;
-        o.duplicatedBy = Util.simpleListCopy(duplicatedBy);
-        o.alternatedBy = Util.simpleListCopy(alternatedBy);
+        o.realBackFlavor = realBackFlavor;
+        o.backIllustrator = backIllustrator;
+        o.backLinkId = backLinkId;
+        o.backName = backName;
+        o.realBackName = realBackName;
+        o.backSubname = backSubname;
+        o.realBackSubname = realBackSubname;
+        o.backText = backText;
+        o.realBackText = realBackText;
+        o.backTraits = backTraits;
+        o.realBackTraits = realBackTraits;
+        o.cluesFixed = cluesFixed;
+        o.clues = clues;
+        o.code = code;
         o.cost = cost;
-        o.xp = xp;
-        o.slot = slot;
-        o.subtypeCode = subtypeCode;
-        o.subtypeName = subtypeName;
-        o.errataDate = Util.copy(errataDate);
-        o.skillWild = skillWild;
-        o.restrictions = Util.copy(restrictions);
+        o.deckLimit = deckLimit;
+        o.doomPerInvestigator = doomPerInvestigator;
+        o.doom = doom;
+        o.doubleSided = doubleSided;
         o.encounterCode = encounterCode;
         o.encounterName = encounterName;
         o.encounterPosition = encounterPosition;
-        o.spoiler = spoiler;
         o.enemyDamage = enemyDamage;
-        o.enemyHorror = enemyHorror;
-        o.enemyFight = enemyFight;
+        o.enemyEvadePerInvestigator = enemyEvadePerInvestigator;
         o.enemyEvade = enemyEvade;
-        o.victory = victory;
-        o.shroud = shroud;
-        o.clues = clues;
-        o.doom = doom;
-        o.stage = stage;
-        o.backName = backName;
-        o.tags = tags;
-        o.linkedToCode = linkedToCode;
-        o.linkedToName = linkedToName;
-        o.linkedCard = Util.copy(linkedCard);
-        o.hidden = hidden;
-        o.cluesFixed = cluesFixed;
+        o.enemyFightPerInvestigator = enemyFightPerInvestigator;
+        o.enemyFight = enemyFight;
+        o.enemyHorror = enemyHorror;
+        o.errataDate = errataDate;
+        o.exceptional = exceptional;
         o.exile = exile;
-        o.vengeance = vengeance;
         o.faction2Code = faction2Code;
         o.faction2Name = faction2Name;
-        o.bondedCards = Util.copy(bondedCards);
-        o.bondedTo = bondedTo;
-        o.bondedCount = bondedCount;
-        o.alternateOfCode = alternateOfCode;
-        o.alternateOfName = alternateOfName;
-        o.duplicateOfCode = duplicateOfCode;
-        o.duplicateOfName = duplicateOfName;
         o.faction3Code = faction3Code;
         o.faction3Name = faction3Name;
-        o.customizationText = customizationText;
-        o.customizationChange = customizationChange;
-        o.customizationOptions = Util.copy(customizationOptions);
+        o.factionCode = factionCode;
+        o.factionName = factionName;
+        o.flavor = flavor;
+        o.realFlavor = realFlavor;
+        o.healthPerInvestigator = healthPerInvestigator;
+        o.health = health;
+        o.hidden = hidden;
         o.id = id;
+        o.illustrator = illustrator;
+        o.isUnique = isUnique;
+        o.linked = linked;
+        o.locale = locale;
+        o.myriad = myriad;
+        o.name = name;
+        o.realName = realName;
+        o.official = official;
+        o.packCode = packCode;
+        o.packName = packName;
+        o.packPosition = packPosition;
+        o.permanent = permanent;
+        o.position = position;
+        o.preview = preview;
+        o.quantity = quantity;
+        o.sanity = sanity;
+        o.shroudPerInvestigator = shroudPerInvestigator;
+        o.shroud = shroud;
+        o.skillAgility = skillAgility;
+        o.skillCombat = skillCombat;
+        o.skillIntellect = skillIntellect;
+        o.skillWild = skillWild;
+        o.skillWillpower = skillWillpower;
+        o.slot = slot;
+        o.realSlot = realSlot;
+        o.stage = stage;
+        o.subname = subname;
+        o.realSubname = realSubname;
+        o.subtypeCode = subtypeCode;
+        o.subtypeName = subtypeName;
+        o.tabooSetId = tabooSetId;
+        o.tabooXp = tabooXp;
+        o.text = text;
+        o.realText = realText;
+        o.traits = traits;
+        o.realTraits = realTraits;
+        o.typeCode = typeCode;
+        o.typeName = typeName;
+        o.vengeance = vengeance;
+        o.victory = victory;
+        o.xp = xp;
+        //
+        o.cardBack = cardBack;
         o.parallel = parallel;
-        o.frontCode = frontCode;
+        o.frontId = frontId;
         o.frontPosition = frontPosition;
-        o.backCode = backCode;
+        o.backId = backId;
         o.backPosition = backPosition;
         return o;
-    }
-
-    public String getPackCode() {
-        return packCode;
-    }
-
-    public void setPackCode(String packCode) {
-        this.packCode = packCode;
-    }
-
-    public String getPackName() {
-        return packName;
-    }
-
-    public void setPackName(String packName) {
-        this.packName = packName;
-    }
-
-    public String getTypeCode() {
-        return typeCode;
-    }
-
-    public void setTypeCode(String typeCode) {
-        this.typeCode = typeCode;
-    }
-
-    public String getTypeName() {
-        return typeName;
-    }
-
-    public void setTypeName(String typeName) {
-        this.typeName = typeName;
-    }
-
-    public String getFactionCode() {
-        return factionCode;
-    }
-
-    public void setFactionCode(String factionCode) {
-        this.factionCode = factionCode;
-    }
-
-    public String getFactionName() {
-        return factionName;
-    }
-
-    public void setFactionName(String factionName) {
-        this.factionName = factionName;
-    }
-
-    public Integer getPosition(boolean front) {
-        if (parallel) {
-            return front ? frontPosition : backPosition;
-        } else {
-            return position;
-        }
-    }
-
-    public Integer getPosition() {
-        return position;
-    }
-
-    public void setPosition(Integer position) {
-        this.position = position;
-    }
-
-    public Boolean getExceptional() {
-        return exceptional;
-    }
-
-    public void setExceptional(Boolean exceptional) {
-        this.exceptional = exceptional;
-    }
-
-    public Boolean getMyriad() {
-        return myriad;
-    }
-
-    public void setMyriad(Boolean myriad) {
-        this.myriad = myriad;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getRealName() {
-        return realName;
-    }
-
-    public void setRealName(String realName) {
-        this.realName = realName;
-    }
-
-    public String getSubname() {
-        return subname;
-    }
-
-    public void setSubname(String subname) {
-        this.subname = subname;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public String getRealText() {
-        return realText;
-    }
-
-    public void setRealText(String realText) {
-        this.realText = realText;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
-    public Integer getSkillWillpower() {
-        return skillWillpower;
-    }
-
-    public void setSkillWillpower(Integer skillWillpower) {
-        this.skillWillpower = skillWillpower;
-    }
-
-    public Integer getSkillIntellect() {
-        return skillIntellect;
-    }
-
-    public void setSkillIntellect(Integer skillIntellect) {
-        this.skillIntellect = skillIntellect;
-    }
-
-    public Integer getSkillCombat() {
-        return skillCombat;
-    }
-
-    public void setSkillCombat(Integer skillCombat) {
-        this.skillCombat = skillCombat;
-    }
-
-    public Integer getSkillAgility() {
-        return skillAgility;
-    }
-
-    public void setSkillAgility(Integer skillAgility) {
-        this.skillAgility = skillAgility;
-    }
-
-    public Integer getHealth() {
-        return health;
-    }
-
-    public void setHealth(Integer health) {
-        this.health = health;
-    }
-
-    public Boolean getHealthPerInvestigator() {
-        return healthPerInvestigator;
-    }
-
-    public void setHealthPerInvestigator(Boolean healthPerInvestigator) {
-        this.healthPerInvestigator = healthPerInvestigator;
-    }
-
-    public Integer getSanity() {
-        return sanity;
-    }
-
-    public void setSanity(Integer sanity) {
-        this.sanity = sanity;
-    }
-
-    public Integer getDeckLimit() {
-        return deckLimit;
-    }
-
-    public void setDeckLimit(Integer deckLimit) {
-        this.deckLimit = deckLimit;
-    }
-
-    public String getRealSlot() {
-        return realSlot;
-    }
-
-    public void setRealSlot(String realSlot) {
-        this.realSlot = realSlot;
-    }
-
-    public String getTraits() {
-        return traits;
-    }
-
-    public void setTraits(String traits) {
-        this.traits = traits;
-    }
-
-    public String getRealTraits() {
-        return realTraits;
-    }
-
-    public void setRealTraits(String realTraits) {
-        this.realTraits = realTraits;
-    }
-
-    public DeckRequirements getDeckRequirements() {
-        return deckRequirements;
-    }
-
-    public void setDeckRequirements(DeckRequirements deckRequirements) {
-        this.deckRequirements = deckRequirements;
-    }
-
-    public ArrayList<DeckOption> getDeckOptions() {
-        return deckOptions;
-    }
-
-    public void setDeckOptions(ArrayList<DeckOption> deckOptions) {
-        this.deckOptions = deckOptions;
-    }
-
-    public String getFlavor() {
-        return flavor;
-    }
-
-    public void setFlavor(String flavor) {
-        this.flavor = flavor;
-    }
-
-    public String getIllustrator() {
-        return illustrator;
-    }
-
-    public void setIllustrator(String illustrator) {
-        this.illustrator = illustrator;
-    }
-
-    public Boolean getUnique() {
-        return unique;
-    }
-
-    public void setUnique(Boolean unique) {
-        this.unique = unique;
-    }
-
-    public Boolean getPermanent() {
-        return permanent;
-    }
-
-    public void setPermanent(Boolean permanent) {
-        this.permanent = permanent;
-    }
-
-    public Boolean getDoubleSided() {
-        return doubleSided;
-    }
-
-    public void setDoubleSided(Boolean doubleSided) {
-        this.doubleSided = doubleSided;
-    }
-
-    public String getBackText() {
-        return backText;
-    }
-
-    public void setBackText(String backText) {
-        this.backText = backText;
     }
 
     public String getBackFlavor() {
         return backFlavor;
     }
 
-    public void setBackFlavor(String backFlavor) {
-        this.backFlavor = backFlavor;
+    public String getBackIllustrator() {
+        return backIllustrator;
     }
 
-    public String getOctgnId() {
-        return octgnId;
-    }
-
-    public void setOctgnId(String octgnId) {
-        this.octgnId = octgnId;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getImagesrc() {
-        return imagesrc;
-    }
-
-    public void setImagesrc(String imagesrc) {
-        this.imagesrc = imagesrc;
-    }
-
-    public String getBackimagesrc() {
-        return backimagesrc;
-    }
-
-    public void setBackimagesrc(String backimagesrc) {
-        this.backimagesrc = backimagesrc;
-    }
-
-    public ArrayList<String> getDuplicatedBy() {
-        return duplicatedBy;
-    }
-
-    public void setDuplicatedBy(ArrayList<String> duplicatedBy) {
-        this.duplicatedBy = duplicatedBy;
-    }
-
-    public ArrayList<String> getAlternatedBy() {
-        return alternatedBy;
-    }
-
-    public void setAlternatedBy(ArrayList<String> alternatedBy) {
-        this.alternatedBy = alternatedBy;
-    }
-
-    public Integer getCost() {
-        return cost;
-    }
-
-    public void setCost(Integer cost) {
-        this.cost = cost;
-    }
-
-    public Integer getXp() {
-        return xp;
-    }
-
-    public void setXp(Integer xp) {
-        this.xp = xp;
-    }
-
-    public String getSlot() {
-        return slot;
-    }
-
-    public void setSlot(String slot) {
-        this.slot = slot;
-    }
-
-    public String getSubtypeCode() {
-        return subtypeCode;
-    }
-
-    public void setSubtypeCode(String subtypeCode) {
-        this.subtypeCode = subtypeCode;
-    }
-
-    public String getSubtypeName() {
-        return subtypeName;
-    }
-
-    public void setSubtypeName(String subtypeName) {
-        this.subtypeName = subtypeName;
-    }
-
-    public ErrataDate getErrataDate() {
-        return errataDate;
-    }
-
-    public void setErrataDate(ErrataDate errataDate) {
-        this.errataDate = errataDate;
-    }
-
-    public Integer getSkillWild() {
-        return skillWild;
-    }
-
-    public void setSkillWild(Integer skillWild) {
-        this.skillWild = skillWild;
-    }
-
-    public Restrictions getRestrictions() {
-        return restrictions;
-    }
-
-    public void setRestrictions(Restrictions restrictions) {
-        this.restrictions = restrictions;
-    }
-
-    public String getEncounterCode() {
-        return encounterCode;
-    }
-
-    public void setEncounterCode(String encounterCode) {
-        this.encounterCode = encounterCode;
-    }
-
-    public String getEncounterName() {
-        return encounterName;
-    }
-
-    public void setEncounterName(String encounterName) {
-        this.encounterName = encounterName;
-    }
-
-    public Integer getEncounterPosition() {
-        return encounterPosition;
-    }
-
-    public void setEncounterPosition(Integer encounterPosition) {
-        this.encounterPosition = encounterPosition;
-    }
-
-    public Integer getSpoiler() {
-        return spoiler;
-    }
-
-    public void setSpoiler(Integer spoiler) {
-        this.spoiler = spoiler;
-    }
-
-    public Integer getEnemyDamage() {
-        return enemyDamage;
-    }
-
-    public void setEnemyDamage(Integer enemyDamage) {
-        this.enemyDamage = enemyDamage;
-    }
-
-    public Integer getEnemyHorror() {
-        return enemyHorror;
-    }
-
-    public void setEnemyHorror(Integer enemyHorror) {
-        this.enemyHorror = enemyHorror;
-    }
-
-    public Integer getEnemyFight() {
-        return enemyFight;
-    }
-
-    public void setEnemyFight(Integer enemyFight) {
-        this.enemyFight = enemyFight;
-    }
-
-    public Integer getEnemyEvade() {
-        return enemyEvade;
-    }
-
-    public void setEnemyEvade(Integer enemyEvade) {
-        this.enemyEvade = enemyEvade;
-    }
-
-    public Integer getVictory() {
-        return victory;
-    }
-
-    public void setVictory(Integer victory) {
-        this.victory = victory;
-    }
-
-    public Integer getShroud() {
-        return shroud;
-    }
-
-    public void setShroud(Integer shroud) {
-        this.shroud = shroud;
-    }
-
-    public Integer getClues() {
-        return clues;
-    }
-
-    public void setClues(Integer clues) {
-        this.clues = clues;
-    }
-
-    public Integer getDoom() {
-        return doom;
-    }
-
-    public void setDoom(Integer doom) {
-        this.doom = doom;
-    }
-
-    public Integer getStage() {
-        return stage;
-    }
-
-    public void setStage(Integer stage) {
-        this.stage = stage;
+    public String getBackLinkId() {
+        return backLinkId;
     }
 
     public String getBackName() {
         return backName;
     }
 
-    public void setBackName(String backName) {
-        this.backName = backName;
+    public String getBackSubname() {
+        return backSubname;
     }
 
-    public String getTags() {
-        return tags;
+    public String getBackText() {
+        return backText;
     }
 
-    public void setTags(String tags) {
-        this.tags = tags;
-    }
-
-    public String getLinkedToCode() {
-        return linkedToCode;
-    }
-
-    public void setLinkedToCode(String linkedToCode) {
-        this.linkedToCode = linkedToCode;
-    }
-
-    public String getLinkedToName() {
-        return linkedToName;
-    }
-
-    public void setLinkedToName(String linkedToName) {
-        this.linkedToName = linkedToName;
-    }
-
-    public Card getLinkedCard() {
-        return linkedCard;
-    }
-
-    public void setLinkedCard(Card linkedCard) {
-        this.linkedCard = linkedCard;
-    }
-
-    public Boolean getHidden() {
-        return hidden;
-    }
-
-    public void setHidden(Boolean hidden) {
-        this.hidden = hidden;
+    public String getBackTraits() {
+        return backTraits;
     }
 
     public Boolean getCluesFixed() {
         return cluesFixed;
     }
 
-    public void setCluesFixed(Boolean cluesFixed) {
-        this.cluesFixed = cluesFixed;
+    public Integer getClues() {
+        return clues;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public Integer getCost() {
+        return cost;
+    }
+
+    public Integer getDeckLimit() {
+        return deckLimit;
+    }
+
+    public Boolean getDoomPerInvestigator() {
+        return doomPerInvestigator;
+    }
+
+    public Integer getDoom() {
+        return doom;
+    }
+
+    public Boolean getDoubleSided() {
+        return doubleSided;
+    }
+
+    public String getEncounterCode() {
+        return encounterCode;
+    }
+
+    public String getEncounterName() {
+        return encounterName;
+    }
+
+    public Integer getEncounterPosition() {
+        return encounterPosition;
+    }
+
+    public Integer getEnemyDamage() {
+        return enemyDamage;
+    }
+
+    public Boolean getEnemyEvadePerInvestigator() {
+        return enemyEvadePerInvestigator;
+    }
+
+    public Integer getEnemyEvade() {
+        return enemyEvade;
+    }
+
+    public Boolean getEnemyFightPerInvestigator() {
+        return enemyFightPerInvestigator;
+    }
+
+    public Integer getEnemyFight() {
+        return enemyFight;
+    }
+
+    public Integer getEnemyHorror() {
+        return enemyHorror;
+    }
+
+    public String getErrataDate() {
+        return errataDate;
+    }
+
+    public Boolean getExceptional() {
+        return exceptional;
     }
 
     public Boolean getExile() {
         return exile;
     }
 
-    public void setExile(Boolean exile) {
-        this.exile = exile;
-    }
-
-    public Integer getVengeance() {
-        return vengeance;
-    }
-
-    public void setVengeance(Integer vengeance) {
-        this.vengeance = vengeance;
-    }
-
     public String getFaction2Code() {
         return faction2Code;
-    }
-
-    public void setFaction2Code(String faction2Code) {
-        this.faction2Code = faction2Code;
     }
 
     public String getFaction2Name() {
         return faction2Name;
     }
 
-    public void setFaction2Name(String faction2Name) {
-        this.faction2Name = faction2Name;
-    }
-
-    public ArrayList<BondedCard> getBondedCards() {
-        return bondedCards;
-    }
-
-    public void setBondedCards(ArrayList<BondedCard> bondedCards) {
-        this.bondedCards = bondedCards;
-    }
-
-    public String getBondedTo() {
-        return bondedTo;
-    }
-
-    public void setBondedTo(String bondedTo) {
-        this.bondedTo = bondedTo;
-    }
-
-    public Integer getBondedCount() {
-        return bondedCount;
-    }
-
-    public void setBondedCount(Integer bondedCount) {
-        this.bondedCount = bondedCount;
-    }
-
-    public String getAlternateOfCode() {
-        return alternateOfCode;
-    }
-
-    public void setAlternateOfCode(String alternateOfCode) {
-        this.alternateOfCode = alternateOfCode;
-    }
-
-    public String getAlternateOfName() {
-        return alternateOfName;
-    }
-
-    public void setAlternateOfName(String alternateOfName) {
-        this.alternateOfName = alternateOfName;
-    }
-
-    public String getDuplicateOfCode() {
-        return duplicateOfCode;
-    }
-
-    public void setDuplicateOfCode(String duplicateOfCode) {
-        this.duplicateOfCode = duplicateOfCode;
-    }
-
-    public String getDuplicateOfName() {
-        return duplicateOfName;
-    }
-
-    public void setDuplicateOfName(String duplicateOfName) {
-        this.duplicateOfName = duplicateOfName;
-    }
-
     public String getFaction3Code() {
         return faction3Code;
-    }
-
-    public void setFaction3Code(String faction3Code) {
-        this.faction3Code = faction3Code;
     }
 
     public String getFaction3Name() {
         return faction3Name;
     }
 
-    public void setFaction3Name(String faction3Name) {
-        this.faction3Name = faction3Name;
+    public String getFactionCode() {
+        return factionCode;
     }
 
-    public String getCustomizationText() {
-        return customizationText;
+    public String getFactionName() {
+        return factionName;
     }
 
-    public void setCustomizationText(String customizationText) {
-        this.customizationText = customizationText;
+    public String getFlavor() {
+        return flavor;
     }
 
-    public String getCustomizationChange() {
-        return customizationChange;
+    public Boolean getHealthPerInvestigator() {
+        return healthPerInvestigator;
     }
 
-    public void setCustomizationChange(String customizationChange) {
-        this.customizationChange = customizationChange;
+    public Integer getHealth() {
+        return health;
     }
 
-    public ArrayList<CustomizationOption> getCustomizationOptions() {
-        return customizationOptions;
+    public Boolean getHidden() {
+        return hidden;
     }
 
-    public void setCustomizationOptions(ArrayList<CustomizationOption> customizationOptions) {
-        this.customizationOptions = customizationOptions;
-    }
-
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public String getIllustrator() {
+        return illustrator;
+    }
+
+    public Boolean getIsUnique() {
+        return isUnique;
+    }
+
+    public Boolean getLinked() {
+        return linked;
+    }
+
+    public String getLocale() {
+        return locale;
+    }
+
+    public Boolean getMyriad() {
+        return myriad;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Boolean getOfficial() {
+        return official;
+    }
+
+    public String getPackCode() {
+        return packCode;
+    }
+
+    public String getPackName() {
+        return packName;
+    }
+
+    @Deprecated
+    public Integer getPackPosition() {
+        return packPosition;
+    }
+
+    public Boolean getPermanent() {
+        return permanent;
+    }
+
+    public Integer getPosition() {
+        return position;
+    }
+
+    public Boolean getPreview() {
+        return preview;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public Integer getSanity() {
+        return sanity;
+    }
+
+    public Boolean getShroudPerInvestigator() {
+        return shroudPerInvestigator;
+    }
+
+    public Integer getShroud() {
+        return shroud;
+    }
+
+    public Integer getSkillAgility() {
+        return skillAgility;
+    }
+
+    public Integer getSkillCombat() {
+        return skillCombat;
+    }
+
+    public Integer getSkillIntellect() {
+        return skillIntellect;
+    }
+
+    public Integer getSkillWild() {
+        return skillWild;
+    }
+
+    public Integer getSkillWillpower() {
+        return skillWillpower;
+    }
+
+    public String getSlot() {
+        return slot;
+    }
+
+    public Integer getStage() {
+        return stage;
+    }
+
+    public String getSubname() {
+        return subname;
+    }
+
+    public String getRealSubname() {
+        return realSubname;
+    }
+
+    public String getSubtypeCode() {
+        return subtypeCode;
+    }
+
+    public String getSubtypeName() {
+        return subtypeName;
+    }
+
+    public Integer getTabooSetId() {
+        return tabooSetId;
+    }
+
+    public Integer getTabooXp() {
+        return tabooXp;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public String getTraits() {
+        return traits;
+    }
+
+    public String getTypeCode() {
+        return typeCode;
+    }
+
+    public String getTypeName() {
+        return typeName;
+    }
+
+    public Integer getVengeance() {
+        return vengeance;
+    }
+
+    public Integer getVictory() {
+        return victory;
+    }
+
+    public Integer getXp() {
+        return xp;
     }
 
     public boolean isParallel() {
         return parallel;
     }
 
-    public void setParallel(boolean parallel) {
-        this.parallel = parallel;
-    }
-
-    public String getFrontCode() {
-        return frontCode;
-    }
-
-    public void setFrontCode(String frontCode) {
-        this.frontCode = frontCode;
-    }
-
-    public String getBackCode() {
-        return backCode;
-    }
-
-    public void setBackCode(String backCode) {
-        this.backCode = backCode;
-    }
-
-    public String getImageCode(boolean front) {
+    public String getImageId(boolean front) {
         if (parallel) {
-            return front ? frontCode : backCode;
+            return front ? frontId : backId;
         } else {
-            return code;
+            return id;
         }
     }
 
+    private static final Pattern ID = Pattern.compile("([0-9]+)([a-z])?(?:-([0-9])+)?");
+    private static final int BASE_CHAR = (int) '`'; //so that a becomes 1
+
     private long getSortOrder() {
         if (sortOrder == null) {
-            String c = code;
-            if (parallel) {
-                c = frontCode.startsWith("9") ? String.format("%sb", frontCode) : String.format("%sc", backCode);
-            }
+            var parallelFront = parallel && frontId != null && frontId.startsWith("9");
+            var c = parallel ? (parallelFront ? frontId : backId) : id;
             if (c == null) {
-                log("No code for %s", name);
-                return 0;
-            }
-            if (Character.isLetter(c.charAt(c.length() - 1))) {
-                sortOrder = Long.parseLong(c.substring(0, c.length() - 1)) * 100L + (Character.toLowerCase(c.charAt(c.length() - 1)) - (int) 'a');
+                log("No code for %s %s", id, name);
+                sortOrder = 0L;
             } else {
-                sortOrder = Long.parseLong(c) * 100L;
+                var m = ID.matcher(c);
+                if (m.matches() == false) {
+                    log("No code for %s %s", id, name);
+                    sortOrder = 0L;
+                } else {
+                    try {
+                        var cd = Long.valueOf(nvl(m.group(1), "0"));
+                        var lt = (long) (nvl(m.group(2), "`").charAt(0) - BASE_CHAR);
+                        var tb1 = Long.valueOf(nvl(m.group(3), "0"));
+                        var tb2 = 0L;
+                        if (parallel) {
+                            lt += parallelFront ? 1 : 2;
+                            var otherId = parallelFront ? backId : frontId;
+                            if (otherId != null) {
+                                var m2 = ID.matcher(otherId);
+                                if (m2.matches()) {
+                                    tb2 = Long.parseLong(nvl(m2.group(3), "0"));
+                                }
+                            }
+                        }
+                        sortOrder = cd * 100000000L + lt * 1000000L + tb1 * 1000L + tb2; //2 digits for letter, 3 digits for taboo1, 3 digits for taboo2
+                    } catch (Exception ex) {
+                        log("Failed to calculate code for %s %s", id, name);
+                        sortOrder = 0L;
+                    }
+                }
             }
         }
         return sortOrder;
@@ -1018,31 +964,29 @@ public class Card implements Comparable<Card>, Copyable<Card> {
         return Long.compare(getSortOrder(), o.getSortOrder());
     }
 
-    public String getFullName(boolean showSubname) {
-        if (showSubname && subname != null && subname.length() > 0) {
+    public String getFrontFullName(boolean showSubname) {
+        if (showSubname && subname != null) {
             return String.format("%s: %s", name, subname);
         } else {
             return name;
         }
     }
 
-    public String getDefaultCardBack(HashMap<String, String> backOverrides, HashSet<String> backOverridesVerified) {
-        if (backOverrides != null && backOverrides.containsKey(code)) {
-            if (backOverrides.get(code).equals(getDefaultCardBack(null, null)) == false) {
-                if (backOverridesVerified == null || backOverridesVerified.contains(code) == false) {
-                    System.out.println(String.format("Back difference for %s: %s vs %s", code, backOverrides.get(code), getDefaultCardBack(null, null)));
-                }
-            }
-            return backOverrides.get(code);
-        } else if ((spoiler != null && spoiler == 1) || "Story".equals(typeName)) {
-            if ("mythos".equals(factionCode)) {
-                return "Encounter Card";
-            } else {
-                if (backOverrides != null && backOverrides.containsKey(code) == false) {
-                    System.out.println(String.format("Add back override for %s", code));
-                }
-                return "Player Card";
-            }
+    public String getBackFullName(boolean showSubname) {
+        if ("Investigator".equals(typeName)) {
+            return getFrontFullName(showSubname);
+        } else if (showSubname && backSubname != null) {
+            return "%s: %s".formatted(nvl(backName, name), backSubname);
+        } else {
+            return nvl(backName, name);
+        }
+    }
+
+    public String getCardBack() {
+        if (cardBack != null) {
+            return cardBack;
+        } else if (encounterCode != null) {
+            return "Encounter Card";
         } else {
             return "Player Card";
         }
@@ -1070,21 +1014,19 @@ public class Card implements Comparable<Card>, Copyable<Card> {
         }
     }
 
-    public Integer getDeckbuilderQuantity(HashMap<String, String> quantities, String cardBack) {
-        if (quantities.containsKey(code)) {
-            return Integer.valueOf(quantities.get(code));
-        } else if ("Investigator".equals(typeName)) {
-            return 1;
-        } else if ("Encounter Card".equals(cardBack) || "multi_sided".equals(cardBack)) {
-            return 0;
-        } else if (bondedTo != null) {
+    public Integer getDeckbuilderQuantity() {
+        if (tabooSetId != null && tabooSetId > 0) {
             return 0;
         } else if (deckLimit != null) {
             return deckLimit;
+        } else if ("Investigator".equals(typeName)) {
+            return 1;
+        } else if (encounterCode != null) {
+            return 0;
         } else if (quantity != null) {
             return quantity;
         } else {
-            log("No quantity for %s", code);
+            log("No quantity for %s", id);
             return null;
         }
     }
@@ -1104,6 +1046,307 @@ public class Card implements Comparable<Card>, Copyable<Card> {
             }
         }
         return null;
+    }
+
+    private static final Pattern BONDED = Pattern.compile("Bonded \\(([^)]+)\\)", Pattern.MULTILINE);
+
+    public String getBondedTo() {
+        if (text != null && text.contains("Bonded (")) {
+            Matcher m = BONDED.matcher(text);
+            if (m.find()) {
+                return m.group(1);
+            }
+        }
+        return null;
+    }
+
+    public Integer getPosition(boolean front) {
+        if (parallel) {
+            return front ? frontPosition : backPosition;
+        } else {
+            return position;
+        }
+    }
+
+    public void flip(Card c) {
+        //this becomes front card
+        //c becomes back card
+        var oldCode = code;
+        var oldId = id;
+        backLinkId = oldId;
+        code = c.code;
+        id = c.id;
+        hidden = false;
+        c.backLinkId = null;
+        c.code = oldCode;
+        c.id = oldId;
+        c.hidden = true;
+    }
+
+    public void hide() {
+        this.hidden = true;
+    }
+
+    public void override(Configuration configuration, Metadata metadata, JsonNode override) throws Exception {
+        if (override != null && override.isObject()) {
+            readCard(configuration, metadata, override, this, true);
+        }
+    }
+
+    public boolean tabooEquals(Card other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null) {
+            return false;
+        }
+        if (!Objects.equals(this.backFlavor, other.backFlavor)) {
+            return false;
+        }
+        if (!Objects.equals(this.realBackFlavor, other.realBackFlavor)) {
+            return false;
+        }
+        if (!Objects.equals(this.backIllustrator, other.backIllustrator)) {
+            return false;
+        }
+        if (!Objects.equals(this.backLinkId, other.backLinkId)) {
+            return false;
+        }
+        if (!Objects.equals(this.backName, other.backName)) {
+            return false;
+        }
+        if (!Objects.equals(this.realBackName, other.realBackName)) {
+            return false;
+        }
+        if (!Objects.equals(this.backSubname, other.backSubname)) {
+            return false;
+        }
+        if (!Objects.equals(this.realBackSubname, other.realBackSubname)) {
+            return false;
+        }
+        if (!Objects.equals(this.backText, other.backText)) {
+            return false;
+        }
+        if (!Objects.equals(this.realBackText, other.realBackText)) {
+            return false;
+        }
+        if (!Objects.equals(this.backTraits, other.backTraits)) {
+            return false;
+        }
+        if (!Objects.equals(this.realBackTraits, other.realBackTraits)) {
+            return false;
+        }
+        if (!Objects.equals(this.code, other.code)) {
+            return false;
+        }
+        if (!Objects.equals(this.encounterCode, other.encounterCode)) {
+            return false;
+        }
+        if (!Objects.equals(this.encounterName, other.encounterName)) {
+            return false;
+        }
+        if (!Objects.equals(this.errataDate, other.errataDate)) {
+            return false;
+        }
+        if (!Objects.equals(this.faction2Code, other.faction2Code)) {
+            return false;
+        }
+        if (!Objects.equals(this.faction2Name, other.faction2Name)) {
+            return false;
+        }
+        if (!Objects.equals(this.faction3Code, other.faction3Code)) {
+            return false;
+        }
+        if (!Objects.equals(this.faction3Name, other.faction3Name)) {
+            return false;
+        }
+        if (!Objects.equals(this.factionCode, other.factionCode)) {
+            return false;
+        }
+        if (!Objects.equals(this.factionName, other.factionName)) {
+            return false;
+        }
+        if (!Objects.equals(this.flavor, other.flavor)) {
+            return false;
+        }
+        if (!Objects.equals(this.realFlavor, other.realFlavor)) {
+            return false;
+        }
+        if (!Objects.equals(this.illustrator, other.illustrator)) {
+            return false;
+        }
+        if (!Objects.equals(this.locale, other.locale)) {
+            return false;
+        }
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if (!Objects.equals(this.realName, other.realName)) {
+            return false;
+        }
+        if (!Objects.equals(this.packCode, other.packCode)) {
+            return false;
+        }
+        if (!Objects.equals(this.packName, other.packName)) {
+            return false;
+        }
+        if (!Objects.equals(this.slot, other.slot)) {
+            return false;
+        }
+        if (!Objects.equals(this.realSlot, other.realSlot)) {
+            return false;
+        }
+        if (!Objects.equals(this.subname, other.subname)) {
+            return false;
+        }
+        if (!Objects.equals(this.realSubname, other.realSubname)) {
+            return false;
+        }
+        if (!Objects.equals(this.subtypeCode, other.subtypeCode)) {
+            return false;
+        }
+        if (!Objects.equals(this.subtypeName, other.subtypeName)) {
+            return false;
+        }
+        if (!Objects.equals(this.text, other.text)) {
+            return false;
+        }
+        if (!Objects.equals(this.realText, other.realText)) {
+            return false;
+        }
+        if (!Objects.equals(this.traits, other.traits)) {
+            return false;
+        }
+        if (!Objects.equals(this.realTraits, other.realTraits)) {
+            return false;
+        }
+        if (!Objects.equals(this.typeCode, other.typeCode)) {
+            return false;
+        }
+        if (!Objects.equals(this.typeName, other.typeName)) {
+            return false;
+        }
+        if (!Objects.equals(this.cluesFixed, other.cluesFixed)) {
+            return false;
+        }
+        if (!Objects.equals(this.clues, other.clues)) {
+            return false;
+        }
+        if (!Objects.equals(this.cost, other.cost)) {
+            return false;
+        }
+        if (!Objects.equals(this.deckLimit, other.deckLimit)) {
+            return false;
+        }
+        if (!Objects.equals(this.doomPerInvestigator, other.doomPerInvestigator)) {
+            return false;
+        }
+        if (!Objects.equals(this.doom, other.doom)) {
+            return false;
+        }
+        if (!Objects.equals(this.doubleSided, other.doubleSided)) {
+            return false;
+        }
+        if (!Objects.equals(this.encounterPosition, other.encounterPosition)) {
+            return false;
+        }
+        if (!Objects.equals(this.enemyDamage, other.enemyDamage)) {
+            return false;
+        }
+        if (!Objects.equals(this.enemyEvadePerInvestigator, other.enemyEvadePerInvestigator)) {
+            return false;
+        }
+        if (!Objects.equals(this.enemyEvade, other.enemyEvade)) {
+            return false;
+        }
+        if (!Objects.equals(this.enemyFightPerInvestigator, other.enemyFightPerInvestigator)) {
+            return false;
+        }
+        if (!Objects.equals(this.enemyFight, other.enemyFight)) {
+            return false;
+        }
+        if (!Objects.equals(this.enemyHorror, other.enemyHorror)) {
+            return false;
+        }
+        if (!Objects.equals(this.exceptional, other.exceptional)) {
+            return false;
+        }
+        if (!Objects.equals(this.exile, other.exile)) {
+            return false;
+        }
+        if (!Objects.equals(this.healthPerInvestigator, other.healthPerInvestigator)) {
+            return false;
+        }
+        if (!Objects.equals(this.health, other.health)) {
+            return false;
+        }
+        if (!Objects.equals(this.hidden, other.hidden)) {
+            return false;
+        }
+        if (!Objects.equals(this.isUnique, other.isUnique)) {
+            return false;
+        }
+        if (!Objects.equals(this.linked, other.linked)) {
+            return false;
+        }
+        if (!Objects.equals(this.myriad, other.myriad)) {
+            return false;
+        }
+        if (!Objects.equals(this.official, other.official)) {
+            return false;
+        }
+        if (!Objects.equals(this.packPosition, other.packPosition)) {
+            return false;
+        }
+        if (!Objects.equals(this.permanent, other.permanent)) {
+            return false;
+        }
+        if (!Objects.equals(this.position, other.position)) {
+            return false;
+        }
+        if (!Objects.equals(this.preview, other.preview)) {
+            return false;
+        }
+        if (!Objects.equals(this.quantity, other.quantity)) {
+            return false;
+        }
+        if (!Objects.equals(this.sanity, other.sanity)) {
+            return false;
+        }
+        if (!Objects.equals(this.shroudPerInvestigator, other.shroudPerInvestigator)) {
+            return false;
+        }
+        if (!Objects.equals(this.shroud, other.shroud)) {
+            return false;
+        }
+        if (!Objects.equals(this.skillAgility, other.skillAgility)) {
+            return false;
+        }
+        if (!Objects.equals(this.skillCombat, other.skillCombat)) {
+            return false;
+        }
+        if (!Objects.equals(this.skillIntellect, other.skillIntellect)) {
+            return false;
+        }
+        if (!Objects.equals(this.skillWild, other.skillWild)) {
+            return false;
+        }
+        if (!Objects.equals(this.skillWillpower, other.skillWillpower)) {
+            return false;
+        }
+        if (!Objects.equals(this.stage, other.stage)) {
+            return false;
+        }
+        if (!Objects.equals(this.tabooXp, other.tabooXp)) {
+            return false;
+        }
+        if (!Objects.equals(this.vengeance, other.vengeance)) {
+            return false;
+        }
+        if (!Objects.equals(this.victory, other.victory)) {
+            return false;
+        }
+        return Objects.equals(this.xp, other.xp);
     }
 
 }

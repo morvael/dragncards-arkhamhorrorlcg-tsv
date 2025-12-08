@@ -1,29 +1,11 @@
 target/
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-pom.xml.next
-release.properties
-dependency-reduced-pom.xml
-buildNumber.properties
-.mvn/timing.properties
-# https://github.com/takari/maven-wrapper#usage-without-binary-jar
-.mvn/wrapper/maven-wrapper.jar
-
-# Eclipse m2e generated files
-# Eclipse Core
-.project
-# JDT-specific (Eclipse Java Development Tools)
-.classpath
-
 nb-configuration.xml
 nbactions.xml
 
 run/tts/**
 run/repos/**
+run/metadata.json
 run/cards.json
-run/player_cards_en.json
-run/player_cards_pl.json
 run/arkhamhorrorlcg*.tsv
 run/arkhamhorrorlcg.xlsx
 run/Core Weakness.json
@@ -35,9 +17,7 @@ run/raven_quill.tsv
 run/ttsCardBacks.txt
 run/imgur.jpg
 run/.~lock*
-src/main/java/pl/derwinski/arkham/MainCompareTitles.java
 src/main/java/pl/derwinski/arkham/MainFixEncoding.java
 src/main/java/pl/derwinski/arkham/MainTestImgur.java
-locations.xlsx
 customizable.xlsx
 .~lock*

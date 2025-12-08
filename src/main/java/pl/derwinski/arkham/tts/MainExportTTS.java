@@ -108,19 +108,19 @@ public class MainExportTTS {
                         customDeck.setBackURL(readStringRaw(c.get(fieldName)));
                         break;
                     case "NumWidth":
-                        customDeck.setNumWidth(readInteger(c.get(fieldName)));
+                        customDeck.setNumWidth(readInteger(c, fieldName));
                         break;
                     case "NumHeight":
-                        customDeck.setNumHeight(readInteger(c.get(fieldName)));
+                        customDeck.setNumHeight(readInteger(c, fieldName));
                         break;
                     case "BackIsHidden":
-                        customDeck.setBackIsHidden(readBoolean(c.get(fieldName)));
+                        customDeck.setBackIsHidden(readBoolean(c, fieldName));
                         break;
                     case "UniqueBack":
-                        customDeck.setUniqueBack(readBoolean(c.get(fieldName)));
+                        customDeck.setUniqueBack(readBoolean(c, fieldName));
                         break;
                     case "Type":
-                        customDeck.setType(readInteger(c.get(fieldName)));
+                        customDeck.setType(readInteger(c, fieldName));
                         break;
                     default:
                         if (unhandledCustomDeck.add(fieldName)) {
@@ -167,7 +167,7 @@ public class MainExportTTS {
                         gmNotes.setId(readStringRaw(c.get(fieldName)));
                         break;
                     case "alternate_ids":
-                        gmNotes.setAlternateIds(readStringList(c.get(fieldName)));
+                        gmNotes.setAlternateIds(readStringList(c, fieldName));
                         break;
                     case "type":
                         gmNotes.setType(readStringRaw(c.get(fieldName)));
@@ -219,7 +219,7 @@ public class MainExportTTS {
                         card.setDescription(readStringRaw(c.get(fieldName)));
                         break;
                     case "SidewaysCard":
-                        card.setSidewaysCard(readBoolean(c.get(fieldName)));
+                        card.setSidewaysCard(readBoolean(c, fieldName));
                         break;
                     case "GMNotes":
                         try {

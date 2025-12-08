@@ -26,32 +26,124 @@
  */
 package pl.derwinski.arkham.json;
 
-import java.util.ArrayList;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import java.io.File;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import pl.derwinski.arkham.Util;
+import static pl.derwinski.arkham.Util.log;
+import pl.derwinski.arkham.json.configuration.Configuration;
+import pl.derwinski.arkham.json.metadata.Metadata;
 
 /**
  *
  * @author morvael
  */
-public class Cards implements Iterable<Card> {
+public final class Cards implements Iterable<Card> {
 
-    private ArrayList<Card> cards;
+    private static final HashSet<String> unhandled = new HashSet<>();
 
-    public Cards() {
-
+    public static Cards loadCards() throws Exception {
+        return loadCards(Configuration.loadConfiguration(), Metadata.loadMetadata());
     }
 
-    public ArrayList<Card> getCards() {
+    public static Cards loadCards(Configuration configuration, Metadata metadata) throws Exception {
+        Util.downloadIfOld("https://api.arkham.build/v1/cache/cards/en", "run/cards.json");
+        return loadCards(configuration, metadata, "run/cards.json");
+    }
+
+    public static Cards loadCards(Configuration configuration, Metadata metadata, String path) throws Exception {
+        var file = new File(path);
+        var c = new JsonMapper().readTree(file).findValue("data");
+        if (c != null) {
+            return loadCards(configuration, metadata, c);
+        } else {
+            log("Error reading Cards file");
+            return null;
+        }
+    }
+
+    public static Cards loadCards(Configuration configuration, Metadata metadata, JsonNode c) throws Exception {
+        if (c.isObject()) {
+            var o = new Cards(configuration, metadata);
+            var it = c.fieldNames();
+            while (it.hasNext()) {
+                var fieldName = it.next();
+                switch (fieldName) {
+                    case "all_card":
+                        o.cards = Collections.unmodifiableList(Card.readCards(configuration, metadata, c.get(fieldName)));
+                        break;
+                    default:
+                        if (unhandled.add(fieldName)) {
+                            log("Unhandled field name in Cards: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType());
+                        }
+                        break;
+                }
+            }
+            for (var card : o.cards) {
+                o.map.put(card.getId(), card);
+            }
+            for (var card : o.cards) {
+                if (card.getBackLinkId() != null) {
+                    var backCard = o.map.get(card.getBackLinkId());
+                    if (backCard != null) {
+                        if (configuration.isFlipped(backCard)) {
+                            backCard.flip(card);
+                            o.map.put(card.getId(), card);
+                            o.map.put(backCard.getId(), backCard);
+                        } else if (configuration.isFlipped(card)) {
+                            card.flip(backCard);
+                            o.map.put(card.getId(), card);
+                            o.map.put(backCard.getId(), backCard);
+                        } else {
+                            backCard.hide();
+                        }
+                    }
+                }
+            }
+            return o;
+        } else {
+            if (c.isNull() == false) {
+                log("Error reading Cards object: %s", c.asText());
+            }
+            return null;
+        }
+    }
+
+    private final Configuration configuration;
+    private final Metadata metadata;
+    private final HashMap<String, Card> map = new HashMap<>();
+
+    private List<Card> cards;
+
+    private Cards(Configuration configuration, Metadata metadata) {
+        this.configuration = configuration;
+        this.metadata = metadata;
+    }
+
+    public List<Card> getCards() {
         return cards;
-    }
-
-    public void setCards(ArrayList<Card> cards) {
-        this.cards = cards;
     }
 
     @Override
     public Iterator<Card> iterator() {
         return cards.iterator();
+    }
+
+    public Configuration getConfiguration() {
+        return configuration;
+    }
+
+    public Metadata getMetadata() {
+        return metadata;
+    }
+
+    public Card getCard(String id) {
+        return map.get(id);
     }
 
 }

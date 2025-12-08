@@ -38,8 +38,8 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -68,7 +68,7 @@ public final class Util {
         if (c == null || c.isNull()) {
             return null;
         } else {
-            String s = c.asText();
+            var s = c.asText();
             if (s.contains("  ")) {
                 s = s.replace("  ", " ");
             }
@@ -79,20 +79,26 @@ public final class Util {
         }
     }
 
-    public static Integer readInteger(JsonNode c) {
+    public static String readString(JsonNode p, String fieldName) {
+        return readString(p.get(fieldName));
+    }
+
+    public static Integer readInteger(JsonNode p, String fieldName) {
+        var c = p.get(fieldName);
         if (c == null || c.isNull()) {
             return null;
         } else {
             try {
                 return Integer.valueOf(c.asText());
             } catch (NumberFormatException ex) {
-                log("Error reading Integer field: %s", c.asText());
+                log("Error reading Integer field %s: %s", fieldName, c.asText());
                 return null;
             }
         }
     }
 
-    public static Boolean readBoolean(JsonNode c) {
+    public static Boolean readBoolean(JsonNode p, String fieldName) {
+        var c = p.get(fieldName);
         if (c == null || c.isNull()) {
             return null;
         } else {
@@ -102,39 +108,109 @@ public final class Util {
                 case "false":
                     return Boolean.FALSE;
                 default:
-                    log("Error reading Boolean field: %s", c.asText());
+                    log("Error reading Boolean field %s: %s", fieldName, c.asText());
                     return null;
             }
         }
     }
 
-    public static ArrayList<String> readStringList(JsonNode c) throws Exception {
+    public static ArrayList<String> readStringList(JsonNode p, String fieldName) throws Exception {
+        var c = p.get(fieldName);
         if (c.isArray()) {
-            ArrayList<String> list = new ArrayList<>();
-            for (int i = 0; i < c.size(); i++) {
+            var list = new ArrayList<String>();
+            for (var i = 0; i < c.size(); i++) {
                 list.add(readString(c.get(i)));
             }
             return list;
         } else {
             if (c.isNull() == false) {
-                log("Error reading StringList field: %s", c.asText());
+                log("Error reading StringList field %s: %s", fieldName, c.asText());
             }
             return null;
         }
     }
 
-    public static LinkedHashMap<String, String> readStringStringMap(JsonNode c) throws Exception {
+    public static ArrayList<JsonNode> readJsonNodeList(JsonNode p, String fieldName) throws Exception {
+        var c = p.get(fieldName);
+        if (c.isArray()) {
+            var list = new ArrayList<JsonNode>();
+            for (var i = 0; i < c.size(); i++) {
+                list.add(c.get(i));
+            }
+            return list;
+        } else {
+            if (c.isNull() == false) {
+                log("Error reading JsonNodeList field %s: %s", fieldName, c.asText());
+            }
+            return null;
+        }
+    }
+
+    public static LinkedHashSet<String> readStringSet(JsonNode p, String fieldName) throws Exception {
+        var c = p.get(fieldName);
+        if (c.isArray()) {
+            var list = new LinkedHashSet<String>();
+            for (var i = 0; i < c.size(); i++) {
+                list.add(readString(c.get(i)));
+            }
+            return list;
+        } else {
+            if (c.isNull() == false) {
+                log("Error reading StringSet field %s: %s", fieldName, c.asText());
+            }
+            return null;
+        }
+    }
+
+    public static LinkedHashMap<String, String> readStringStringMap(JsonNode p, String fieldName) throws Exception {
+        var c = p.get(fieldName);
         if (c.isObject()) {
-            LinkedHashMap<String, String> map = new LinkedHashMap<>();
-            Iterator<String> it = c.fieldNames();
+            var map = new LinkedHashMap<String, String>();
+            var it = c.fieldNames();
             while (it.hasNext()) {
-                String fieldName = it.next();
-                map.put(fieldName, readString(c.get(fieldName)));
+                var fn = it.next();
+                map.put(fn, readString(c, fn));
             }
             return map;
         } else {
             if (c.isNull() == false) {
-                log("Error reading StringStringMap field: %s", c.asText());
+                log("Error reading StringStringMap field %s: %s", fieldName, c.asText());
+            }
+            return null;
+        }
+    }
+
+    public static LinkedHashMap<String, LinkedHashMap<String, String>> readStringStringStringMap(JsonNode p, String fieldName) throws Exception {
+        var c = p.get(fieldName);
+        if (c.isObject()) {
+            var map = new LinkedHashMap<String, LinkedHashMap<String, String>>();
+            var it = c.fieldNames();
+            while (it.hasNext()) {
+                var fn = it.next();
+                map.put(fn, readStringStringMap(c, fn));
+            }
+            return map;
+        } else {
+            if (c.isNull() == false) {
+                log("Error reading StringStringStringMap field %s: %s", fieldName, c.asText());
+            }
+            return null;
+        }
+    }
+
+    public static LinkedHashMap<String, JsonNode> readStringJsonNodeMap(JsonNode p, String fieldName) throws Exception {
+        var c = p.get(fieldName);
+        if (c.isObject()) {
+            var map = new LinkedHashMap<String, JsonNode>();
+            var it = c.fieldNames();
+            while (it.hasNext()) {
+                var fn = it.next();
+                map.put(fn, c.get(fn));
+            }
+            return map;
+        } else {
+            if (c.isNull() == false) {
+                log("Error reading StringJsonNodeMap field %s: %s", fieldName, c.asText());
             }
             return null;
         }
@@ -276,6 +352,10 @@ public final class Util {
             }
             return result;
         }
+    }
+
+    public static <T> T nvl(T o1, T o2) {
+        return o1 != null ? o1 : o2;
     }
 
 }

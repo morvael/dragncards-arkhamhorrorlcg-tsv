@@ -1,0 +1,726 @@
+{
+    "parallel": {
+        "01002": "90001",
+        "01003": "90008",
+        "01004": "90017",
+        "01001": "90024",
+        "01005": "90037",
+        "02005": "90046",
+        "02004": "90049",
+        "02001": "90059",
+        "08007": "90062",
+        "02002": "90078",
+        "04004": "90081",
+        "02003": "90084"
+    },
+    "parallelMini": {
+        "90001": "01002",
+        "9000101002": "01002",
+        "0100290001": "01002",
+        "90008": "01003",
+        "9000801003": "01003",
+        "0100390008": "01003",
+        "90017": "01004",
+        "9001701004": "01004",
+        "0100490017": "01004",
+        "90024": "01001",
+        "9002401001": "01001",
+        "0100190024": "01001",
+        "90037": "01005",
+        "9003701005": "01005",
+        "0100590037": "01005",
+        "90046": "02005",
+        "9004602005": "02005",
+        "0200590046": "02005",
+        "90049": "02004",
+        "9004902004": "02004",
+        "0200490049": "02004",
+        "90059": "02001",
+        "9005902001": "02001",
+        "0200190059": "02001",
+        "90062": "08007",
+        "9006208007": "08007",
+        "0800790062": "08007",
+        "90078": "02002",
+        "9007802002": "02002",
+        "0200290078": "02002",
+        "90081": "04004",
+        "9008104004": "04004",
+        "0400490081": "04004",
+        "90084": "90084",
+        "9008402003": "90084",
+        "0200390084": "02003"
+    },
+    "skipBonded": [
+        "06014",
+        "10016"
+    ],
+    "flipped": [
+        "03182a",
+        "03221",
+        "03325",
+        "03326a",
+        "03326c",
+        "03327a",
+        "03327c",
+        "03327e",
+        "03327e",
+        "03328a",
+        "03328c",
+        "03328e",
+        "03329a",
+        "03329c",
+        "03330",
+        "03331",
+        "04325",
+        "04326",
+        "05085",
+        "07292a",
+        "07300",
+        "51026",
+        "83022a",
+        "83023a",
+        "83024a",
+        "83025a",
+        "83026a"
+    ],
+    "overrides": {
+        "05303": {
+            "back_subname": "Shrouded In Mystery"
+        },
+        "05304": {
+            "back_subname": "Shrouded In Mystery"
+        },
+        "10016a": {
+            "back_link_id": "10016b",
+            "code": "10016",
+            "hidden": false,
+            "id": "10016"
+        },
+        "06346": {
+            "back_link_id": "06346b"
+        },
+        "50011": {
+            "type_code": "reference"
+        },
+        "50025": {
+            "type_code": "reference"
+        },
+        "50032a": {
+            "type_code": "reference"
+        },
+        "51012": {
+            "type_code": "reference"
+        },
+        "51015": {
+            "type_code": "reference"
+        },
+        "51020": {
+            "type_code": "reference"
+        },
+        "51025": {
+            "type_code": "reference"
+        },
+        "51032": {
+            "type_code": "reference"
+        },
+        "51041": {
+            "type_code": "reference"
+        },
+        "51047": {
+            "type_code": "reference"
+        },
+        "51053": {
+            "type_code": "reference"
+        },
+        "52014": {
+            "type_code": "reference"
+        },
+        "52021": {
+            "type_code": "reference"
+        },
+        "52028": {
+            "type_code": "reference"
+        },
+        "52034": {
+            "type_code": "reference"
+        },
+        "52040": {
+            "type_code": "reference"
+        },
+        "52048": {
+            "type_code": "reference"
+        },
+        "52054": {
+            "type_code": "reference"
+        },
+        "52059": {
+            "type_code": "reference"
+        },
+        "53016": {
+            "type_code": "reference"
+        },
+        "53017": {
+            "type_code": "reference"
+        },
+        "53028": {
+            "type_code": "reference"
+        },
+        "53038": {
+            "type_code": "reference"
+        },
+        "53045": {
+            "type_code": "reference"
+        },
+        "53048": {
+            "type_code": "reference"
+        },
+        "53053": {
+            "type_code": "reference"
+        },
+        "53059": {
+            "type_code": "reference"
+        },
+        "53061": {
+            "type_code": "reference"
+        },
+        "53066": {
+            "type_code": "reference"
+        },
+        "54016": {
+            "type_code": "reference"
+        },
+        "54017": {
+            "type_code": "reference"
+        },
+        "54024": {
+            "type_code": "reference"
+        },
+        "54029": {
+            "type_code": "reference"
+        },
+        "54034": {
+            "type_code": "reference"
+        },
+        "54042": {
+            "type_code": "reference"
+        },
+        "54046": {
+            "type_code": "reference"
+        },
+        "54049": {
+            "type_code": "reference"
+        },
+        "54056": {
+            "type_code": "reference"
+        },
+        "70033b": {
+            "preview": false
+        },
+        "70034b": {
+            "preview": false
+        },
+        "70035b": {
+            "preview": false
+        },
+        "70036b": {
+            "preview": false
+        },
+        "70037b": {
+            "preview": false
+        },
+        "70038b": {
+            "preview": false
+        },
+        "70041": {
+            "deck_limit": 0
+        },
+        "83022b": {
+            "hidden": false
+        },
+        "83023b": {
+            "hidden": false
+        },
+        "83024b": {
+            "hidden": false
+        },
+        "83025b": {
+            "hidden": false
+        },
+        "83026b": {
+            "hidden": false
+        },
+        "87038b": {
+            "position": 38
+        },
+        "88043": {
+            "deck_limit": 0
+        },
+        "89005": {
+            "deck_limit": 0
+        },
+        "89005b": {
+            "deck_limit": 0,
+            "preview": false
+        },
+        "98001": {
+            "hidden": false
+        },
+        "98004": {
+            "hidden": false
+        },
+        "98007": {
+            "hidden": false
+        },
+        "98013": {
+            "hidden": false
+        },
+        "98016": {
+            "hidden": false
+        },
+        "98019": {
+            "hidden": false
+        }
+    },
+    "extras": [
+        {
+            "code": "06346b",
+            "encounter_code": "weaver_of_the_cosmos",
+            "encounter_position": 23,
+            "faction_code": "mythos",
+            "id": "06346b",
+            "illustrator": "Helge C. Balzer",
+            "is_unique": true,
+            "official": true,
+            "pack_code": "woc",
+            "pack_position": 346,
+            "permanent": false,
+            "position": 346,
+            "quantity": 1,
+            "real_name": "Atlach-Nacha",
+            "type_code": "story"
+        }
+    ],
+    "cardBacks": {
+        "01117": "Player Card",
+        "02040": "Player Card",
+        "02059": "Encounter Card",
+        "02060": "Encounter Card",
+        "02061": "Player Card",
+        "02079": "Encounter Card",
+        "02080": "Player Card",
+        "02138": "Encounter Card",
+        "02139": "Encounter Card",
+        "02140": "Player Card",
+        "02178": "Player Card",
+        "02179": "Encounter Card",
+        "02215": "Encounter Card",
+        "02217": "Player Card",
+        "02218": "Player Card",
+        "02219": "Player Card",
+        "02254": "Encounter Card",
+        "03059": "Player Card",
+        "03141": "Encounter Card",
+        "03142": "Player Card",
+        "03143": "Player Card",
+        "03227": "Player Card",
+        "04051": "Player Card",
+        "04061": "Player Card",
+        "04102": "Player Card",
+        "04147": "Player Card",
+        "04148": "Player Card",
+        "04191": "Player Card",
+        "04256": "Encounter Card",
+        "04264": "Player Card",
+        "04303": "Player Card",
+        "04343": "Player Card",
+        "05150": "Player Card",
+        "05177": "Encounter Card",
+        "05227": "Encounter Card",
+        "05228": "Player Card",
+        "05258": "Player Card",
+        "05259": "Player Card",
+        "05260": "Player Card",
+        "05261": "Player Card",
+        "06028": "Encounter Card",
+        "06059": "Player Card",
+        "06079": "Player Card",
+        "06080": "Encounter Card",
+        "06144": "Encounter Card",
+        "06189": "Player Card",
+        "06224": "Encounter Card",
+        "06225": "Encounter Card",
+        "06233": "Player Card",
+        "06266": "Encounter Card",
+        "06275": "Player Card",
+        "07082": "Player Card",
+        "07083": "Player Card",
+        "07150": "Encounter Card",
+        "07151": "Player Card",
+        "07178": "Encounter Card",
+        "07179": "Player Card",
+        "07180": "Player Card",
+        "07181": "Player Card",
+        "07338": "Encounter Card",
+        "08587": "Player Card",
+        "08588": "Player Card",
+        "08589": "Player Card",
+        "08590": "Player Card",
+        "08591": "Player Card",
+        "08592": "Player Card",
+        "08593": "Player Card",
+        "08594": "Player Card",
+        "08595": "Player Card",
+        "08614": "Player Card",
+        "08615": "Player Card",
+        "08616": "Player Card",
+        "08617": "Player Card",
+        "08618": "Player Card",
+        "08619": "Player Card",
+        "08620": "Player Card",
+        "08646": "Player Card",
+        "08647": "Player Card",
+        "08714": "Player Card",
+        "08715": "Player Card",
+        "08716": "Player Card",
+        "08717": "Player Card",
+        "08718": "Player Card",
+        "08719": "Player Card",
+        "08720": "Player Card",
+        "08721": "Player Card",
+        "08722": "Player Card",
+        "08723": "Player Card",
+        "08724": "Player Card",
+        "08725": "Player Card",
+        "08726": "Player Card",
+        "08727": "Player Card",
+        "08728": "Player Card",
+        "08729": "Player Card",
+        "08730": "Player Card",
+        "08731": "Player Card",
+        "08732": "Player Card",
+        "08733": "Player Card",
+        "08734": "Player Card",
+        "08735": "Player Card",
+        "08736": "Player Card",
+        "08737": "Player Card",
+        "08738": "Player Card",
+        "11016": "Encounter Card",
+        "51031": "Encounter Card",
+        "51052": "Player Card",
+        "52025": "Encounter Card",
+        "52026": "Encounter Card",
+        "53037": "Player Card",
+        "54041": "Player Card",
+        "54061": "Encounter Card",
+        "70039": "Encounter Card",
+        "70040": "Encounter Card",
+        "70041": "Encounter Card",
+        "70042": "Encounter Card",
+        "70043": "Encounter Card",
+        "70044": "Encounter Card",
+        "70045": "Encounter Card",
+        "70046": "Encounter Card",
+        "70047": "Encounter Card",
+        "71017": "Player Card",
+        "71018": "Player Card",
+        "71019": "Player Card",
+        "71023": "Player Card",
+        "71024": "Player Card",
+        "71025": "Player Card",
+        "71029": "Player Card",
+        "71030": "Player Card",
+        "71031": "Player Card",
+        "71035": "Player Card",
+        "71036": "Player Card",
+        "71037": "Player Card",
+        "71041": "Player Card",
+        "71042": "Player Card",
+        "71043": "Player Card",
+        "71052": "Encounter Card",
+        "81019": "Player Card",
+        "81020": "Encounter Card",
+        "81021": "Encounter Card",
+        "81029": "Player Card",
+        "81030": "Player Card",
+        "82022": "Player Card",
+        "82023": "Player Card",
+        "82024": "Player Card",
+        "82025": "Player Card",
+        "82026": "Player Card",
+        "83055": "Player Card",
+        "83056": "Player Card",
+        "83057": "Player Card",
+        "83058": "Player Card",
+        "84006": "Player Card",
+        "84007": "Player Card",
+        "84008": "Player Card",
+        "84028": "Encounter Card",
+        "84031": "Encounter Card",
+        "84034": "Encounter Card",
+        "84037": "Encounter Card",
+        "84040": "Encounter Card",
+        "85025": "Encounter Card",
+        "85026": "Encounter Card",
+        "85028": "Encounter Card",
+        "85029": "Player Card",
+        "85030": "Player Card",
+        "85031": "Player Card",
+        "85032": "Player Card",
+        "86051": "Player Card",
+        "86052": "Player Card",
+        "86053": "Player Card",
+        "86054": "Player Card",
+        "86055": "Player Card",
+        "87012": "Encounter Card",
+        "87013": "Encounter Card",
+        "87014": "Player Card",
+        "87021": "Encounter Card",
+        "87022": "Encounter Card",
+        "87023": "Player Card",
+        "87030": "Encounter Card",
+        "87031": "Encounter Card",
+        "87032": "Player Card",
+        "88044": "Player Card",
+        "89012": "Encounter Card",
+        "89016": "Encounter Card",
+        "89019": "Player Card",
+        "89020": "Player Card",
+        "89021": "Player Card",
+        "90073": "Encounter Card",
+        "90074": "Encounter Card",
+        "90075": "Encounter Card",
+        "90076": "Encounter Card"
+    },
+    "packFilter": [
+        "core",
+        "rcore",
+        "dwl",
+        "tmm",
+        "tece",
+        "bota",
+        "uau",
+        "wda",
+        "litas",
+        "ptc",
+        "eotp",
+        "tuo",
+        "apot",
+        "tpm",
+        "bsr",
+        "dca",
+        "tfa",
+        "tof",
+        "tbb",
+        "hote",
+        "tcoa",
+        "tdoy",
+        "sha",
+        "tcu",
+        "tsn",
+        "wos",
+        "fgg",
+        "uad",
+        "icc",
+        "bbt",
+        "tde",
+        "sfk",
+        "tsh",
+        "dsm",
+        "pnr",
+        "wgd",
+        "woc",
+        "tic",
+        "itd",
+        "def",
+        "hhg",
+        "lif",
+        "lod",
+        "itm",
+        "eoep",
+        "eoec",
+        "tskp",
+        "fhvp",
+        "tdcp",
+        "rtnotz",
+        "rtdwl",
+        "rtptc",
+        "rttfa",
+        "rttcu",
+        "nat",
+        "har",
+        "win",
+        "jac",
+        "ste",
+        "cotr",
+        "coh",
+        "lol",
+        "guardians",
+        "hotel",
+        "blob",
+        "wog",
+        "mtt",
+        "fof",
+        "blbe",
+        "tmg",
+        "books",
+        "hoth",
+        "tdor",
+        "iotv",
+        "tdg",
+        "tftbw",
+        "bob",
+        "dre",
+        "promo",
+        "rod",
+        "aon",
+        "bad",
+        "btb",
+        "rtr",
+        "otr",
+        "ltr",
+        "ptr",
+        "rop",
+        "hfa",
+        "pap",
+        "aof"
+    ],
+    "imageMapping": {
+        "01506": "01006",
+        "01507": "01007",
+        "01509": "01009",
+        "01510": "01010",
+        "01511": "01011",
+        "01512": "01012",
+        "01516": "01016",
+        "01517": "01017",
+        "01518": "01018",
+        "01520": "01020",
+        "01522": "01022",
+        "01523": "01023",
+        "01524": "01024",
+        "01525": "01025",
+        "01526": "01026",
+        "01527": "01027",
+        "01528": "01028",
+        "01529": "01029",
+        "01530": "01030",
+        "01531": "01031",
+        "01532": "01032",
+        "01533": "01033",
+        "01534": "01034",
+        "01536": "01036",
+        "01538": "01038",
+        "01540": "01040",
+        "01541": "01041",
+        "01542": "01042",
+        "01543": "01043",
+        "01544": "01044",
+        "01546": "01046",
+        "01547": "01047",
+        "01548": "01048",
+        "01550": "01050",
+        "01551": "01051",
+        "01552": "01052",
+        "01553": "01053",
+        "01554": "01054",
+        "01555": "01055",
+        "01556": "01056",
+        "01557": "01057",
+        "01558": "01058",
+        "01559": "01059",
+        "01560": "01060",
+        "01561": "01061",
+        "01562": "01062",
+        "01563": "01063",
+        "01564": "01064",
+        "01565": "01065",
+        "01566": "01066",
+        "01567": "01067",
+        "01568": "01068",
+        "01569": "01069",
+        "01570": "01070",
+        "01571": "01071",
+        "01572": "01072",
+        "01575": "01075",
+        "01576": "01076",
+        "01577": "01077",
+        "01578": "01078",
+        "01579": "01079",
+        "01580": "01080",
+        "01581": "01081",
+        "01582": "01082",
+        "01583": "01083",
+        "01584": "01084",
+        "01586": "01086",
+        "01587": "01087",
+        "01588": "01088",
+        "01589": "01089",
+        "01590": "01090",
+        "01592": "01092",
+        "01594": "01094",
+        "01595": "01095",
+        "01596": "01096",
+        "01597": "01097",
+        "01598": "01098",
+        "01599": "01099",
+        "01600": "01100",
+        "01601": "01101",
+        "01602": "01102",
+        "01603": "01103",
+        "01684": "02261",
+        "01685": "60227",
+        "01686": "06279",
+        "01687": "03031",
+        "01688": "03234",
+        "01689": "51007",
+        "01690": "03236",
+        "01691": "02308",
+        "01692": "05324",
+        "01693": "02194",
+        "01694": "02158",
+        "01695": "02157",
+        "60108": "01017",
+        "60113": "01023",
+        "60119": "01025",
+        "60212": "02020",
+        "60218": "02186",
+        "60219": "01039",
+        "60307": "01044",
+        "60308": "04107",
+        "60312": "03194",
+        "60313": "03030",
+        "60314": "04232",
+        "60319": "01053",
+        "60405": "02029",
+        "60413": "03034",
+        "60414": "02153",
+        "60417": "04032",
+        "60418": "02190",
+        "60510": "01075",
+        "60514": "04034",
+        "60516": "04200",
+        "60517": "01079",
+        "60518": "02113",
+        "60519": "04201",
+        "86038a": "86038",
+        "86044a": "86044",
+        "86049a": "86049",
+        "99001": "05006",
+        "99002": "05018",
+        "99003": "05019"
+    },
+    "ignoredPaths": [
+        "/background.webp",
+        "/card_backs/encounter.webp",
+        "/card_backs/player.webp",
+        "/card_backs/tarot.webp",
+        "/card_images/random_basic_weakness.webp",
+        "/chaos_tokens/",
+        "/es/",
+        "/micro_investigators/",
+        "/mini_investigators/",
+        "/standard_tokens/",
+        "/tokens/"
+    ]
+}

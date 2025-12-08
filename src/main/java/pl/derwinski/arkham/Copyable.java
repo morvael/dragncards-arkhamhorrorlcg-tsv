@@ -29,6 +29,7 @@ package pl.derwinski.arkham;
 /**
  *
  * @author morvael
+ * @param <T> type
  */
 public interface Copyable<T> {
 
