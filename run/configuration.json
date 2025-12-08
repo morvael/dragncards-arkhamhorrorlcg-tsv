@@ -91,14 +91,14 @@
         "05304": {
             "back_subname": "Shrouded In Mystery"
         },
+        "06346": {
+            "back_link_id": "06346b"
+        },
         "10016a": {
             "back_link_id": "10016b",
             "code": "10016",
             "hidden": false,
             "id": "10016"
-        },
-        "06346": {
-            "back_link_id": "06346b"
         },
         "50011": {
             "type_code": "reference"
