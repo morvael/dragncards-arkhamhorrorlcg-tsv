@@ -47,6 +47,7 @@ import static pl.derwinski.arkham.Util.nvl;
 import pl.derwinski.arkham.json.Card;
 import pl.derwinski.arkham.json.Cards;
 import pl.derwinski.arkham.json.configuration.Configuration;
+import pl.derwinski.arkham.json.metadata.Metadata;
 
 /**
  * Console program to convert ArkhamDB json into TSV file.
@@ -57,6 +58,7 @@ public final class MainExportArkhamDB {
 
     private Cards cards;
     private Configuration config;
+    private Metadata meta;
     private boolean writeTab;
 
     public MainExportArkhamDB() {
@@ -210,8 +212,10 @@ public final class MainExportArkhamDB {
                 writeInteger(bw, getInteger(row, idx++)); //victoryPoints
                 writeInteger(bw, getInteger(row, idx++)); //vengeance
                 writeInteger(bw, getInteger(row, idx++)); //stage
+                writeBoolean(bw, nvl(getBoolean(row, idx++), false)); //parallelContent
                 writeString(bw, nvl(getString(row, idx++), databaseId)); //code
                 writeInteger(bw, nvl(getInteger(row, idx++), 0)); //tabooId
+                writeString(bw, nvl(getString(row, idx++), "None")); //tabooName
                 writeInteger(bw, nvl(getInteger(row, idx++), 0)); //tabooXp
                 writeBoolean(bw, getBoolean(row, idx++)); //action
                 writeBoolean(bw, getBoolean(row, idx++)); //reaction
@@ -266,8 +270,10 @@ public final class MainExportArkhamDB {
         writeInteger(bw, c.getVictory()); //victoryPoints
         writeInteger(bw, c.getVengeance()); //vengeance
         writeInteger(bw, c.getStage()); //stage
+        writeBoolean(bw, c.isParallelContent()); //parallelContent
         writeString(bw, c.getCode()); //code
         writeInteger(bw, nvl(c.getTabooSetId(), 0)); //tabooId
+        writeString(bw, nvl(meta.getTabooName(c.getTabooSetId()), "None")); //tabooName
         writeInteger(bw, nvl(c.getTabooXp(), 0)); //tabooXp
         writeBoolean(bw, c.getText() != null && c.getText().contains("[action]")); //action
         writeBoolean(bw, c.getText() != null && c.getText().contains("[reaction]")); //reaction
@@ -319,8 +325,10 @@ public final class MainExportArkhamDB {
         writeInteger(bw, null); //victoryPoints
         writeInteger(bw, null); //vengeance
         writeInteger(bw, null); //stage
+        writeBoolean(bw, c.isParallelContent()); //parallelContent
         writeString(bw, c.getCode()); //code
         writeInteger(bw, nvl(c.getTabooSetId(), 0)); //tabooId
+        writeString(bw, nvl(meta.getTabooName(c.getTabooSetId()), "None")); //tabooName
         writeInteger(bw, nvl(c.getTabooXp(), 0)); //tabooXp
         writeBoolean(bw, c.getBackText() != null && c.getBackText().contains("[action]")); //action
         writeBoolean(bw, c.getBackText() != null && c.getBackText().contains("[reaction]")); //reaction
@@ -372,8 +380,10 @@ public final class MainExportArkhamDB {
         writeInteger(bw, cc.getVictory()); //victoryPoints
         writeInteger(bw, cc.getVengeance()); //vengeance
         writeInteger(bw, cc.getStage()); //stage
+        writeBoolean(bw, c.isParallelContent()); //parallelContent
         writeString(bw, c.getCode()); //code
         writeInteger(bw, nvl(c.getTabooSetId(), 0)); //tabooId
+        writeString(bw, nvl(meta.getTabooName(c.getTabooSetId()), "None")); //tabooName
         writeInteger(bw, nvl(c.getTabooXp(), 0)); //tabooXp
         writeBoolean(bw, cc.getText() != null && cc.getText().contains("[action]")); //action
         writeBoolean(bw, cc.getText() != null && cc.getText().contains("[reaction]")); //reaction
@@ -430,8 +440,10 @@ public final class MainExportArkhamDB {
             writeString(bw, "victoryPoints");
             writeString(bw, "vengeance");
             writeString(bw, "stage");
+            writeString(bw, "parallelContent");
             writeString(bw, "code");
             writeString(bw, "tabooId");
+            writeString(bw, "tabooName");
             writeString(bw, "tabooXp");
             writeString(bw, "action");
             writeString(bw, "reaction");
@@ -934,6 +946,7 @@ public final class MainExportArkhamDB {
     public void run() throws Exception {
         cards = Cards.loadCards();
         config = cards.getConfiguration();
+        meta = cards.getMetadata();
         exportCards("run/predefined.xlsx", "run/arkhamhorrorlcg.tsv", "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/images");
         exportWeaknesses("../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Weakness.json");
         exportBonded("../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Bonded.json");

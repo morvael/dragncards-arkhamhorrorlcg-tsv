@@ -146,7 +146,6 @@ public final class Configuration {
 
     public boolean isIgnored(Card c) {
         return (c.getOfficial() != null && c.getOfficial() == false)
-                || (c.getPreview() != null && c.getPreview())
                 || (c.getTabooSetId() != null && c.getTabooSetId() > 0)
                 || (ignored != null && ignored.contains(c.getId()));
     }
@@ -300,6 +299,7 @@ public final class Configuration {
                         clr.sort(null);
                         clp.sort(null);
                         for (var cr : clr) {
+                            cr.parallelContent();
                             for (var cp : clp) {
                                 cp.miniCode(p.isSameArt() ? firstCodeR : cp.getCode());
                                 cards.add(cp.parallelClone(cr, cp.getId(), sortAdd, p.isSameArt() ? cr.getCode() : cp.getCode()));

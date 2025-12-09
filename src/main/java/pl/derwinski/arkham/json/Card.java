@@ -233,17 +233,11 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
                     o.packCode = readString(c, fieldName);
                     o.packName = metadata.getPackName(o.packCode);
                     break;
-                case "pack_position":
-                    o.packPosition = readInteger(c, fieldName);
-                    break;
                 case "permanent":
                     o.permanent = nvl(readBoolean(c, fieldName), false);
                     break;
                 case "position":
                     o.position = readInteger(c, fieldName);
-                    break;
-                case "preview":
-                    o.preview = nvl(readBoolean(c, fieldName), false);
                     break;
                 case "quantity":
                     o.quantity = readInteger(c, fieldName);
@@ -339,6 +333,8 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
                 case "duplicate_of_code":
                 case "heals_damage":
                 case "heals_horror":
+                case "pack_position":
+                case "preview":
                 case "real_customization_change":
                 case "real_customization_text":
                 case "real_taboo_text_change":
@@ -427,11 +423,8 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
     private Boolean official = true;
     private String packCode;
     private String packName;
-    @Deprecated
-    private Integer packPosition;
     private Boolean permanent = false;
     private Integer position;
-    private Boolean preview = false;
     private Integer quantity;
     private Integer sanity;
     private Boolean shroudPerInvestigator = false;
@@ -469,6 +462,7 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
     private String sortId;
     private int sortAdd;
     private String miniCode;
+    private boolean parallelContent;
 
     private Long sortOrder;
 
@@ -495,6 +489,7 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         c.sortId = sortId;
         c.sortAdd = sortAdd;
         c.miniCode = miniCode;
+        c.parallelContent = true;
         c.tabooSetId = Math.max(nvl(tabooSetId, 0), nvl(back.tabooSetId, 0));
         //
         c.backFlavor = back.backFlavor;
@@ -575,10 +570,8 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         o.official = official;
         o.packCode = packCode;
         o.packName = packName;
-        o.packPosition = packPosition;
         o.permanent = permanent;
         o.position = position;
-        o.preview = preview;
         o.quantity = quantity;
         o.sanity = sanity;
         o.shroudPerInvestigator = shroudPerInvestigator;
@@ -616,6 +609,7 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         o.sortId = sortId;
         o.sortAdd = sortAdd;
         o.miniCode = miniCode;
+        o.parallelContent = parallelContent;
         return o;
     }
 
@@ -807,21 +801,12 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         return packName;
     }
 
-    @Deprecated
-    public Integer getPackPosition() {
-        return packPosition;
-    }
-
     public Boolean getPermanent() {
         return permanent;
     }
 
     public Integer getPosition() {
         return position;
-    }
-
-    public Boolean getPreview() {
-        return preview;
     }
 
     public Integer getQuantity() {
@@ -926,6 +911,10 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
 
     public String getMiniCode() {
         return miniCode;
+    }
+
+    public boolean isParallelContent() {
+        return parallelContent;
     }
 
     public String getImageId(boolean front) {
@@ -1098,8 +1087,13 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         this.hidden = true;
     }
 
+    public void parallelContent() {
+        this.parallelContent = true;
+    }
+
     public void miniCode(String miniCode) {
         this.miniCode = miniCode;
+        this.parallelContent = true;
     }
 
     public void override(Configuration configuration, Metadata metadata, JsonNode override) throws Exception {
@@ -1118,9 +1112,6 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         if (!Objects.equals(this.backFlavor, other.backFlavor)) {
             return false;
         }
-//        if (!Objects.equals(this.realBackFlavor, other.realBackFlavor)) {
-//            return false;
-//        }
         if (!Objects.equals(this.backIllustrator, other.backIllustrator)) {
             return false;
         }
@@ -1130,27 +1121,15 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         if (!Objects.equals(this.backName, other.backName)) {
             return false;
         }
-//        if (!Objects.equals(this.realBackName, other.realBackName)) {
-//            return false;
-//        }
         if (!Objects.equals(this.backSubname, other.backSubname)) {
             return false;
         }
-//        if (!Objects.equals(this.realBackSubname, other.realBackSubname)) {
-//            return false;
-//        }
         if (!Objects.equals(this.backText, other.backText)) {
             return false;
         }
-//        if (!Objects.equals(this.realBackText, other.realBackText)) {
-//            return false;
-//        }
         if (!Objects.equals(this.backTraits, other.backTraits)) {
             return false;
         }
-//        if (!Objects.equals(this.realBackTraits, other.realBackTraits)) {
-//            return false;
-//        }
         if (!Objects.equals(this.code, other.code)) {
             return false;
         }
@@ -1184,9 +1163,6 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         if (!Objects.equals(this.flavor, other.flavor)) {
             return false;
         }
-//        if (!Objects.equals(this.realFlavor, other.realFlavor)) {
-//            return false;
-//        }
         if (!Objects.equals(this.illustrator, other.illustrator)) {
             return false;
         }
@@ -1196,9 +1172,6 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         if (!Objects.equals(this.name, other.name)) {
             return false;
         }
-//        if (!Objects.equals(this.realName, other.realName)) {
-//            return false;
-//        }
         if (!Objects.equals(this.packCode, other.packCode)) {
             return false;
         }
@@ -1208,15 +1181,9 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         if (!Objects.equals(this.slot, other.slot)) {
             return false;
         }
-//        if (!Objects.equals(this.realSlot, other.realSlot)) {
-//            return false;
-//        }
         if (!Objects.equals(this.subname, other.subname)) {
             return false;
         }
-//        if (!Objects.equals(this.realSubname, other.realSubname)) {
-//            return false;
-//        }
         if (!Objects.equals(this.subtypeCode, other.subtypeCode)) {
             return false;
         }
@@ -1226,15 +1193,9 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         if (!Objects.equals(this.text, other.text)) {
             return false;
         }
-//        if (!Objects.equals(this.realText, other.realText)) {
-//            return false;
-//        }
         if (!Objects.equals(this.traits, other.traits)) {
             return false;
         }
-//        if (!Objects.equals(this.realTraits, other.realTraits)) {
-//            return false;
-//        }
         if (!Objects.equals(this.typeCode, other.typeCode)) {
             return false;
         }
@@ -1310,16 +1271,10 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         if (!Objects.equals(this.official, other.official)) {
             return false;
         }
-        if (!Objects.equals(this.packPosition, other.packPosition)) {
-            return false;
-        }
         if (!Objects.equals(this.permanent, other.permanent)) {
             return false;
         }
         if (!Objects.equals(this.position, other.position)) {
-            return false;
-        }
-        if (!Objects.equals(this.preview, other.preview)) {
             return false;
         }
         if (!Objects.equals(this.quantity, other.quantity)) {

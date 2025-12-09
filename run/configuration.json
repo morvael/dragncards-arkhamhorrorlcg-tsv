@@ -48,6 +48,10 @@
             "regular": ["02003", "98001"],
             "parallel": ["90084"],
             "sameArt": false
+        },
+        {
+            "regular": ["03006"],
+            "parallel": ["90087"]
         }
     ],
     "ignored": [
@@ -195,6 +199,9 @@
         "03029-1": {
             "text": "Mutated. Fast. Play only during your turn.\nPut a level 0-3 [[Item]] asset into play from your hand. At the end of your turn, if that asset is still in play, return it to your hand."
         },
+        "03121": {
+            "doom_per_investigator": true
+        },
         "03315-1": {
             "text": "Mutated. Exceptional. You get +1 to each of your skills for each horror on Key of Ys.\n<b>Forced</b> - When any amount of horror would be placed on you: Place 1 of that horror on Key of Ys.\n<b>Forced</b> - When Key of Ys leaves play: Discard the top 10 cards of your deck."
         },
@@ -269,6 +276,10 @@
         },
         "08100-5": {
             "text": "Mutated. Uses (3 secrets).\n[fast] During your turn, exhaust Eon Chart and spend 1 secret: Choose and take two different basic actions of the following, in any order (move, evade, or investigate)."
+        },
+        "08679": {
+            "enemy_evade_per_investigator": true,
+            "enemy_fight_per_investigator": true
         },
         "60405-5": {
             "text": "Mutated.\n[reaction] After a symbol is revealed during a test you are performing: You get +1 skill value for this test."
@@ -399,26 +410,12 @@
         "54056": {
             "type_code": "reference"
         },
-        "70033b": {
-            "preview": false
-        },
-        "70034b": {
-            "preview": false
-        },
-        "70035b": {
-            "preview": false
-        },
-        "70036b": {
-            "preview": false
-        },
-        "70037b": {
-            "preview": false
-        },
-        "70038b": {
-            "preview": false
-        },
         "70041": {
             "deck_limit": 0
+        },
+        "72028": {
+            "shroud_per_investigator": true,
+            "shroud": 4
         },
         "83022b": {
             "hidden": false
@@ -435,6 +432,18 @@
         "83026b": {
             "hidden": false
         },
+        "87009": {
+            "shroud_per_investigator": true,
+            "shroud": 1
+        },
+        "87018": {
+            "shroud_per_investigator": true,
+            "shroud": 1
+        },
+        "87027": {
+            "shroud_per_investigator": true,
+            "shroud": 1
+        },
         "87038b": {
             "position": 38
         },
@@ -445,8 +454,7 @@
             "deck_limit": 0
         },
         "89005b": {
-            "deck_limit": 0,
-            "preview": false
+            "deck_limit": 0
         },
         "98001": {
             "hidden": false
@@ -768,7 +776,8 @@
         "rop",
         "hfa",
         "pap",
-        "aof"
+        "aof",
+        "enc"
     ],
     "imageMapping": {
         "01506": "01006",

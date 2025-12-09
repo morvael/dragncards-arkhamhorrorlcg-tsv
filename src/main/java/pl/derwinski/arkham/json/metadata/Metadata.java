@@ -45,6 +45,7 @@ public final class Metadata {
     private static final HashSet<String> unhandledPacks = new HashSet<>();
     private static final HashSet<String> unhandledCycles = new HashSet<>();
     private static final HashSet<String> unhandledEncounters = new HashSet<>();
+    private static final HashSet<Integer> unhandledTaboos = new HashSet<>();
     private static final HashSet<String> unhandledTypes = new HashSet<>();
     private static final HashSet<String> unhandledFactions = new HashSet<>();
     private static final HashSet<String> unhandledSubtypes = new HashSet<>();
@@ -82,7 +83,7 @@ public final class Metadata {
                         o.encounters = Collections.unmodifiableMap(MetadataEncounterSet.readMetadataEncounterSets(c.get(fieldName)));
                         break;
                     case "taboo_set":
-                        o.tabooSets = Collections.unmodifiableMap(MetadataTabooSet.readMetadataTabooSets(c.get(fieldName)));
+                        o.taboos = Collections.unmodifiableMap(MetadataTabooSet.readMetadataTabooSets(c.get(fieldName)));
                         break;
                     default:
                         if (unhandled.add(fieldName)) {
@@ -103,7 +104,7 @@ public final class Metadata {
     private Map<String, MetadataPack> packs;
     private Map<String, MetadataCycle> cycles;
     private Map<String, MetadataEncounterSet> encounters;
-    private Map<Integer, MetadataTabooSet> tabooSets;
+    private Map<Integer, MetadataTabooSet> taboos;
 
     private Metadata() {
 
@@ -149,6 +150,24 @@ public final class Metadata {
         } else {
             if (unhandledEncounters.add(encounterCode)) {
                 log("Unhandled encounter code: %s", encounterCode);
+            }
+            return null;
+        }
+    }
+
+    public String getTabooName(Integer tabooSetId) {
+        if (tabooSetId == null) {
+            return null;
+        }
+        if (tabooSetId == 0) {
+            return "None";
+        }
+        var es = taboos.get(tabooSetId);
+        if (es != null) {
+            return es.getName();
+        } else {
+            if (unhandledTaboos.add(tabooSetId)) {
+                log("Unhandled taboo set id: %d", tabooSetId);
             }
             return null;
         }
@@ -239,7 +258,7 @@ public final class Metadata {
 
     public int getLatestTabooSetId() {
         var max = 0;
-        for (var t : tabooSets.values()) {
+        for (var t : taboos.values()) {
             if (t.getId() != null && t.getId() > max) {
                 max = t.getId();
             }
