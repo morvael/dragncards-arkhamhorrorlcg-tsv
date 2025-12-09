@@ -212,6 +212,7 @@ public final class MainExportArkhamDB {
                 writeInteger(bw, getInteger(row, idx++)); //stage
                 writeString(bw, nvl(getString(row, idx++), databaseId)); //code
                 writeInteger(bw, nvl(getInteger(row, idx++), 0)); //tabooId
+                writeInteger(bw, nvl(getInteger(row, idx++), 0)); //tabooXp
                 writeBoolean(bw, getBoolean(row, idx++)); //action
                 writeBoolean(bw, getBoolean(row, idx++)); //reaction
                 writeBoolean(bw, getBoolean(row, idx++)); //free
@@ -267,6 +268,7 @@ public final class MainExportArkhamDB {
         writeInteger(bw, c.getStage()); //stage
         writeString(bw, c.getCode()); //code
         writeInteger(bw, nvl(c.getTabooSetId(), 0)); //tabooId
+        writeInteger(bw, nvl(c.getTabooXp(), 0)); //tabooXp
         writeBoolean(bw, c.getText() != null && c.getText().contains("[action]")); //action
         writeBoolean(bw, c.getText() != null && c.getText().contains("[reaction]")); //reaction
         writeBoolean(bw, c.getText() != null && (c.getText().contains("[free]") || c.getText().contains("[fast]"))); //free
@@ -319,6 +321,7 @@ public final class MainExportArkhamDB {
         writeInteger(bw, null); //stage
         writeString(bw, c.getCode()); //code
         writeInteger(bw, nvl(c.getTabooSetId(), 0)); //tabooId
+        writeInteger(bw, nvl(c.getTabooXp(), 0)); //tabooXp
         writeBoolean(bw, c.getBackText() != null && c.getBackText().contains("[action]")); //action
         writeBoolean(bw, c.getBackText() != null && c.getBackText().contains("[reaction]")); //reaction
         writeBoolean(bw, c.getBackText() != null && (c.getBackText().contains("[free]") || c.getBackText().contains("[fast]"))); //free
@@ -371,6 +374,7 @@ public final class MainExportArkhamDB {
         writeInteger(bw, cc.getStage()); //stage
         writeString(bw, c.getCode()); //code
         writeInteger(bw, nvl(c.getTabooSetId(), 0)); //tabooId
+        writeInteger(bw, nvl(c.getTabooXp(), 0)); //tabooXp
         writeBoolean(bw, cc.getText() != null && cc.getText().contains("[action]")); //action
         writeBoolean(bw, cc.getText() != null && cc.getText().contains("[reaction]")); //reaction
         writeBoolean(bw, cc.getText() != null && (cc.getText().contains("[free]") || cc.getText().contains("[fast]"))); //free
@@ -428,6 +432,7 @@ public final class MainExportArkhamDB {
             writeString(bw, "stage");
             writeString(bw, "code");
             writeString(bw, "tabooId");
+            writeString(bw, "tabooXp");
             writeString(bw, "action");
             writeString(bw, "reaction");
             writeString(bw, "free");
@@ -574,7 +579,7 @@ public final class MainExportArkhamDB {
             line(bw, "                [\"COND\",");
             for (var c : cardsWithBonded) {
                 line(bw, String.format("                    [\"EQUAL\", \"$DATABASE_ID\", \"%s\"],", c.getId()));
-                var bcs = config.getBonded(c.getName());
+                var bcs = config.getBonded(c);
                 if (bcs.size() == 1) {
                     var bc = bcs.get(0);
                     line(bw, String.format("                    [\"DO_CREATE_MISSING_CARDS\", \"$TARGET_PLAYER\", \"%s\", \"%s\", %d, \"$TARGET_PLAYER_ASIDE\", true, null],", bc.getName().replace("\"", "\\\""), bc.getId(), bc.getQuantity()));
@@ -615,9 +620,11 @@ public final class MainExportArkhamDB {
             line(bw, "                [\"VALIDATE_NOT_EMPTY\", \"$PREFIX\", \"GET_MINI_ID.$PREFIX\"],");
             line(bw, "                [\"VALIDATE_NOT_EMPTY\", \"$DATABASE_ID\", \"GET_MINI_ID.DATABASE_ID\"],");
             line(bw, "                [\"COND\",");
-            for (var e : config.getParallelMini().entrySet()) {
-                line(bw, String.format("                    [\"EQUAL\", \"$DATABASE_ID\", \"%s\"],", e.getKey()));
-                line(bw, String.format("                    \"{{$PREFIX}}%s\",", e.getValue()));
+            for (var c : cards) {
+                if (c.getMiniCode() != null && c.getMiniImageId().equals(c.getId()) == false) {
+                    line(bw, String.format("                    [\"EQUAL\", \"$DATABASE_ID\", \"%s\"],", c.getId()));
+                    line(bw, String.format("                    \"{{$PREFIX}}%s\",", c.getMiniImageId()));
+                }
             }
             line(bw, "                    [\"TRUE\"],");
             line(bw, "                    \"{{$PREFIX}}{{$DATABASE_ID}}\"");

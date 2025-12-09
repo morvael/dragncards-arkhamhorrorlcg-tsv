@@ -1,56 +1,114 @@
 {
-    "parallel": {
-        "01002": "90001",
-        "01003": "90008",
-        "01004": "90017",
-        "01001": "90024",
-        "01005": "90037",
-        "02005": "90046",
-        "02004": "90049",
-        "02001": "90059",
-        "08007": "90062",
-        "02002": "90078",
-        "04004": "90081",
-        "02003": "90084"
-    },
-    "parallelMini": {
-        "90001": "01002",
-        "9000101002": "01002",
-        "0100290001": "01002",
-        "90008": "01003",
-        "9000801003": "01003",
-        "0100390008": "01003",
-        "90017": "01004",
-        "9001701004": "01004",
-        "0100490017": "01004",
-        "90024": "01001",
-        "9002401001": "01001",
-        "0100190024": "01001",
-        "90037": "01005",
-        "9003701005": "01005",
-        "0100590037": "01005",
-        "90046": "02005",
-        "9004602005": "02005",
-        "0200590046": "02005",
-        "90049": "02004",
-        "9004902004": "02004",
-        "0200490049": "02004",
-        "90059": "02001",
-        "9005902001": "02001",
-        "0200190059": "02001",
-        "90062": "08007",
-        "9006208007": "08007",
-        "0800790062": "08007",
-        "90078": "02002",
-        "9007802002": "02002",
-        "0200290078": "02002",
-        "90081": "04004",
-        "9008104004": "04004",
-        "0400490081": "04004",
-        "90084": "90084",
-        "9008402003": "90084",
-        "0200390084": "02003"
-    },
+    "parallel": [
+        {
+            "regular": ["01002", "01502"],
+            "parallel": ["90001"]
+        },
+        {
+            "regular": ["01003", "01503"],
+            "parallel": ["90008"]
+        },
+        {
+            "regular": ["01004", "01504"],
+            "parallel": ["90017"]
+        },
+        {
+            "regular": ["01001", "01501", "98004"],
+            "parallel": ["90024"]
+        },
+        {
+            "regular": ["01005", "01505"],
+            "parallel": ["90037"]
+        },
+        {
+            "regular": ["02005"],
+            "parallel": ["90046"]
+        },
+        {
+            "regular": ["02004"],
+            "parallel": ["90049"]
+        },
+        {
+            "regular": ["02001"],
+            "parallel": ["90059"]
+        },
+        {
+            "regular": ["08007"],
+            "parallel": ["90062"]
+        },
+        {
+            "regular": ["02002"],
+            "parallel": ["90078"]
+        },
+        {
+            "regular": ["04004"],
+            "parallel": ["90081"]
+        },
+        {
+            "regular": ["02003", "98001"],
+            "parallel": ["90084"],
+            "sameArt": false
+        }
+    ],
+    "ignored": [
+        "01033-2",
+        "01033-3",
+        "01033-4",
+        "01033-5",
+        "01050-5",
+        "01533-2",
+        "01533-3",
+        "01533-4",
+        "01533-5",
+        "01550-5",
+        "01692-5",
+        "02002-2",
+        "02002-3",
+        "02002-4",
+        "02002-5",
+        "02026-4",
+        "02026-5",
+        "02026-6",
+        "02026-7",
+        "02026-8",
+        "02111-2",
+        "02111-3",
+        "02111-4",
+        "02111-5",
+        "02226-5",
+        "02229-2",
+        "02229-3",
+        "02229-4",
+        "02229-5",
+        "02266-2",
+        "02266-3",
+        "02266-4",
+        "02266-5",
+        "03029-2",
+        "03029-3",
+        "03029-4",
+        "03029-5",
+        "03315-2",
+        "03315-3",
+        "03315-4",
+        "03315-5",
+        "04309-4",
+        "04309-5",
+        "05116-4",
+        "05116-5",
+        "05188-4",
+        "05188-5",
+        "05189-4",
+        "05189-5",
+        "05230-5",
+        "05324-5",
+        "06022-5",
+        "06195-4",
+        "06195-5",
+        "06199-5",
+        "07269-5",
+        "07301-5"
+    ],
     "skipBonded": [
         "06014",
         "10016"
@@ -85,14 +143,141 @@
         "83026a"
     ],
     "overrides": {
+        "01033-1": {
+            "text": "Mutated.\nYou get +1 [intellect].\n[reaction] After you successfully investigate, exhaust Dr. Milan Christopher: Gain 1 resource."
+        },
+        "01533-1": {
+            "text": "Mutated.\nYou get +1 [intellect].\n[reaction] After you successfully investigate, exhaust Dr. Milan Christopher: Gain 1 resource."
+        },
+        "01050-4": {
+            "text": "Mutated. Fast. Play only during your turn.\nDisengage from each enemy engaged with you and move to a connecting location with no enemies."
+        },
+        "01550-4": {
+            "text": "Mutated. Fast. Play only during your turn.\nDisengage from each enemy engaged with you and move to a connecting location with no enemies."
+        },
+        "01692-4": {
+            "text": "Mutated. Fast. Play when you reveal a chaos token that would reduce your skill value to 0 during a skill test (including the [auto_fail] token).\nCancel that token and treat it as an [elder_sign] token, instead. Remove Eucatastrophe from the game."
+        },
+        "02002-1": {
+            "text": "Mutated.\n[reaction] After you succeed at a skill test by 2 or more while investigating: Discover 1 clue at your location. (Limit once per round.)\n[elder_sign] effect: +2. You may instead choose to automatically fail this skill test to draw 3 cards."
+        },
+        "02026-3": {
+            "text": "Forbidden. Max 1 committed per skill test.\nDouble the difficulty of this skill test. If this skill test is successful, resolve the effects of the successful test twice."
+        },
+        "02029-5": {
+            "text": "Mutated.\n[reaction] After a symbol is revealed during a test you are performing: You get +1 skill value for this test."
+        },
+        "02111-1": {
+            "text": "Mutated.\nIn player order, each investigator draws 1 card from the top of the encounter deck. Then, add Delve Too Deep to the victory display.\nGroup limit 2 copies of Delve Too Deep in the victory display."
+        },
+        "02226-4": {
+            "text": "Mutated. Uses (3 ammo).\n[action] Spend 1 ammo: <b>Fight.</b> You get +3 [combat] and deal +2 damage for this attack. This attack may target a non-[[Elite]] enemy up to one location away from its standard range, ignoring the aloof and retaliate keywords. Cannot be used to attack enemies engaged with you."
+        },
+        "02229-1": {
+            "text": "Mutated.\nIf this skill test is successful by 2 or more, after it resolves, you may immediately take an action as if it were your turn (this action does not count toward the number of actions you can take each turn). (Max once per round.)"
+        },
+        "02263-5": {
+            "text": "Mutated. Researched. Uses (3 supplies).\n[action] Spend 1 supply: <b>Fight.</b> Attack with a base [combat] skill of 6. This attack deals +1 damage."
+        },
+        "02266-1": {
+            "text": "Mutated. Exceptional. Fast. Play only during your turn.\nYou may take an additional 3 actions this turn. (Max once per round.)"
+        },
+        "02269-5": {
+            "text": "Mutated.\nAfter a symbol is revealed during a skill test at your location, exhaust Jewel of Aureolus: Draw 1 card or gain 2 resources."
+        },
+        "03006-5": {
+            "text": "Mutated.\nYou can only play, commit, or trigger abilities on Neutral cards or cards of your role.\n[free]: Switch your role. (Limit once per round.)\n[action]: Switch roles. Does not provoke attacks of opportunity.\n[elder_sign] effect: +2. You may switch roles.",
+            "back_text": "Mutated.\n<b>Deck Size</b>: 35.\n<b>Deckbuilding Options</b>: Survivor, Guardian, Seeker, Rogue, and Mystic cards ([survivor], [guardian], [seeker], [rogue], and [mystic]) level 0-3, Neutral cards level 0-5.\n<b>Deckbuilding Requirements</b> (do not count toward deck size): 2 copies of Improvisation, 2 copies of Crisis of Identity, 1 random basic weakness.\n<b>Additional Requirements</b>: Your deck must include at least 7 cards each from 3 different classes ([survivor], [guardian], [seeker], [rogue], or [mystic]).\n<b>Additional Setup</b>: After you draw your opening hand, choose a role ([survivor], [guardian], [seeker], [rogue], [mystic], or Neutral)."
+        },
+        "03019-5": {
+            "text": "Mutated.\n<b>Revelation</b> - Discard 1 card in your hand or play area of your current role. Then, discard the top card of your deck. Switch your role to the class of the discarded card (if the discarded card is a weakness, switch your role to neutral)."
+        },
+        "03029-1": {
+            "text": "Mutated. Fast. Play only during your turn.\nPut a level 0-3 [[Item]] asset into play from your hand. At the end of your turn, if that asset is still in play, return it to your hand."
+        },
+        "03315-1": {
+            "text": "Mutated. Exceptional. You get +1 to each of your skills for each horror on Key of Ys.\n<b>Forced</b> - When any amount of horror would be placed on you: Place 1 of that horror on Key of Ys.\n<b>Forced</b> - When Key of Ys leaves play: Discard the top 10 cards of your deck."
+        },
+        "04032-5": {
+            "text": "Mutated. Fast. Play when you would reveal a chaos token.\nReveal 5 chaos tokens instead of 1. Choose one of those tokens with a non-[elder_sign] symbol to resolve, and ignore the rest. (If no such token is revealed, choose any one of those tokens to resolve, and ignore the rest.)"
+        },
+        "04110-5": {
+            "text": "Mutated. Fast. Play when a non-[auto_fail] symbol is revealed during a skill test at your location.\nCancel that chaos token. <i>(Do not reveal a new chaos token to replace it.)</i>"
+        },
+        "04309-3": {
+            "text": "Mutated.\nMax 1 committed per skill test.\nIf this test is successful, draw 1 card for each point you succeeded by, to a maximum of 5. Shuffle each weakness drawn by this effect back into your deck without resolving it. Remove All In from the game."
+        },
+        "05116-3": {
+            "text": "Mutated. Uses (3 secrets).\n[fast] Exhaust Scroll of Secrets and spend 1 secret: Look at the bottom card of any investigator's deck or the encounter deck. Then, either discard that card, add it to its owner's hand, place it on the bottom of its deck, or place it on the top of its deck."
+        },
+        "05153-5": {
+            "text": "Mutated. Uses (3 secrets).\n[action] Exhaust Mr. \"Rook\" and spend 1 secret: Search the top 3, 6, or 9 cards of your deck for any card and draw it. If at least 1 weakness is among the searched cards, draw 1 of them, as well. Shuffle your deck."
+        },
+        "05188-3": {
+            "text": "Mutated. Uses (3 secrets).\n[fast] Exhaust Scroll of Secrets and spend 1 secret: Look at the bottom 3 cards of any investigator's deck or the encounter deck. You may discard 1 of those cards. You may add 1 of those cards to its owner's hand. Place the rest of those cards on either the top or bottom of their deck, in any order."
+        },
+        "05189-3": {
+            "text": "Mutated. Uses (4 secrets).\n[fast] Exhaust Scroll of Secrets and spend 1 secret: Look at the top or bottom card of any investigator's deck or the encounter deck. Then, either discard that card, add it to its owner's hand, place it on the bottom of its deck, or place it on top of its deck."
+        },
+        "05230-4": {
+            "text": "Mutated. Fast. Attach to a [[Firearm]] asset you control that takes up two hand slots.\nWhen you perform a <b>Fight</b> action using attached asset, if you are engaged with no enemies, exhaust Telecopic Sight: This attack can target a non-[[Elite]] enemy at a connecting location. Ignore the aloof and retaliate keywords for this attack."
+        },
         "05303": {
             "back_subname": "Shrouded In Mystery"
         },
         "05304": {
             "back_subname": "Shrouded In Mystery"
         },
+        "05324-4": {
+            "text": "Mutated. Fast. Play when you reveal a chaos token that would reduce your skill value to 0 during a skill test (including the [auto_fail] token).\nCancel that token and treat it as an [elder_sign] token, instead. Remove Eucatastrophe from the game."
+        },
+        "06002-5": {
+            "back_text": "Mutated.\n<b>Deck Size</b>: 50.\n<b>Secondary Class Choice</b>: At deck creation, choose Mystic ([mystic]), Rogue ([rogue]), or Survivor ([survivor]).\n<b>Deckbuilding Options</b>: Seeker cards ([seeker]) level 0-5, Neutral cards level 0-5, up to 10 level 0-1 events and/or skills of your chosen secondary class.\n<b>Deckbuilding Requirements</b> (do not count toward deck size): 3 copies of Occult Evidence, Shocking Discovery, 1 random basic weakness."
+        },
+        "06022-4": {
+            "text": "Mutated. Bonded (Segment of Onyx). Uses (3 charges). If this card has no charges, remove it from the game.\n[fast] Exhaust Pendant of the Queen and spend 1 charge: Choose a revealed location and select one - move to that location, discover 1 clue at that location, or automatically evade an enemy at that location."
+        },
+        "06195-3": {
+            "text": "Mutated. Uses (5 ammo).\n[action] Spend 1 ammo: <b>Fight.</b> You get +2 [combat] for this attack.  If a chaos token with a non-negative modifier is revealed during this attack, this attack deals +2 damage."
+        },
+        "06199-4": {
+            "text": "Mutated. Myriad.\nIf you commit 3 copies of Three Aces to a skill test, that test automatically succeeds <i>(do not reveal chaos tokens from the chaos bag)</i>. Then draw 3 cards and gain 3 resources (max once per test). Remove each committed copy of Three Aces from the game."
+        },
         "06346": {
             "back_link_id": "06346b"
+        },
+        "07268-5": {
+            "text": "Mutated. Limit 1 per deck. Seal (up to X [curse]).\n[action] Exhaust Flute of the Outer Gods and release 1 [curse] token sealed on it: Choose a non-[[Elite]] enemy at your location. Either move the chosen enemy to a connecting location, or deal its damage to any enemy at its location. This action does not provoke attacks of opportunity."
+        },
+        "07269-4": {
+            "text": "As an additional cost to play A Watchful Peace, search the chaos bag and/or cards in play for a total of 5 [bless] tokens and return them to the token pool.\nMutated. Fast. Play when the \"draw encounter cards\" step of the mythos phase would begin. Skip this step of the mythos phase. Remove A Watchful Peace from the game."
+        },
+        "07301-4": {
+            "text": "As an additional cost to play Hallow, return a total of 10 [bless] tokens to the token pool from the chaos bag or sealed on cards in play.\nMutated.\nRemove 1 doom from any card in play. Remove Hallow from the game."
+        },
+        "08045-5": {
+            "text": "Mutated.\nWhile you are not at the locus, you get +1 [intellect], +1 [agility], and ignore the first attack of opportunity you take each turn.\n[reaction]After Prophesiae Profana enters play: Choose a revealed location. That location is \"the locus\" until Prophesiae Profana leaves play.\n[action]: Move any investigator to the locus."
+        },
+        "08055-5": {
+            "text": "Mutated. Fast. Play at the start of the investigation phase. Max once per round.\nOne at a time, reveal cards from the top of any investigator deck(s) until exactly 5 cards have been revealed. Set those cards aside, out of play. While set aside, any investigator may play any of those cards as if they were in their hand. At the start of the next investigation phase, shuffle each of those cards still set aside into its owner's deck."
+        },
+        "08093-5": {
+            "text": "Mutated.\n[action]: <b>Fight.</b> Add your [willpower] to your skill value for this attack. You deal +1 damage for this attack. If you succeed and the enemy is non-[[Elite]], you may move it one location away from you. (If you succeed by 3 or more, you may exhaust Cyclopean Hammer to instead deal +2 damage and may move the enemy up to two locations away from you.)"
+        },
+        "08098-5": {
+            "text": "Mutated. Uses (3 secrets).\n[fast] During your turn, exhaust Eon Chart and spend 1 secret: Choose and take one of the following basic actions (move, evade, or investigate)."
+        },
+        "08100-5": {
+            "text": "Mutated. Uses (3 secrets).\n[fast] During your turn, exhaust Eon Chart and spend 1 secret: Choose and take two different basic actions of the following, in any order (move, evade, or investigate)."
+        },
+        "60405-5": {
+            "text": "Mutated.\n[reaction] After a symbol is revealed during a test you are performing: You get +1 skill value for this test."
+        },
+        "60416-5": {
+            "text": "Mutated.\nGain 1 resource. Reveal 3 random tokens from the chaos bag. For each symbol revealed, gain an additional 2 resources."
+        },
+        "60417-5": {
+            "text": "Mutated. Fast. Play when you would reveal a chaos token.\nReveal 5 chaos tokens instead of 1. Choose one of those tokens with a non-[elder_sign] symbol to resolve, and ignore the rest. (If no such token is revealed, choose any one of those tokens to resolve, and ignore the rest.)"
         },
         "10016a": {
             "back_link_id": "10016b",

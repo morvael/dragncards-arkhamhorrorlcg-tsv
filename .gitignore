@@ -20,4 +20,5 @@ run/.~lock*
 src/main/java/pl/derwinski/arkham/MainFixEncoding.java
 src/main/java/pl/derwinski/arkham/MainTestImgur.java
 customizable.xlsx
+locations.xlsx
 .~lock*

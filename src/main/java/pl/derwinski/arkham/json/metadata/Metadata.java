@@ -237,4 +237,14 @@ public final class Metadata {
         };
     }
 
+    public int getLatestTabooSetId() {
+        var max = 0;
+        for (var t : tabooSets.values()) {
+            if (t.getId() != null && t.getId() > max) {
+                max = t.getId();
+            }
+        }
+        return max;
+    }
+
 }

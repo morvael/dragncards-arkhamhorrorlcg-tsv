@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Set;
 import pl.derwinski.arkham.Util;
 import static pl.derwinski.arkham.Util.log;
+import static pl.derwinski.arkham.Util.nvl;
 import pl.derwinski.arkham.json.Card;
 import pl.derwinski.arkham.json.metadata.Metadata;
 
@@ -73,14 +74,13 @@ public final class Configuration {
                 var fieldName = it.next();
                 switch (fieldName) {
                     case "parallel":
-                        var map = Util.readStringStringMap(c, fieldName);
-                        for (var e : new LinkedHashMap<>(map).entrySet()) {
-                            map.put(e.getValue(), e.getKey());
+                        o.parallel = Collections.unmodifiableList(Parallel.readParallels(c.get(fieldName)));
+                        var allParallel = new HashSet<String>();
+                        for (var p : o.parallel) {
+                            allParallel.addAll(p.getRegular());
+                            allParallel.addAll(p.getParallel());
                         }
-                        o.parallel = Collections.unmodifiableMap(map);
-                        break;
-                    case "parallelMini":
-                        o.parallelMini = Collections.unmodifiableMap(Util.readStringStringMap(c, fieldName));
+                        o.allParallel = Collections.unmodifiableSet(allParallel);
                         break;
                     case "ignored":
                         o.ignored = Collections.unmodifiableSet(Util.readStringSet(c, fieldName));
@@ -104,7 +104,7 @@ public final class Configuration {
                         o.packFilter = Collections.unmodifiableSet(Util.readStringSet(c, fieldName));
                         break;
                     case "imageMapping":
-                        o.imageMapping = Collections.unmodifiableMap(Util.readStringStringMap(c, fieldName));
+                        o.imageMapping = Util.readStringStringMap(c, fieldName);
                         break;
                     case "ignoredPaths":
                         o.ignoredPaths = Collections.unmodifiableSet(Util.readStringSet(c, fieldName));
@@ -125,8 +125,8 @@ public final class Configuration {
         }
     }
 
-    private Map<String, String> parallel;
-    private Map<String, String> parallelMini;
+    private List<Parallel> parallel;
+    private Set<String> allParallel;
     private Set<String> ignored;
     private Set<String> skipBonded;
     private Set<String> flipped;
@@ -134,7 +134,7 @@ public final class Configuration {
     private List<JsonNode> extras;
     private Map<String, String> cardBacks;
     private Set<String> packFilter;
-    private Map<String, String> imageMapping;
+    private LinkedHashMap<String, String> imageMapping;
     private Set<String> ignoredPaths;
 
     private final HashMap<String, ArrayList<Card>> bondedCards = new HashMap<>();
@@ -142,10 +142,6 @@ public final class Configuration {
 
     private Configuration() {
 
-    }
-
-    public Map<String, String> getParallelMini() {
-        return parallelMini;
     }
 
     public boolean isIgnored(Card c) {
@@ -204,60 +200,46 @@ public final class Configuration {
         return bondedCards.containsKey(c.getName()) && isSkipBonded(c) == false;
     }
 
-    public List<Card> getBonded(String name) {
-        return bondedCards.get(name);
-    }
-
-    public void register(Metadata metadata, Card c) throws Exception {
-        var bondedTo = c.getBondedTo();
-        if (bondedTo != null && bondedTo.length() > 0 && c.getQuantity() != null && c.getQuantity() > 0 && (c.getHidden() == null || c.getHidden() == false)) {
-            var list = bondedCards.get(bondedTo);
-            if (list == null) {
-                list = new ArrayList<>();
-                bondedCards.put(bondedTo, list);
+    public List<Card> getBonded(Card c) {
+        var tb = nvl(c.getTabooSetId(), 0);
+        var baseList = bondedCards.get(c.getName());
+        var usedCodes = new HashSet<String>();
+        var list = new ArrayList<Card>();
+        for (var bc : baseList.reversed()) { //pick latest version that is <= this version
+            var btb = nvl(bc.getTabooSetId(), 0);
+            if (btb <= tb && usedCodes.add(bc.getCode())) {
+                list.add(bc);
             }
-            list.add(c);
         }
-        if (parallel.containsKey(c.getCode())) { //enabled for all variants
-            var list = parallelCards.get(c.getCode());
-            if (list == null) {
-                list = new ArrayList<>();
-                parallelCards.put(c.getCode(), list);
-            }
-            list.add(c);
+        if (list.size() > 1) {
+            list.sort(null);
         }
+        return list;
     }
 
     public void process(Metadata metadata, ArrayList<Card> cards) throws Exception {
+        // read and add extras (full cards defined in configuration)
         for (var c : extras) {
             var o = Card.readCard(this, metadata, c);
-            override(metadata, o);
-            register(metadata, o);
+            //override(metadata, o);
             cards.add(o);
         }
-        for (var e : parallel.entrySet()) {
-            var cl1 = parallelCards.get(e.getKey());
-            var cl2 = parallelCards.get(e.getValue());
-            if (cl1 != null && cl2 != null) {
-                for (var c1 : cl1) {
-                    for (var c2 : cl2) {
-                        cards.add(c1.parallelClone(c2));
-                    }
-                }
-            } else {
-                log("Missing parallel cards data for %s and/or %s", e.getKey(), e.getValue());
-            }
-        }
+        // eliminate newer taboos that are duplicates (except id and tabooSetId), requires preliminary sort
         cards.sort(null);
-        for (var list : bondedCards.values()) {
-            list.sort(null);
-        }
-        var tabooCards = new HashMap<String, Card>();
+        var tabooCards = new LinkedHashMap<String, Card>();
+        var maxTabooSetId = new HashMap<String, Integer>();
         for (var c : cards) {
-            if (c.getId().contains("-") && tabooCards.containsKey(c.getCode()) == false) {
-                tabooCards.put(c.getCode(), null);
+            if (c.getId().contains("-")) {
+                if (tabooCards.containsKey(c.getCode()) == false) {
+                    tabooCards.put(c.getCode(), null);
+                }
+                var mts = maxTabooSetId.getOrDefault(c.getCode(), 0);
+                if (c.getTabooSetId() > mts) {
+                    maxTabooSetId.put(c.getCode(), c.getTabooSetId());
+                }
             }
         }
+        var originalCards = new LinkedHashMap<String, Card>();
         var it = cards.iterator();
         while (it.hasNext()) {
             var c = it.next();
@@ -268,7 +250,73 @@ public final class Configuration {
                 } else {
                     it.remove();
                 }
+            } else if (tabooCards.containsKey(c.getCode())) {
+                originalCards.put(c.getCode(), c);
             }
+        }
+        var latestTabooSetId = metadata.getLatestTabooSetId();
+        for (var c : tabooCards.values()) {
+            var mts = maxTabooSetId.get(c.getCode());
+            if (mts < latestTabooSetId) {
+                var originalCard = originalCards.get(c.getCode());
+                var o = originalCard.tabooClone(mts + 1);
+                imageMapping.put(o.getId(), originalCard.getId());
+                cards.add(o);
+            }
+        }
+        // extra processing once duplicates removed
+        for (var c : cards) {
+            // register bonded cards under the name of the card they are bonded to
+            var bondedTo = c.getBondedTo();
+            if (bondedTo != null && bondedTo.length() > 0 && c.getQuantity() != null && c.getQuantity() > 0 && (c.getHidden() == null || c.getHidden() == false)) {
+                var list = bondedCards.get(bondedTo);
+                if (list == null) {
+                    list = new ArrayList<>();
+                    bondedCards.put(bondedTo, list);
+                }
+                list.add(c);
+            }
+            // register cards used to make parallel combinations under their code
+            if (allParallel.contains(c.getCode())) {
+                var list = parallelCards.get(c.getCode());
+                if (list == null) {
+                    list = new ArrayList<>();
+                    parallelCards.put(c.getCode(), list);
+                }
+                list.add(c);
+            }
+        }
+        for (var p : parallel) {
+            String firstCodeR = null;
+            var sortAdd = 0;
+            for (var codeR : p.getRegular()) {
+                if (firstCodeR == null) {
+                    firstCodeR = codeR;
+                }
+                for (var codeP : p.getParallel()) {
+                    var clr = parallelCards.get(codeR);
+                    var clp = parallelCards.get(codeP);
+                    if (clr != null && clp != null) {
+                        clr.sort(null);
+                        clp.sort(null);
+                        for (var cr : clr) {
+                            for (var cp : clp) {
+                                cp.miniCode(p.isSameArt() ? firstCodeR : cp.getCode());
+                                cards.add(cp.parallelClone(cr, cp.getId(), sortAdd, p.isSameArt() ? cr.getCode() : cp.getCode()));
+                                cards.add(cr.parallelClone(cp, cp.getId(), sortAdd + 1, cr.getCode()));
+                            }
+                        }
+                    } else {
+                        log("Missing parallel cards data for %s and/or %s", codeR, codeP);
+                    }
+                    sortAdd += 2;
+                }
+            }
+        }
+        // sort cards according to canonical order again (same for bondedCards lists)
+        cards.sort(null);
+        for (var list : bondedCards.values()) {
+            list.sort(null);
         }
     }
 

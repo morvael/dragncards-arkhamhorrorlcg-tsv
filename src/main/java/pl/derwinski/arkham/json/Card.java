@@ -56,7 +56,6 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
                 var o = readCard(configuration, metadata, c.get(i));
                 configuration.override(metadata, o);
                 if (configuration.isIgnored(o) == false) {
-                    configuration.register(metadata, o);
                     result.add(o);
                 }
             }
@@ -70,7 +69,7 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         }
     }
 
-    private static void readCard(Configuration configuration, Metadata metadata, JsonNode c, Card o, boolean override) throws Exception {
+    private static Card readCard(Configuration configuration, Metadata metadata, JsonNode c, Card o) throws Exception {
         var it = c.fieldNames();
         while (it.hasNext()) {
             var fieldName = it.next();
@@ -359,14 +358,13 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
                     break;
             }
         }
+        o.cardBack = configuration.getCardBack(o);
+        return o;
     }
 
     public static Card readCard(Configuration configuration, Metadata metadata, JsonNode c) throws Exception {
         if (c.isObject()) {
-            var o = new Card();
-            readCard(configuration, metadata, c, o, false);
-            o.cardBack = configuration.getCardBack(o);
-            return o;
+            return readCard(configuration, metadata, c, new Card());
         } else {
             if (c.isNull() == false) {
                 log("Error reading Card object: %s", c.asText());
@@ -468,6 +466,9 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
     private Integer frontPosition;
     private String backId;
     private Integer backPosition;
+    private String sortId;
+    private int sortAdd;
+    private String miniCode;
 
     private Long sortOrder;
 
@@ -475,7 +476,14 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
 
     }
 
-    public Card parallelClone(Card back) {
+    public Card tabooClone(int tabooSetId) {
+        Card c = copy();
+        c.id = "%s-%d".formatted(code, tabooSetId);
+        c.tabooSetId = tabooSetId;
+        return c;
+    }
+
+    public Card parallelClone(Card back, String sortId, int sortAdd, String miniCode) {
         this.hidden = null;
         back.hidden = null;
         Card c = copy();
@@ -484,6 +492,10 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         c.frontPosition = position;
         c.backId = back.id;
         c.backPosition = back.position;
+        c.sortId = sortId;
+        c.sortAdd = sortAdd;
+        c.miniCode = miniCode;
+        c.tabooSetId = Math.max(nvl(tabooSetId, 0), nvl(back.tabooSetId, 0));
         //
         c.backFlavor = back.backFlavor;
         c.realBackFlavor = back.realBackFlavor;
@@ -497,7 +509,7 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         c.realBackTraits = back.realBackTraits;
         c.code = String.format("%s%s", code, back.code);
         if (id.contains("-") || back.id.contains("-")) {
-            c.id = String.format("%s%s-%d", code, back.code, Math.max(nvl(tabooSetId, 0), nvl(back.tabooSetId, 0)));
+            c.id = String.format("%s%s-%d", code, back.code, c.tabooSetId);
         } else {
             c.id = String.format("%s%s", code, back.code);
         }
@@ -601,6 +613,9 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         o.frontPosition = frontPosition;
         o.backId = backId;
         o.backPosition = backPosition;
+        o.sortId = sortId;
+        o.sortAdd = sortAdd;
+        o.miniCode = miniCode;
         return o;
     }
 
@@ -909,6 +924,10 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         return parallel;
     }
 
+    public String getMiniCode() {
+        return miniCode;
+    }
+
     public String getImageId(boolean front) {
         if (parallel) {
             return front ? frontId : backId;
@@ -917,13 +936,16 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         }
     }
 
-    private static final Pattern ID = Pattern.compile("([0-9]+)([a-z])?(?:-([0-9])+)?");
+    public String getMiniImageId() {
+        return nvl(miniCode, code);
+    }
+
+    private static final Pattern ID = Pattern.compile("([0-9]+)([a-z])?(?:-([0-9]+))?");
     private static final int BASE_CHAR = (int) '`'; //so that a becomes 1
 
     private long getSortOrder() {
         if (sortOrder == null) {
-            var parallelFront = parallel && frontId != null && frontId.startsWith("9");
-            var c = parallel ? (parallelFront ? frontId : backId) : id;
+            var c = nvl(sortId, id);
             if (c == null) {
                 log("No code for %s %s", id, name);
                 sortOrder = 0L;
@@ -936,19 +958,8 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
                     try {
                         var cd = Long.valueOf(nvl(m.group(1), "0"));
                         var lt = (long) (nvl(m.group(2), "`").charAt(0) - BASE_CHAR);
-                        var tb1 = Long.valueOf(nvl(m.group(3), "0"));
-                        var tb2 = 0L;
-                        if (parallel) {
-                            lt += parallelFront ? 1 : 2;
-                            var otherId = parallelFront ? backId : frontId;
-                            if (otherId != null) {
-                                var m2 = ID.matcher(otherId);
-                                if (m2.matches()) {
-                                    tb2 = Long.parseLong(nvl(m2.group(3), "0"));
-                                }
-                            }
-                        }
-                        sortOrder = cd * 100000000L + lt * 1000000L + tb1 * 1000L + tb2; //2 digits for letter, 3 digits for taboo1, 3 digits for taboo2
+                        var tb = Long.valueOf(nvl(m.group(3), "0"));
+                        sortOrder = cd * 10000000L + lt * 100000L + tb * 100L + sortAdd; //2 digits for letter, 3 digits for taboo, 2 digits for sortAdd
                     } catch (Exception ex) {
                         log("Failed to calculate code for %s %s", id, name);
                         sortOrder = 0L;
@@ -1087,9 +1098,13 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         this.hidden = true;
     }
 
+    public void miniCode(String miniCode) {
+        this.miniCode = miniCode;
+    }
+
     public void override(Configuration configuration, Metadata metadata, JsonNode override) throws Exception {
         if (override != null && override.isObject()) {
-            readCard(configuration, metadata, override, this, true);
+            readCard(configuration, metadata, override, this);
         }
     }
 
@@ -1103,9 +1118,9 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         if (!Objects.equals(this.backFlavor, other.backFlavor)) {
             return false;
         }
-        if (!Objects.equals(this.realBackFlavor, other.realBackFlavor)) {
-            return false;
-        }
+//        if (!Objects.equals(this.realBackFlavor, other.realBackFlavor)) {
+//            return false;
+//        }
         if (!Objects.equals(this.backIllustrator, other.backIllustrator)) {
             return false;
         }
@@ -1115,27 +1130,27 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         if (!Objects.equals(this.backName, other.backName)) {
             return false;
         }
-        if (!Objects.equals(this.realBackName, other.realBackName)) {
-            return false;
-        }
+//        if (!Objects.equals(this.realBackName, other.realBackName)) {
+//            return false;
+//        }
         if (!Objects.equals(this.backSubname, other.backSubname)) {
             return false;
         }
-        if (!Objects.equals(this.realBackSubname, other.realBackSubname)) {
-            return false;
-        }
+//        if (!Objects.equals(this.realBackSubname, other.realBackSubname)) {
+//            return false;
+//        }
         if (!Objects.equals(this.backText, other.backText)) {
             return false;
         }
-        if (!Objects.equals(this.realBackText, other.realBackText)) {
-            return false;
-        }
+//        if (!Objects.equals(this.realBackText, other.realBackText)) {
+//            return false;
+//        }
         if (!Objects.equals(this.backTraits, other.backTraits)) {
             return false;
         }
-        if (!Objects.equals(this.realBackTraits, other.realBackTraits)) {
-            return false;
-        }
+//        if (!Objects.equals(this.realBackTraits, other.realBackTraits)) {
+//            return false;
+//        }
         if (!Objects.equals(this.code, other.code)) {
             return false;
         }
@@ -1169,9 +1184,9 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         if (!Objects.equals(this.flavor, other.flavor)) {
             return false;
         }
-        if (!Objects.equals(this.realFlavor, other.realFlavor)) {
-            return false;
-        }
+//        if (!Objects.equals(this.realFlavor, other.realFlavor)) {
+//            return false;
+//        }
         if (!Objects.equals(this.illustrator, other.illustrator)) {
             return false;
         }
@@ -1181,9 +1196,9 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         if (!Objects.equals(this.name, other.name)) {
             return false;
         }
-        if (!Objects.equals(this.realName, other.realName)) {
-            return false;
-        }
+//        if (!Objects.equals(this.realName, other.realName)) {
+//            return false;
+//        }
         if (!Objects.equals(this.packCode, other.packCode)) {
             return false;
         }
@@ -1193,15 +1208,15 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         if (!Objects.equals(this.slot, other.slot)) {
             return false;
         }
-        if (!Objects.equals(this.realSlot, other.realSlot)) {
-            return false;
-        }
+//        if (!Objects.equals(this.realSlot, other.realSlot)) {
+//            return false;
+//        }
         if (!Objects.equals(this.subname, other.subname)) {
             return false;
         }
-        if (!Objects.equals(this.realSubname, other.realSubname)) {
-            return false;
-        }
+//        if (!Objects.equals(this.realSubname, other.realSubname)) {
+//            return false;
+//        }
         if (!Objects.equals(this.subtypeCode, other.subtypeCode)) {
             return false;
         }
@@ -1211,15 +1226,15 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         if (!Objects.equals(this.text, other.text)) {
             return false;
         }
-        if (!Objects.equals(this.realText, other.realText)) {
-            return false;
-        }
+//        if (!Objects.equals(this.realText, other.realText)) {
+//            return false;
+//        }
         if (!Objects.equals(this.traits, other.traits)) {
             return false;
         }
-        if (!Objects.equals(this.realTraits, other.realTraits)) {
-            return false;
-        }
+//        if (!Objects.equals(this.realTraits, other.realTraits)) {
+//            return false;
+//        }
         if (!Objects.equals(this.typeCode, other.typeCode)) {
             return false;
         }
@@ -1347,6 +1362,11 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
             return false;
         }
         return Objects.equals(this.xp, other.xp);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s %s", id, name);
     }
 
 }
