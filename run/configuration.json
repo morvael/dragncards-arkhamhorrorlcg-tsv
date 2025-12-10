@@ -81,7 +81,6 @@
         "02111-5",
         "02226-5",
         "02229-2",
-        "02229-3",
         "02229-4",
         "02229-5",
         "02266-2",
@@ -89,7 +88,6 @@
         "02266-4",
         "02266-5",
         "03029-2",
-        "03029-3",
         "03029-4",
         "03029-5",
         "03315-2",
@@ -178,6 +176,9 @@
             "text": "Mutated. Uses (3 ammo).\n[action] Spend 1 ammo: <b>Fight.</b> You get +3 [combat] and deal +2 damage for this attack. This attack may target a non-[[Elite]] enemy up to one location away from its standard range, ignoring the aloof and retaliate keywords. Cannot be used to attack enemies engaged with you."
         },
         "02229-1": {
+            "text": "Mutated.\nMax 1 committed per skill test.\nIf this skill test is successful by 2 or more, after it resolves, you may immediately take an action as if it were your turn (this action does not count toward the number of actions you can take each turn)."
+        },
+        "02229-3": {
             "text": "Mutated.\nIf this skill test is successful by 2 or more, after it resolves, you may immediately take an action as if it were your turn (this action does not count toward the number of actions you can take each turn). (Max once per round.)"
         },
         "02263-5": {
@@ -197,6 +198,9 @@
             "text": "Mutated.\n<b>Revelation</b> - Discard 1 card in your hand or play area of your current role. Then, discard the top card of your deck. Switch your role to the class of the discarded card (if the discarded card is a weakness, switch your role to neutral)."
         },
         "03029-1": {
+            "text": "Mutated. Fast. Play only during your turn.\nPut an [[Item]] asset that takes up fewer than 2 hand slots into play from your hand. At the end of your turn, if that asset is still in play, return it to your hand."
+        },
+        "03029-3": {
             "text": "Mutated. Fast. Play only during your turn.\nPut a level 0-3 [[Item]] asset into play from your hand. At the end of your turn, if that asset is still in play, return it to your hand."
         },
         "03121": {
@@ -780,6 +784,7 @@
         "enc"
     ],
     "imageMapping": {
+        "01073-7": "01573-7",
         "01506": "01006",
         "01507": "01007",
         "01509": "01009",
@@ -790,6 +795,8 @@
         "01517": "01017",
         "01518": "01018",
         "01520": "01020",
+        "01520-1": "01020-1",
+        "01520-3": "01020-3",
         "01522": "01022",
         "01523": "01023",
         "01524": "01024",
@@ -802,6 +809,7 @@
         "01531": "01031",
         "01532": "01032",
         "01533": "01033",
+        "01533-1": "01033-1",
         "01534": "01034",
         "01536": "01036",
         "01538": "01038",
@@ -814,6 +822,8 @@
         "01547": "01047",
         "01548": "01048",
         "01550": "01050",
+        "01550-1": "01050-1",
+        "01550-4": "01050-4",
         "01551": "01051",
         "01552": "01052",
         "01553": "01053",
@@ -871,6 +881,7 @@
         "01690": "03236",
         "01691": "02308",
         "01692": "05324",
+        "01692-4": "05324-4",
         "01693": "02194",
         "01694": "02158",
         "01695": "02157",
@@ -887,6 +898,7 @@
         "60314": "04232",
         "60319": "01053",
         "60405": "02029",
+        "60405-5": "02029-5",
         "60413": "03034",
         "60414": "02153",
         "60417": "04032",

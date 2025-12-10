@@ -901,6 +901,60 @@ public final class MainExportArkhamDB {
         }
     }
 
+    private LinkedHashMap<String, ArrayList<Card>> getCardsWithErrata() {
+        var map = new LinkedHashMap<String, ArrayList<Card>>();
+        for (var c : cards) {
+            if (c.getTabooSetId() != null && c.getTabooSetId() > 0) {
+                var list = map.get(c.getCode());
+                if (list == null) {
+                    list = new ArrayList<>();
+                    map.put(c.getCode(), list);
+                }
+                list.add(0, c);
+            }
+        }
+        return map;
+    }
+
+    private void exportTaboo(String path) throws Exception {
+        var file = new File(path);
+        if (file.exists() == false) {
+            file = new File("run/Core Taboo.json");
+        }
+        try (var fos = new FileOutputStream(file, false);
+                var osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
+                var bw = new BufferedWriter(osw)) {
+            line(bw, "{");
+            line(bw, "    \"functions\": {");
+            line(bw, "        \"GET_DATABASE_ID_FOR_TABOO\": {");
+            line(bw, "            \"args\": [\"$CODE\", \"$TABOO_ID\"],");
+            line(bw, "            \"code\": [");
+            line(bw, "                [\"VALIDATE_NOT_EMPTY\", \"$CODE\", \"GET_DATABASE_ID_FOR_TABOO.CODE\"],");
+            line(bw, "                [\"VALIDATE_GE0\", \"$TABOO_ID\", \"GET_DATABASE_ID_FOR_TABOO.TABOO_ID\"],");
+            line(bw, "                [\"COND\",");
+            var map = getCardsWithErrata();
+            for (var e : map.entrySet()) {
+                line(bw, "                    [\"EQUAL\", \"$DATABASE_ID\", \"%s\"],".formatted(e.getKey()));
+                line(bw, "                    [\"COND\",");
+                for (var c : e.getValue()) {
+                    line(bw, "                        [\"GREATER_EQUAL\", \"$TABOO_ID\", %d],".formatted(c.getTabooSetId()));
+                    line(bw, "                        \"%s\",".formatted(c.getId()));
+                }
+                line(bw, "                        [\"TRUE\"],");
+                line(bw, "                        \"%s\"".formatted(e.getKey()));
+                line(bw, "                    ],");
+            }
+            line(bw, "                    [\"TRUE\"],");
+            line(bw, "                    \"{{$CODE}}\"");
+            line(bw, "                ]");
+            line(bw, "            ]");
+            line(bw, "        }");
+            line(bw, "    }");
+            line(bw, "}");
+            bw.flush();
+        }
+    }
+
     private void testImages(String language, String imagesPath) throws Exception {
         var imagesDir = new File(imagesPath);
         var languageDir = new File(imagesDir, language);
@@ -954,6 +1008,7 @@ public final class MainExportArkhamDB {
         exportRavenQuill("../dragncards-arkhamhorrorlcg-php/raven_quill.tsv");
         exportTraits("../dragncards-arkhamhorrorlcg-php/traits.tsv");
         exportCustomizationGenerated("../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Customization Generated.json");
+        exportTaboo("../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Taboo.json");
         //testImages("es", "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/images");
     }
 

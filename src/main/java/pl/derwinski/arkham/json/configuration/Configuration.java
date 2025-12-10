@@ -146,7 +146,6 @@ public final class Configuration {
 
     public boolean isIgnored(Card c) {
         return (c.getOfficial() != null && c.getOfficial() == false)
-                || (c.getTabooSetId() != null && c.getTabooSetId() > 0)
                 || (ignored != null && ignored.contains(c.getId()));
     }
 
@@ -259,7 +258,7 @@ public final class Configuration {
             if (mts < latestTabooSetId) {
                 var originalCard = originalCards.get(c.getCode());
                 var o = originalCard.tabooClone(mts + 1);
-                imageMapping.put(o.getId(), originalCard.getId());
+                imageMapping.put(o.getId(), getImageMapping(originalCard.getId()));
                 cards.add(o);
             }
         }
