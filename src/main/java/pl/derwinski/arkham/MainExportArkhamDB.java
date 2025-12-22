@@ -927,17 +927,17 @@ public final class MainExportArkhamDB {
             line(bw, "{");
             line(bw, "    \"functions\": {");
             line(bw, "        \"GET_DATABASE_ID_FOR_TABOO\": {");
-            line(bw, "            \"args\": [\"$CODE\", \"$TABOO_ID\"],");
+            line(bw, "            \"args\": [\"$CODE\", \"$TABOO_VALUE\"],");
             line(bw, "            \"code\": [");
             line(bw, "                [\"VALIDATE_NOT_EMPTY\", \"$CODE\", \"GET_DATABASE_ID_FOR_TABOO.CODE\"],");
-            line(bw, "                [\"VALIDATE_GE0\", \"$TABOO_ID\", \"GET_DATABASE_ID_FOR_TABOO.TABOO_ID\"],");
+            line(bw, "                [\"VALIDATE_GE0\", \"$TABOO_VALUE\", \"GET_DATABASE_ID_FOR_TABOO.TABOO_VALUE\"],");
             line(bw, "                [\"COND\",");
             var map = getCardsWithErrata();
             for (var e : map.entrySet()) {
-                line(bw, "                    [\"EQUAL\", \"$DATABASE_ID\", \"%s\"],".formatted(e.getKey()));
+                line(bw, "                    [\"EQUAL\", \"$CODE\", \"%s\"],".formatted(e.getKey()));
                 line(bw, "                    [\"COND\",");
                 for (var c : e.getValue()) {
-                    line(bw, "                        [\"GREATER_EQUAL\", \"$TABOO_ID\", %d],".formatted(c.getTabooSetId()));
+                    line(bw, "                        [\"GREATER_EQUAL\", \"$TABOO_VALUE\", %d],".formatted(c.getTabooSetId()));
                     line(bw, "                        \"%s\",".formatted(c.getId()));
                 }
                 line(bw, "                        [\"TRUE\"],");
