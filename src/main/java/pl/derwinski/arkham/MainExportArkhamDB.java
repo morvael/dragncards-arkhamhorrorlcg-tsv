@@ -139,10 +139,11 @@ public final class MainExportArkhamDB {
 
     private String getImageUrl(File imagesDir, String databaseId, Boolean front) throws Exception {
         if (front == null) {
+            var relative = databaseId.replace("https://dragncards-ahlcg.s3.amazonaws.com/images/", "");
             if (imagesDir.exists()) {
-                var imageFile = new File(imagesDir, databaseId);
+                var imageFile = new File(imagesDir, relative);
                 if (imageFile.exists() == false) {
-                    log("Missing image %s", databaseId);
+                    log("Missing image %s", relative);
                 }
             }
             return databaseId;
