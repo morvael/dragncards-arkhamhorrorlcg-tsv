@@ -32,6 +32,7 @@ import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
+import pl.derwinski.arkham.Language;
 import pl.derwinski.arkham.Util;
 import static pl.derwinski.arkham.Util.log;
 
@@ -50,9 +51,10 @@ public final class Metadata {
     private static final HashSet<String> unhandledFactions = new HashSet<>();
     private static final HashSet<String> unhandledSubtypes = new HashSet<>();
 
-    public static Metadata loadMetadata() throws Exception {
-        Util.downloadIfOld("https://api.arkham.build/v1/cache/metadata/en", "run/metadata.json");
-        return loadMetadata("run/metadata.json");
+    public static Metadata loadMetadata(Language lng) throws Exception {
+        var symbol = lng.name().toLowerCase();
+        Util.downloadIfOld("https://api.arkham.build/v1/cache/metadata/%s".formatted(symbol), "run/metadata_%s.json".formatted(symbol));
+        return loadMetadata("run/metadata_%s.json".formatted(symbol));
     }
 
     public static Metadata loadMetadata(String path) throws Exception {

@@ -750,22 +750,6 @@ public final class MainExportArkhamDB {
         return traits;
     }
 
-    private void exportTraits(String path) throws Exception {
-        var file = new File(path);
-        if (file.exists() == false) {
-            file = new File("run/traits.tsv");
-        }
-        try (var fos = new FileOutputStream(file, false);
-                var osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
-                var bw = new BufferedWriter(osw)) {
-            var traits = getTraitNames();
-            for (var trait : traits) {
-                line(bw, trait);
-            }
-            bw.flush();
-        }
-    }
-
     private TreeSet<String> getSkillNames() {
         var skills = new TreeSet<String>();
         skills.add("willpower");
@@ -999,18 +983,21 @@ public final class MainExportArkhamDB {
     }
 
     public void run() throws Exception {
-        cards = Cards.loadCards();
+        cards = Cards.loadCards(Language.EN);
         config = cards.getConfiguration();
         meta = cards.getMetadata();
         exportCards("run/predefined.xlsx", "run/arkhamhorrorlcg.tsv", "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/images");
         exportWeaknesses("../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Weakness.json");
         exportBonded("../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Bonded.json");
         exportMini("../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Mini.json");
-        exportRavenQuill("../dragncards-arkhamhorrorlcg-php/raven_quill.tsv");
-        exportTraits("../dragncards-arkhamhorrorlcg-php/traits.tsv");
+        exportRavenQuill("../dragncards-arkhamhorrorlcg-php/raven_quill_en.tsv");
         exportCustomizationGenerated("../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Customization Generated.json");
         exportTaboo("../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Taboo.json");
         //testImages("es", "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/images");
+        cards = Cards.loadCards(Language.IT);
+        config = cards.getConfiguration();
+        meta = cards.getMetadata();
+        exportRavenQuill("../dragncards-arkhamhorrorlcg-php/raven_quill_it.tsv");
     }
 
     public static void main(String[] args) {

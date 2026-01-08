@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import pl.derwinski.arkham.Language;
 import pl.derwinski.arkham.Util;
 import static pl.derwinski.arkham.Util.log;
 import pl.derwinski.arkham.json.configuration.Configuration;
@@ -47,13 +48,14 @@ public final class Cards implements Iterable<Card> {
 
     private static final HashSet<String> unhandled = new HashSet<>();
 
-    public static Cards loadCards() throws Exception {
-        return loadCards(Configuration.loadConfiguration(), Metadata.loadMetadata());
+    public static Cards loadCards(Language lng) throws Exception {
+        return loadCards(lng, Configuration.loadConfiguration(), Metadata.loadMetadata(lng));
     }
 
-    public static Cards loadCards(Configuration configuration, Metadata metadata) throws Exception {
-        Util.downloadIfOld("https://api.arkham.build/v1/cache/cards/en", "run/cards.json");
-        return loadCards(configuration, metadata, "run/cards.json");
+    public static Cards loadCards(Language lng, Configuration configuration, Metadata metadata) throws Exception {
+        var symbol = lng.name().toLowerCase();
+        Util.downloadIfOld("https://api.arkham.build/v1/cache/cards/%s".formatted(symbol), "run/cards_%s.json".formatted(symbol));
+        return loadCards(configuration, metadata, "run/cards_%s.json".formatted(symbol));
     }
 
     public static Cards loadCards(Configuration configuration, Metadata metadata, String path) throws Exception {
