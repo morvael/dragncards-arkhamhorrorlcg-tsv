@@ -4,8 +4,8 @@ nbactions.xml
 
 run/tts/**
 run/repos/**
-run/metadata.json
-run/cards.json
+run/metadata_*.json
+run/cards_*.json
 run/arkhamhorrorlcg*.tsv
 run/arkhamhorrorlcg.xlsx
 run/Core Weakness.json
