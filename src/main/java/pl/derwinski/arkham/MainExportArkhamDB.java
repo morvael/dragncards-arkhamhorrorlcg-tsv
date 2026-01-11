@@ -690,8 +690,8 @@ public final class MainExportArkhamDB {
         return c != null
                 && (c.getTabooSetId() == null || c.getTabooSetId() == 0)
                 && "Asset".equals(c.getTypeName())
-                && c.getTraits() != null
-                && (c.getTraits().contains("Tome.") || c.getTraits().contains("Spell."));
+                && c.getRealTraits() != null
+                && (c.getRealTraits().contains("Tome.") || c.getRealTraits().contains("Spell."));
     }
 
     private LinkedHashMap<String, String> getRavenQuillNames() {

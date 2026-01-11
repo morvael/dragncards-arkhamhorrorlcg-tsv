@@ -346,6 +346,7 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
                 case "sticky_mulligan":
                 case "taboo_text_change":
                 case "tags":
+                case "updated_at":
                     break;
                 default:
                     if (unhandled.add(fieldName)) {
@@ -883,6 +884,10 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
 
     public String getTraits() {
         return traits;
+    }
+
+    public String getRealTraits() {
+        return realTraits;
     }
 
     public String getTypeCode() {
