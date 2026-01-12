@@ -982,6 +982,53 @@ public final class MainExportArkhamDB {
         }
     }
 
+    private LinkedHashMap<String, Translation> getTraits() {
+        var traits = new LinkedHashMap<String, Translation>();
+        for (var c : cards) {
+            if (c.getTraits() != null && c.getRealTraits() != null) {
+                var tt = StringUtils.split(c.getTraits(), ".");
+                var rt = StringUtils.split(c.getRealTraits(), ".");
+                if (tt.length != rt.length) {
+                    log("Different number of traits for %s %s: \"%s\" vs \"%s\"", c.getId(), c.getName(), c.getTraits(), c.getRealTraits());
+                } else if (tt.length > 0) {
+                    for (var i = 0; i < tt.length; i++) {
+                        var tti = tt[i].trim();
+                        var rti = rt[i].trim();
+                        if (tti.length() > 0 && rti.length() > 0) {
+                            if (traits.containsKey(tti) == false) {
+                                traits.put(tti, new Translation().register(rti));
+                            } else {
+                                traits.get(tti).register(rti);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        for (var e : traits.entrySet()) {
+            if (e.getValue().getTranslations().size() > 1) {
+                log("Multiple translations for \"%s\": %s", e.getKey(), e.getValue().format());
+            }
+        }
+        return traits;
+    }
+
+    private void exportTraits(String path) throws Exception {
+        var file = new File(path);
+        if (file.exists() == false) {
+            file = new File("run/traits.tsv");
+        }
+        try (var fos = new FileOutputStream(file, false);
+                var osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
+                var bw = new BufferedWriter(osw)) {
+            var traits = getTraits();
+            for (var e : traits.entrySet()) {
+                line(bw, String.format("%s\t%s", e.getValue().getMostPopular(), e.getKey()));
+            }
+            bw.flush();
+        }
+    }
+
     public void run() throws Exception {
         cards = Cards.loadCards(Language.EN);
         config = cards.getConfiguration();
@@ -998,6 +1045,7 @@ public final class MainExportArkhamDB {
         config = cards.getConfiguration();
         meta = cards.getMetadata();
         exportRavenQuill("../dragncards-arkhamhorrorlcg-php/raven_quill_it.tsv");
+        exportTraits("../dragncards-arkhamhorrorlcg-php/traits_it.tsv");
     }
 
     public static void main(String[] args) {
