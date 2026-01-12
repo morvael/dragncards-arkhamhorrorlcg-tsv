@@ -982,8 +982,8 @@ public final class MainExportArkhamDB {
         }
     }
 
-    private LinkedHashMap<String, Translation> getTraits() {
-        var traits = new LinkedHashMap<String, Translation>();
+    private TreeMap<String, String> getTraits() {
+        var translations = new LinkedHashMap<String, Translation>();
         for (var c : cards) {
             if (c.getTraits() != null && c.getRealTraits() != null) {
                 var tt = StringUtils.split(c.getTraits(), ".");
@@ -995,19 +995,28 @@ public final class MainExportArkhamDB {
                         var tti = tt[i].trim();
                         var rti = rt[i].trim();
                         if (tti.length() > 0 && rti.length() > 0) {
-                            if (traits.containsKey(tti) == false) {
-                                traits.put(tti, new Translation().register(rti));
+                            if (translations.containsKey(tti) == false) {
+                                translations.put(tti, new Translation().register(rti));
                             } else {
-                                traits.get(tti).register(rti);
+                                translations.get(tti).register(rti);
                             }
                         }
                     }
                 }
             }
         }
-        for (var e : traits.entrySet()) {
+        var traits = new TreeMap<String, String>();
+        for (var e : translations.entrySet()) {
             if (e.getValue().getTranslations().size() > 1) {
                 log("Multiple translations for \"%s\": %s", e.getKey(), e.getValue().format());
+            }
+            var mp = e.getValue().getMostPopular();
+            if (mp.equals(e.getKey()) == false) {
+                if (traits.containsKey(mp) == false) {
+                    traits.put(mp, e.getKey());
+                } else {
+                    log("Conflicting translations for \"%s\": \"%s\" vs \"%s\"", mp, e.getKey(), traits.get(mp));
+                }
             }
         }
         return traits;
@@ -1023,7 +1032,7 @@ public final class MainExportArkhamDB {
                 var bw = new BufferedWriter(osw)) {
             var traits = getTraits();
             for (var e : traits.entrySet()) {
-                line(bw, String.format("%s\t%s", e.getValue().getMostPopular(), e.getKey()));
+                line(bw, String.format("%s\t%s", e.getKey(), e.getValue()));
             }
             bw.flush();
         }
