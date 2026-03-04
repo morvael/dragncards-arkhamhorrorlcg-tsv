@@ -634,7 +634,7 @@ public final class MainExportArkhamDB {
             line(bw, "                [\"VALIDATE_NOT_EMPTY\", \"$DATABASE_ID\", \"GET_MINI_ID.DATABASE_ID\"],");
             line(bw, "                [\"COND\",");
             for (var c : cards) {
-                if (c.getMiniCode() != null && c.getMiniImageId().equals(c.getId()) == false) {
+                if ((c.getMiniCode() != null || "Investigator".equals(c.getTypeName())) && c.getMiniImageId().equals(c.getId()) == false) {
                     line(bw, String.format("                    [\"EQUAL\", \"$DATABASE_ID\", \"%s\"],", c.getId()));
                     line(bw, String.format("                    \"{{$PREFIX}}%s\",", c.getMiniImageId()));
                 }
