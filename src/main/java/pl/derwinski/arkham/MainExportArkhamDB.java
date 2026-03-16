@@ -222,6 +222,8 @@ public final class MainExportArkhamDB {
                 writeBoolean(bw, getBoolean(row, idx++)); //reaction
                 writeBoolean(bw, getBoolean(row, idx++)); //free
                 writeBoolean(bw, getBoolean(row, idx++)); //hasBonded
+                writeInteger(bw, nvl(getInteger(row, idx++), 0)); //concealed
+                writeString(bw, getString(row, idx++)); //concealedId
                 writeString(bw, getString(row, idx++)); //text
                 newLine(bw);
             }
@@ -280,6 +282,8 @@ public final class MainExportArkhamDB {
         writeBoolean(bw, c.getText() != null && c.getText().contains("[reaction]")); //reaction
         writeBoolean(bw, c.getText() != null && (c.getText().contains("[free]") || c.getText().contains("[fast]"))); //free
         writeBoolean(bw, config.hasBonded(c)); //hasBonded
+        writeInteger(bw, nvl(c.getConcealed(), 0)); //concealed
+        writeString(bw, c.getConcealedId()); //concealedId
         writeString(bw, c.getText()); //text
         newLine(bw);
     }
@@ -335,6 +339,8 @@ public final class MainExportArkhamDB {
         writeBoolean(bw, c.getBackText() != null && c.getBackText().contains("[reaction]")); //reaction
         writeBoolean(bw, c.getBackText() != null && (c.getBackText().contains("[free]") || c.getBackText().contains("[fast]"))); //free
         writeBoolean(bw, false); //hasBonded
+        writeInteger(bw, 0); //concealed
+        writeString(bw, null); //concealedId
         writeString(bw, c.getBackText()); //text
         newLine(bw);
     }
@@ -390,6 +396,8 @@ public final class MainExportArkhamDB {
         writeBoolean(bw, cc.getText() != null && cc.getText().contains("[reaction]")); //reaction
         writeBoolean(bw, cc.getText() != null && (cc.getText().contains("[free]") || cc.getText().contains("[fast]"))); //free
         writeBoolean(bw, false); //hasBonded
+        writeInteger(bw, nvl(cc.getConcealed(), 0)); //concealed
+        writeString(bw, cc.getConcealedId()); //concealedId
         writeString(bw, cc.getText()); //text
         newLine(bw);
     }
@@ -450,6 +458,8 @@ public final class MainExportArkhamDB {
             writeString(bw, "reaction");
             writeString(bw, "free");
             writeString(bw, "hasBonded");
+            writeString(bw, "concealed");
+            writeString(bw, "concealedId");
             writeString(bw, "text");
             newLine(bw);
             exportDefaultCards(imagesDir, bw, predefinedPath);

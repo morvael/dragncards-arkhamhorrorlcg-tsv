@@ -320,6 +320,12 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
                 case "xp":
                     o.xp = readInteger(c, fieldName);
                     break;
+                case "concealed":
+                    o.concealed = readInteger(c, fieldName);
+                    break;
+                case "concealedId":
+                    o.concealedId = readString(c, fieldName);
+                    break;
                 // ignored fields
                 case "alt_art_investigator":
                 case "alternate_of_code":
@@ -453,6 +459,8 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
     private Integer vengeance;
     private Integer victory;
     private Integer xp;
+    private Integer concealed;
+    private String concealedId;
     //
     private String cardBack;
     private boolean parallel;
@@ -600,6 +608,8 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         o.vengeance = vengeance;
         o.victory = victory;
         o.xp = xp;
+        o.concealed = concealed;
+        o.concealedId = concealedId;
         //
         o.cardBack = cardBack;
         o.parallel = parallel;
@@ -908,6 +918,14 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
 
     public Integer getXp() {
         return xp;
+    }
+
+    public Integer getConcealed() {
+        return concealed;
+    }
+
+    public String getConcealedId() {
+        return concealedId;
     }
 
     public boolean isParallel() {
@@ -1321,7 +1339,13 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         if (!Objects.equals(this.victory, other.victory)) {
             return false;
         }
-        return Objects.equals(this.xp, other.xp);
+        if (!Objects.equals(this.xp, other.xp)) {
+            return false;
+        }
+        if (!Objects.equals(this.concealed, other.concealed)) {
+            return false;
+        }
+        return Objects.equals(this.concealedId, other.concealedId);
     }
 
     @Override
