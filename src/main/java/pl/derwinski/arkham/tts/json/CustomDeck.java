@@ -128,6 +128,9 @@ public class CustomDeck {
     }
 
     private String getKey(String url) {
+        if (url.contains("ugc/")) {
+            url = url.substring(url.indexOf("ugc/") + 4);
+        }
         StringBuilder sb = new StringBuilder();
         int len = url.length();
         for (int i = 0; i < len; i++) {

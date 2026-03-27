@@ -374,7 +374,7 @@ public class MainExportTTS {
                 list.add(new CardSide(c, false));
 
                 String backKey = c.getBackKey();
-                if (commonBacks.containsKey(backKey) == false) {
+                if (commonBacks.containsKey(backKey) == false && commonBacks.containsKey(c.getCustomDeck().getBackKey()) == false) {
                     list = keyMap.get(backKey);
                     if (list == null) {
                         list = new ArrayList<>();
