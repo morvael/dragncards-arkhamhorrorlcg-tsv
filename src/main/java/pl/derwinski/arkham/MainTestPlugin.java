@@ -56,10 +56,13 @@ public class MainTestPlugin {
     private final LinkedHashMap<String, File> preBuiltDecks = new LinkedHashMap<>();
     private final LinkedHashMap<String, File> rules = new LinkedHashMap<>();
 
+    private static final HashSet<String> ignoredActionLists = new HashSet<>();
     private static final HashSet<String> ignoredFunctions = new HashSet<>();
     private static final HashSet<String> ignoredPrebuildDecks = new HashSet<>();
 
     static {
+        ignoredActionLists.add("\"The Heart of Madness Pt 2 Scenario Early Init Continue 1\"");
+        ignoredActionLists.add("\"The Heart of Madness Pt 2 Scenario Init\"");
         ignoredFunctions.add("\"DISAPPEARANCE_AT_THE_TWILIGHT_ESTATE_PRE_INIT\"");
         ignoredFunctions.add("\"DISAPPEARANCE_AT_THE_TWILIGHT_ESTATE_SETUP_GAVRIELLA\"");
         ignoredFunctions.add("\"DISAPPEARANCE_AT_THE_TWILIGHT_ESTATE_SETUP_JEROME\"");
@@ -76,6 +79,7 @@ public class MainTestPlugin {
         ignoredPrebuildDecks.add("\"The Blob That Ate Everything\"");
         ignoredPrebuildDecks.add("\"Ice and Death Pt 2\"");
         ignoredPrebuildDecks.add("\"Ice and Death Pt 3\"");
+        ignoredPrebuildDecks.add("\"The Heart of Madness Pt 2\"");
     }
 
     private void processNames(File f, String name, JsonNode n, LinkedHashMap<String, File> map) throws Exception {
@@ -163,7 +167,7 @@ public class MainTestPlugin {
 
     private void processScenarioFile(File f) throws Exception {
         String content = FileUtils.readFileToString(f, StandardCharsets.UTF_8);
-        processUsedNames(f, "actionLists", content, actionLists, null);
+        processUsedNames(f, "actionLists", content, actionLists, ignoredActionLists);
         processUsedNames(f, "functions", content, functions, ignoredFunctions);
         processUsedNames(f, "prompts", content, prompts, null);
         processUsedNames(f, "labels", content, labels, null);
