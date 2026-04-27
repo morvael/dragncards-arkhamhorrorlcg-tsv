@@ -326,9 +326,17 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
                 case "concealedId":
                     o.concealedId = readString(c, fieldName);
                     break;
+                case "back_type":
+                    o.backType = readString(c, fieldName);
+                    break;
+                case "reprint_of":
+                    o.reprintOf = readString(c, fieldName);
+                    break;
                 // ignored fields
+                case "abbreviation":
                 case "alt_art_investigator":
                 case "alternate_of_code":
+                case "attachments":
                 case "bonded_count":
                 case "bonded_to":
                 case "customization_change":
@@ -461,6 +469,8 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
     private Integer xp;
     private Integer concealed;
     private String concealedId;
+    private String backType;
+    private String reprintOf;
     //
     private String cardBack;
     private boolean parallel;
@@ -610,6 +620,8 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         o.xp = xp;
         o.concealed = concealed;
         o.concealedId = concealedId;
+        o.backType = backType;
+        o.reprintOf = reprintOf;
         //
         o.cardBack = cardBack;
         o.parallel = parallel;
@@ -928,6 +940,14 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         return concealedId;
     }
 
+    public String getBackType() {
+        return backType;
+    }
+
+    public String getReprintOf() {
+        return reprintOf;
+    }
+
     public boolean isParallel() {
         return parallel;
     }
@@ -1006,12 +1026,27 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
     }
 
     public String getCardBack() {
-        if (cardBack != null) {
-            return cardBack;
-        } else if (encounterCode != null) {
-            return "Encounter Card";
+        if (backType == null) {
+            if (cardBack != null) {
+                return cardBack;
+            } else if (encounterCode != null) {
+                return "Encounter Card";
+            } else {
+                return "Player Card";
+            }
         } else {
-            return "Player Card";
+            switch (backType) {
+                case "player":
+                    return "Player Card";
+                case "encounter":
+                    return "Encounter Card";
+                case "atlach_nacha":
+                case "the_longest_night":
+                case "artifact":
+                case "cthulhu_deck":
+                default:
+                    return backType;
+            }
         }
     }
 
@@ -1345,7 +1380,13 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         if (!Objects.equals(this.concealed, other.concealed)) {
             return false;
         }
-        return Objects.equals(this.concealedId, other.concealedId);
+        if (!Objects.equals(this.concealedId, other.concealedId)) {
+            return false;
+        }
+        if (!Objects.equals(this.backType, other.backType)) {
+            return false;
+        }
+        return Objects.equals(this.reprintOf, other.reprintOf);
     }
 
     @Override

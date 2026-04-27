@@ -29,10 +29,13 @@ package pl.derwinski.arkham.json.metadata;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import static pl.derwinski.arkham.Util.log;
 import static pl.derwinski.arkham.Util.nvl;
 import static pl.derwinski.arkham.Util.readInteger;
 import static pl.derwinski.arkham.Util.readString;
+import static pl.derwinski.arkham.Util.readStringList;
+import static pl.derwinski.arkham.Util.unmodifiable;
 
 /**
  *
@@ -81,6 +84,24 @@ public final class MetadataPack {
                         o.realName = readString(c, fieldName);
                         o.name = nvl(o.name, o.realName);
                         break;
+                    case "type":
+                        o.type = readString(c, fieldName);
+                        break;
+                    case "chapter":
+                        o.chapter = readInteger(c, fieldName);
+                        break;
+                    case "date_release":
+                        o.dateRelease = readString(c, fieldName);
+                        break;
+                    case "size":
+                        o.size = readInteger(c, fieldName);
+                        break;
+                    case "reprint_type":
+                        o.reprintType = readString(c, fieldName);
+                        break;
+                    case "reprint_packs":
+                        o.reprintPacks = unmodifiable(readStringList(c, fieldName));
+                        break;
                     default:
                         if (unhandled.add(fieldName)) {
                             log("Unhandled field name in MetadataPack: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType());
@@ -102,6 +123,12 @@ public final class MetadataPack {
     private Integer position;
     private String name;
     private String realName;
+    private String type;
+    private Integer chapter;
+    private String dateRelease;
+    private Integer size;
+    private String reprintType;
+    private List<String> reprintPacks;
 
     private MetadataPack() {
 
@@ -125,6 +152,30 @@ public final class MetadataPack {
 
     public String getRealName() {
         return realName;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public Integer getChapter() {
+        return chapter;
+    }
+
+    public String getDateRelease() {
+        return dateRelease;
+    }
+
+    public Integer getSize() {
+        return size;
+    }
+
+    public String getReprintType() {
+        return reprintType;
+    }
+
+    public List<String> getReprintPacks() {
+        return reprintPacks;
     }
 
 }

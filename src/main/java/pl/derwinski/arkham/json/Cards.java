@@ -54,7 +54,7 @@ public final class Cards implements Iterable<Card> {
 
     public static Cards loadCards(Language lng, Configuration configuration, Metadata metadata) throws Exception {
         var symbol = lng.name().toLowerCase();
-        Util.downloadIfOld("https://api.arkham.build/v1/cache/cards/%s".formatted(symbol), "run/cards_%s.json".formatted(symbol));
+        Util.downloadIfOld("https://api-v2.arkham.build/v1/cache/cards/%s".formatted(symbol), "run/cards_%s.json".formatted(symbol));
         return loadCards(configuration, metadata, "run/cards_%s.json".formatted(symbol));
     }
 

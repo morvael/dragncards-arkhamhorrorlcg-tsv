@@ -50,18 +50,18 @@ import pl.derwinski.arkham.json.configuration.Configuration;
 import pl.derwinski.arkham.json.metadata.Metadata;
 
 /**
- * Console program to convert ArkhamDB json into TSV file.
+ * Console program to convert arkham.build json into TSV file.
  *
  * @author morvael
  */
-public final class MainExportArkhamDB {
+public final class MainExportArkhamBuild {
 
     private Cards cards;
     private Configuration config;
     private Metadata meta;
     private boolean writeTab;
 
-    public MainExportArkhamDB() {
+    public MainExportArkhamBuild() {
 
     }
 
@@ -186,6 +186,7 @@ public final class MainExportArkhamDB {
                 writeInteger(bw, getInteger(row, idx++)); //encounterNumber
                 writeBoolean(bw, getBoolean(row, idx++)); //unique
                 writeBoolean(bw, getBoolean(row, idx++)); //permanent
+                writeBoolean(bw, getBoolean(row, idx++)); //starting
                 writeBoolean(bw, getBoolean(row, idx++)); //exceptional
                 writeBoolean(bw, getBoolean(row, idx++)); //myriad
                 writeString(bw, getString(row, idx++)); //faction
@@ -246,6 +247,7 @@ public final class MainExportArkhamDB {
         writeInteger(bw, c.getEncounterPosition()); //encounterNumber
         writeBoolean(bw, c.getIsUnique()); //unique
         writeBoolean(bw, c.getPermanent()); //permanent
+        writeBoolean(bw, c.getText() != null && c.getText().contains("Starting.")); //starting
         writeBoolean(bw, c.getExceptional()); //exceptional
         writeBoolean(bw, c.getMyriad()); //myriad
         writeString(bw, c.getFactions()); //faction
@@ -303,6 +305,7 @@ public final class MainExportArkhamDB {
         writeInteger(bw, c.getEncounterPosition()); //encounterNumber
         writeBoolean(bw, c.getIsUnique()); //unique
         writeBoolean(bw, c.getPermanent()); //permanent
+        writeBoolean(bw, c.getText() != null && c.getText().contains("Starting.")); //starting
         writeBoolean(bw, c.getExceptional()); //exceptional
         writeBoolean(bw, c.getMyriad()); //myriad
         writeString(bw, c.getFactions()); //faction
@@ -360,6 +363,7 @@ public final class MainExportArkhamDB {
         writeInteger(bw, cc.getEncounterPosition()); //encounterNumber
         writeBoolean(bw, cc.getIsUnique()); //unique
         writeBoolean(bw, cc.getPermanent()); //permanent
+        writeBoolean(bw, cc.getText() != null && cc.getText().contains("Starting.")); //starting
         writeBoolean(bw, cc.getExceptional()); //exceptional
         writeBoolean(bw, cc.getMyriad()); //myriad
         writeString(bw, cc.getFactions()); //faction
@@ -422,6 +426,7 @@ public final class MainExportArkhamDB {
             writeString(bw, "encounterNumber");
             writeString(bw, "unique");
             writeString(bw, "permanent");
+            writeString(bw, "starting");
             writeString(bw, "exceptional");
             writeString(bw, "myriad");
             writeString(bw, "faction");
@@ -1069,7 +1074,7 @@ public final class MainExportArkhamDB {
 
     public static void main(String[] args) {
         try {
-            new MainExportArkhamDB().run();
+            new MainExportArkhamBuild().run();
         } catch (Exception ex) {
             log(ex);
         }

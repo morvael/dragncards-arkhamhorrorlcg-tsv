@@ -18,6 +18,7 @@ run/raven_quill.tsv
 run/ttsCardBacks.txt
 run/imgur.jpg
 run/.~lock*
+src/main/java/pl/derwinski/arkham/MainDownloadLanguage.java
 src/main/java/pl/derwinski/arkham/MainFixEncoding.java
 src/main/java/pl/derwinski/arkham/MainTestImgur.java
 customizable.xlsx

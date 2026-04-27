@@ -30,6 +30,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import static pl.derwinski.arkham.Util.log;
+import static pl.derwinski.arkham.Util.nvl;
 import static pl.derwinski.arkham.Util.readString;
 
 /**
@@ -66,11 +67,18 @@ public final class MetadataEncounterSet {
                     case "code":
                         o.code = readString(c, fieldName);
                         break;
+                    case "pack_code":
+                        o.packCode = readString(c, fieldName);
+                        break;
                     case "locale":
                         o.locale = readString(c, fieldName);
                         break;
                     case "name":
                         o.name = readString(c, fieldName);
+                        break;
+                    case "real_name":
+                        o.realName = readString(c, fieldName);
+                        o.name = nvl(o.name, o.realName);
                         break;
                     default:
                         if (unhandled.add(fieldName)) {
@@ -89,8 +97,10 @@ public final class MetadataEncounterSet {
     }
 
     private String code;
+    private String packCode;
     private String locale;
     private String name;
+    private String realName;
 
     private MetadataEncounterSet() {
 
@@ -100,12 +110,20 @@ public final class MetadataEncounterSet {
         return code;
     }
 
+    public String getPackCode() {
+        return packCode;
+    }
+
     public String getLocale() {
         return locale;
     }
 
     public String getName() {
         return name;
+    }
+
+    public String getRealName() {
+        return realName;
     }
 
 }

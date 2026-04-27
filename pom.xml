@@ -6,11 +6,11 @@
     <version>1.0.0</version>
     <packaging>jar</packaging>
     <name>dragncards-arkhamhorrorlcg-tsv</name>
-    <description>Console program to convert ArkhamDB json into TSV file.</description>
+    <description>Console program to convert arkham.build json into TSV file.</description>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>21</maven.compiler.release>
-        <mainClass>pl.derwinski.arkham.MainExportArkhamDB</mainClass>
+        <mainClass>pl.derwinski.arkham.MainExportArkhamBuild</mainClass>
     </properties>
     <dependencies>
         <dependency>

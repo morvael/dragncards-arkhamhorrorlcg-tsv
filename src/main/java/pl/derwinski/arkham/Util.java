@@ -36,12 +36,14 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
@@ -356,6 +358,14 @@ public final class Util {
 
     public static <T> T nvl(T o1, T o2) {
         return o1 != null ? o1 : o2;
+    }
+
+    public static <T> List<T> unmodifiable(List<T> o) {
+        return o != null ? Collections.unmodifiableList(o) : null;
+    }
+
+    public static <T> Set<T> unmodifiable(Set<T> o) {
+        return o != null ? Collections.unmodifiableSet(o) : null;
     }
 
 }
