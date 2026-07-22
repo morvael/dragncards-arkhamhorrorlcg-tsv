@@ -575,6 +575,7 @@ public final class MainExportArkhamBuild {
             generateWeaknessFunction(bw, "GET_LIST_OF_WEAKNESSES", map, true);
             line(bw, "    }");
             line(bw, "}");
+            bw.write("// kate: syntax Dragnlang; scheme Arkham Dark;");
             bw.flush();
         }
     }
@@ -628,6 +629,7 @@ public final class MainExportArkhamBuild {
             line(bw, "        }");
             line(bw, "    }");
             line(bw, "}");
+            bw.write("// kate: syntax Dragnlang; scheme Arkham Dark;");
             bw.flush();
         }
     }
@@ -661,6 +663,7 @@ public final class MainExportArkhamBuild {
             line(bw, "        }");
             line(bw, "    }");
             line(bw, "}");
+            bw.write("// kate: syntax Dragnlang; scheme Arkham Dark;");
             bw.flush();
         }
     }
@@ -897,6 +900,7 @@ public final class MainExportArkhamBuild {
             line(bw, "        }");
             line(bw, "    }");
             line(bw, "}");
+            bw.write("// kate: syntax Dragnlang; scheme Arkham Dark;");
             bw.flush();
         }
     }
@@ -951,6 +955,7 @@ public final class MainExportArkhamBuild {
             line(bw, "        }");
             line(bw, "    }");
             line(bw, "}");
+            bw.write("// kate: syntax Dragnlang; scheme Arkham Dark;");
             bw.flush();
         }
     }

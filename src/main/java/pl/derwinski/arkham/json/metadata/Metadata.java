@@ -53,7 +53,7 @@ public final class Metadata {
 
     public static Metadata loadMetadata(Language lng) throws Exception {
         var symbol = lng.name().toLowerCase();
-        Util.downloadIfOld("https://api-v2.arkham.build/v1/cache/metadata/%s".formatted(symbol), "run/metadata_%s.json".formatted(symbol));
+        Util.downloadIfOld("https://api.arkham.build/v1/cache/metadata/%s".formatted(symbol), "run/metadata_%s.json".formatted(symbol));
         return loadMetadata("run/metadata_%s.json".formatted(symbol));
     }
 
@@ -86,6 +86,10 @@ public final class Metadata {
                         break;
                     case "taboo_set":
                         o.taboos = Collections.unmodifiableMap(MetadataTabooSet.readMetadataTabooSets(c.get(fieldName)));
+                        break;
+                    case "campaign":
+                    case "scenario":
+                    case "rules_versions":
                         break;
                     default:
                         if (unhandled.add(fieldName)) {
