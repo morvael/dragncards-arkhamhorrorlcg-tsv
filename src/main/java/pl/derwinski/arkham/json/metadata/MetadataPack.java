@@ -102,6 +102,9 @@ public final class MetadataPack {
                     case "reprint_packs":
                         o.reprintPacks = unmodifiable(readStringList(c, fieldName));
                         break;
+                    // ignored fields
+                    case "icon_url":
+                        break;
                     default:
                         if (unhandled.add(fieldName)) {
                             log("Unhandled field name in MetadataPack: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType());

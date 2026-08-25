@@ -29,6 +29,7 @@ package pl.derwinski.arkham.json;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,6 +39,7 @@ import pl.derwinski.arkham.Language;
 import pl.derwinski.arkham.Util;
 import static pl.derwinski.arkham.Util.log;
 import pl.derwinski.arkham.json.configuration.Configuration;
+import pl.derwinski.arkham.json.fan.FanMadeProjectFull;
 import pl.derwinski.arkham.json.metadata.Metadata;
 
 /**
@@ -77,7 +79,7 @@ public final class Cards implements Iterable<Card> {
                 var fieldName = it.next();
                 switch (fieldName) {
                     case "all_card":
-                        o.cards = Collections.unmodifiableList(Card.readCards(configuration, metadata, c.get(fieldName)));
+                        o.cards = Collections.unmodifiableList(Card.readCards(configuration, metadata, null, c.get(fieldName)));
                         break;
                     default:
                         if (unhandled.add(fieldName)) {
@@ -86,33 +88,37 @@ public final class Cards implements Iterable<Card> {
                         break;
                 }
             }
-            for (var card : o.cards) {
-                o.map.put(card.getId(), card);
-            }
-            for (var card : o.cards) {
-                if (card.getBackLinkId() != null) {
-                    var backCard = o.map.get(card.getBackLinkId());
-                    if (backCard != null) {
-                        if (configuration.isFlipped(backCard)) {
-                            backCard.flip(card);
-                            o.map.put(card.getId(), card);
-                            o.map.put(backCard.getId(), backCard);
-                        } else if (configuration.isFlipped(card)) {
-                            card.flip(backCard);
-                            o.map.put(card.getId(), card);
-                            o.map.put(backCard.getId(), backCard);
-                        } else {
-                            backCard.hide();
-                        }
-                    }
-                }
-            }
+            initializeCardMap(configuration, o.cards, o.map);
             return o;
         } else {
             if (c.isNull() == false) {
                 log("Error reading Cards object: %s", c.asText());
             }
             return null;
+        }
+    }
+
+    public static void initializeCardMap(Configuration configuration, List<Card> cards, HashMap<String, Card> map) {
+        for (var card : cards) {
+            map.put(card.getId(), card);
+        }
+        for (Card card : cards) {
+            if (card.getBackLinkId() != null) {
+                var backCard = map.get(card.getBackLinkId());
+                if (backCard != null) {
+                    if (configuration.isFlipped(backCard)) {
+                        backCard.flip(card);
+                        map.put(card.getId(), card);
+                        map.put(backCard.getId(), backCard);
+                    } else if (configuration.isFlipped(card)) {
+                        card.flip(backCard);
+                        map.put(card.getId(), card);
+                        map.put(backCard.getId(), backCard);
+                    } else {
+                        backCard.hide();
+                    }
+                }
+            }
         }
     }
 
@@ -146,6 +152,14 @@ public final class Cards implements Iterable<Card> {
 
     public Card getCard(String id) {
         return map.get(id);
+    }
+
+    public void addCards(FanMadeProjectFull project) {
+        var newCards = new ArrayList<Card>(cards.size() + project.getData().getCards().size());
+        newCards.addAll(cards);
+        newCards.addAll(project.getData().getCards());
+        cards = Collections.unmodifiableList(newCards);
+        map.putAll(project.getData().getMap());
     }
 
 }

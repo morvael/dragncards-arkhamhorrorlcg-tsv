@@ -194,7 +194,7 @@
             "text": "Mutated. Exceptional. Fast. Play only during your turn.\nYou may take an additional 3 actions this turn. (Max once per round.)"
         },
         "02269-5": {
-            "text": "Mutated.\nAfter a symbol is revealed during a skill test at your location, exhaust Jewel of Aureolus: Draw 1 card or gain 2 resources."
+            "text": "Mutated.\n[reaction] After a symbol is revealed during a skill test at your location, exhaust Jewel of Aureolus: Draw 1 card or gain 2 resources."
         },
         "03006-5": {
             "text": "Mutated.\nYou can only play, commit, or trigger abilities on Neutral cards or cards of your role.\n[free]: Switch your role. (Limit once per round.)\n[action]: Switch roles. Does not provoke attacks of opportunity.\n[elder_sign] effect: +2. You may switch roles.",
@@ -555,6 +555,18 @@
         },
         "98019": {
             "hidden": false
+        },
+        "94f198e7-8879-4e75-b812-b30b758c3f69": {
+            "name": "Unleashed Chaos",
+            "subname": "Acceleration"
+        },
+        "e36af30d-8300-4640-a785-561e464ec96c": {
+            "name": "Unleashed Chaos",
+            "subname": "Proliferation"
+        },
+        "7e8588bc-ab98-445a-a38b-49b8b4fd7517": {
+            "name": "Unleashed Chaos",
+            "subname": "Mutation"
         }
     },
     "extras": [
@@ -1025,5 +1037,8 @@
         "/mini_investigators/",
         "/standard_tokens/",
         "/tokens/"
-    ]
+    ],
+    "customSets": {
+        "0a100500-ab6d-4138-8284-a0ebb2adcadf": "99001"
+    }
 }

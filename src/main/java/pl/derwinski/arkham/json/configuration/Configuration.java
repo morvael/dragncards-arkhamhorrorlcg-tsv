@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,6 +43,7 @@ import static pl.derwinski.arkham.Util.log;
 import static pl.derwinski.arkham.Util.nvl;
 import pl.derwinski.arkham.json.Card;
 import pl.derwinski.arkham.json.metadata.Metadata;
+import pl.derwinski.arkham.json.metadata.MetadataPack;
 
 /**
  *
@@ -101,13 +103,16 @@ public final class Configuration {
                         o.cardBacks = Collections.unmodifiableMap(Util.readStringStringMap(c, fieldName));
                         break;
                     case "packFilter":
-                        o.packFilter = Collections.unmodifiableSet(Util.readStringSet(c, fieldName));
+                        o.packFilter = Util.readStringSet(c, fieldName);
                         break;
                     case "imageMapping":
                         o.imageMapping = Util.readStringStringMap(c, fieldName);
                         break;
                     case "ignoredPaths":
                         o.ignoredPaths = Collections.unmodifiableSet(Util.readStringSet(c, fieldName));
+                        break;
+                    case "customSets":
+                        o.customSets = Collections.unmodifiableMap(Util.readStringStringMap(c, fieldName));
                         break;
                     default:
                         if (unhandled.add(fieldName)) {
@@ -133,9 +138,10 @@ public final class Configuration {
     private Map<String, JsonNode> overrides;
     private List<JsonNode> extras;
     private Map<String, String> cardBacks;
-    private Set<String> packFilter;
+    private LinkedHashSet<String> packFilter;
     private LinkedHashMap<String, String> imageMapping;
     private Set<String> ignoredPaths;
+    private Map<String, String> customSets;
 
     private final HashMap<String, ArrayList<Card>> bondedCards = new HashMap<>();
     private final HashMap<String, ArrayList<Card>> parallelCards = new HashMap<>();
@@ -215,19 +221,21 @@ public final class Configuration {
         return list;
     }
 
-    public void process(Metadata metadata, ArrayList<Card> cards) throws Exception {
-        // read and add extras (full cards defined in configuration)
-        for (var c : extras) {
-            var o = Card.readCard(this, metadata, c);
-            //override(metadata, o);
-            cards.add(o);
+    public void process(Metadata metadata, ArrayList<Card> cards, boolean official) throws Exception {
+        if (official) {
+            // read and add extras (full cards defined in configuration)
+            for (var c : extras) {
+                var o = Card.readCard(this, metadata, c);
+                //override(metadata, o);
+                cards.add(o);
+            }
         }
         // eliminate newer taboos that are duplicates (except id and tabooSetId), requires preliminary sort
         cards.sort(null);
         var tabooCards = new LinkedHashMap<String, Card>();
         var maxTabooSetId = new HashMap<String, Integer>();
         for (var c : cards) {
-            if (c.getId().contains("-")) {
+            if (official && c.getId().contains("-")) {
                 if (tabooCards.containsKey(c.getCode()) == false) {
                     tabooCards.put(c.getCode(), null);
                 }
@@ -241,7 +249,7 @@ public final class Configuration {
         var it = cards.iterator();
         while (it.hasNext()) {
             var c = it.next();
-            if (c.getId().contains("-")) {
+            if (official && c.getId().contains("-")) {
                 var pc = tabooCards.get(c.getCode());
                 if (c.tabooEquals(pc) == false) {
                     tabooCards.put(c.getCode(), c);
@@ -284,31 +292,33 @@ public final class Configuration {
                 list.add(c);
             }
         }
-        for (var p : parallel) {
-            String firstCodeR = null;
-            var sortAdd = 0;
-            for (var codeR : p.getRegular()) {
-                if (firstCodeR == null) {
-                    firstCodeR = codeR;
-                }
-                for (var codeP : p.getParallel()) {
-                    var clr = parallelCards.get(codeR);
-                    var clp = parallelCards.get(codeP);
-                    if (clr != null && clp != null) {
-                        clr.sort(null);
-                        clp.sort(null);
-                        for (var cr : clr) {
-                            cr.parallelContent();
-                            for (var cp : clp) {
-                                cp.miniCode(p.isSameArt() ? firstCodeR : cp.getCode());
-                                cards.add(cp.parallelClone(cr, cp.getId(), sortAdd, p.isSameArt() ? cr.getCode() : cp.getCode()));
-                                cards.add(cr.parallelClone(cp, cp.getId(), sortAdd + 1, cr.getCode()));
-                            }
-                        }
-                    } else {
-                        log("Missing parallel cards data for %s and/or %s", codeR, codeP);
+        if (official) {
+            for (var p : parallel) {
+                String firstCodeR = null;
+                var sortAdd = 0;
+                for (var codeR : p.getRegular()) {
+                    if (firstCodeR == null) {
+                        firstCodeR = codeR;
                     }
-                    sortAdd += 2;
+                    for (var codeP : p.getParallel()) {
+                        var clr = parallelCards.get(codeR);
+                        var clp = parallelCards.get(codeP);
+                        if (clr != null && clp != null) {
+                            clr.sort(null);
+                            clp.sort(null);
+                            for (var cr : clr) {
+                                cr.parallelContent();
+                                for (var cp : clp) {
+                                    cp.miniCode(p.isSameArt() ? firstCodeR : cp.getCode());
+                                    cards.add(cp.parallelClone(cr, cp.getId(), sortAdd, p.isSameArt() ? cr.getCode() : cp.getCode()));
+                                    cards.add(cr.parallelClone(cp, cp.getId(), sortAdd + 1, cr.getCode()));
+                                }
+                            }
+                        } else {
+                            log("Missing parallel cards data for %s and/or %s", codeR, codeP);
+                        }
+                        sortAdd += 2;
+                    }
                 }
             }
         }
@@ -316,6 +326,25 @@ public final class Configuration {
         cards.sort(null);
         for (var list : bondedCards.values()) {
             list.sort(null);
+        }
+    }
+
+    public Map<String, String> getCustomSets() {
+        return customSets;
+    }
+
+    public String getCustomSetId(String code) {
+        if (customSets.containsKey(code) == false) {
+            log("Missing custom set %s code mapping", code);
+            return "9999";
+        } else {
+            return customSets.get(code);
+        }
+    }
+
+    public void addPacks(Map<String, MetadataPack> packs) {
+        for (var pack : packs.values()) {
+            packFilter.add(pack.getCode());
         }
     }
 

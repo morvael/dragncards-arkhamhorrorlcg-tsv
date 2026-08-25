@@ -28,6 +28,7 @@ package pl.derwinski.arkham.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -49,7 +50,7 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
 
     private static final HashSet<String> unhandled = new HashSet<>();
 
-    public static ArrayList<Card> readCards(Configuration configuration, Metadata metadata, JsonNode c) throws Exception {
+    public static ArrayList<Card> readCards(Configuration configuration, Metadata metadata, String projectCode, JsonNode c) throws Exception {
         if (c.isArray()) {
             var result = new ArrayList<Card>();
             for (var i = 0; i < c.size(); i++) {
@@ -59,7 +60,15 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
                     result.add(o);
                 }
             }
-            configuration.process(metadata, result);
+            if (projectCode != null) {
+                var repeats = new HashMap<Integer, Integer>();
+                for (var card : result) {
+                    var rp = repeats.getOrDefault(card.position, 0) + 1;
+                    repeats.put(card.position, rp);
+                    card.sortOrder = Long.valueOf("%s%03d%02d".formatted(projectCode, card.position, rp));
+                }
+            }
+            configuration.process(metadata, result, projectCode == null);
             return result;
         } else {
             if (c.isNull() == false) {
@@ -332,6 +341,15 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
                 case "reprint_of":
                     o.reprintOf = readString(c, fieldName);
                     break;
+                case "back_link":
+                    o.backLink = readString(c, fieldName);
+                    break;
+                case "image_url":
+                    o.imageUrl = readString(c, fieldName);
+                    break;
+                case "back_image_url":
+                    o.backImageUrl = readString(c, fieldName);
+                    break;
                 // ignored fields
                 case "abbreviation":
                 case "alt_art_investigator":
@@ -361,6 +379,7 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
                 case "taboo_text_change":
                 case "tags":
                 case "updated_at":
+                case "thumbnail_url":
                     break;
                 default:
                     if (unhandled.add(fieldName)) {
@@ -370,6 +389,12 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
             }
         }
         o.cardBack = configuration.getCardBack(o);
+        if (o.id == null && o.code != null) {
+            o.id = o.code;
+        }
+        if (o.backLinkId == null && o.backLink != null) {
+            o.backLinkId = o.backLink;
+        }
         return o;
     }
 
@@ -471,6 +496,9 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
     private String concealedId;
     private String backType;
     private String reprintOf;
+    private String backLink;
+    private String imageUrl;
+    private String backImageUrl;
     //
     private String cardBack;
     private boolean parallel;
@@ -622,6 +650,9 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         o.concealedId = concealedId;
         o.backType = backType;
         o.reprintOf = reprintOf;
+        o.backLink = backLink;
+        o.imageUrl = imageUrl;
+        o.backImageUrl = backImageUrl;
         //
         o.cardBack = cardBack;
         o.parallel = parallel;
@@ -948,6 +979,18 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         return reprintOf;
     }
 
+    public String getBackLink() {
+        return backLink;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public String getBackImageUrl() {
+        return backImageUrl;
+    }
+
     public boolean isParallel() {
         return parallel;
     }
@@ -961,7 +1004,13 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
     }
 
     public String getImageId(boolean front) {
-        if (parallel) {
+        if (front && imageUrl != null) {
+            return imageUrl;
+        } else if (front == false && backImageUrl != null) {
+            return backImageUrl;
+        } else if (front == false && imageUrl != null) {
+            return imageUrl;
+        } else if (parallel) {
             return front ? frontId : backId;
         } else {
             return id;
@@ -975,7 +1024,7 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
     private static final Pattern ID = Pattern.compile("([0-9]+)([a-z])?(?:-([0-9]+))?");
     private static final int BASE_CHAR = (int) '`'; //so that a becomes 1
 
-    private long getSortOrder() {
+    public long getSortOrder() {
         if (sortOrder == null) {
             var c = nvl(sortId, id);
             if (c == null) {
@@ -1386,12 +1435,21 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         if (!Objects.equals(this.backType, other.backType)) {
             return false;
         }
-        return Objects.equals(this.reprintOf, other.reprintOf);
+        if (!Objects.equals(this.reprintOf, other.reprintOf)) {
+            return false;
+        }
+        if (!Objects.equals(this.backLink, other.backLink)) {
+            return false;
+        }
+        if (!Objects.equals(this.imageUrl, other.imageUrl)) {
+            return false;
+        }
+        return Objects.equals(this.backImageUrl, other.backImageUrl);
     }
 
     @Override
     public String toString() {
-        return String.format("%s %s", id, name);
+        return String.format("%s %s", nvl(id, code), name);
     }
 
 }

@@ -24,42 +24,26 @@
  *
  * For more information, please refer to <http://unlicense.org/>
  */
-package pl.derwinski.arkham.json.metadata;
+package pl.derwinski.arkham.json.fan;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import static pl.derwinski.arkham.Util.log;
-import static pl.derwinski.arkham.Util.nvl;
 import static pl.derwinski.arkham.Util.readString;
+import pl.derwinski.arkham.json.configuration.Configuration;
+import pl.derwinski.arkham.json.metadata.Metadata;
 
 /**
  *
  * @author morvael
  */
-public final class MetadataEncounterSet {
+public final class FanMadeProjectMeta {
 
     private static final HashSet<String> unhandled = new HashSet<>();
 
-    public static LinkedHashMap<String, MetadataEncounterSet> readMetadataEncounterSets(JsonNode c) throws Exception {
-        if (c.isArray()) {
-            var result = new LinkedHashMap<String, MetadataEncounterSet>();
-            for (var i = 0; i < c.size(); i++) {
-                var me = readMetadataEncounterSet(c.get(i));
-                result.put(me.getCode(), me);
-            }
-            return result;
-        } else {
-            if (c.isNull() == false) {
-                log("Error reading MetadataEncounterSet array: %s", c.asText());
-            }
-            return null;
-        }
-    }
-
-    public static MetadataEncounterSet readMetadataEncounterSet(JsonNode c) throws Exception {
+    public static FanMadeProjectMeta readFanMadeProjectMeta(Configuration configuration, Metadata metadata, JsonNode c) throws Exception {
         if (c.isObject()) {
-            var o = new MetadataEncounterSet();
+            var o = new FanMadeProjectMeta();
             var it = c.fieldNames();
             while (it.hasNext()) {
                 var fieldName = it.next();
@@ -67,45 +51,46 @@ public final class MetadataEncounterSet {
                     case "code":
                         o.code = readString(c, fieldName);
                         break;
-                    case "pack_code":
-                        o.packCode = readString(c, fieldName);
-                        break;
-                    case "locale":
-                        o.locale = readString(c, fieldName);
-                        break;
                     case "name":
                         o.name = readString(c, fieldName);
                         break;
-                    case "real_name":
-                        o.realName = readString(c, fieldName);
-                        o.name = nvl(o.name, o.realName);
+                    case "url":
+                        o.url = readString(c, fieldName);
                         break;
                     // ignored fields
-                    case "icon_url":
+                    case "author":
+                    case "banner_url":
+                    case "banner_credit":
+                    case "date_updated":
+                    case "description":
+                    case "external_link":
+                    case "generator":
+                    case "language":
+                    case "status":
+                    case "types":
                         break;
                     default:
                         if (unhandled.add(fieldName)) {
-                            log("Unhandled field name in MetadataEncounterSet: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType());
+                            log("Unhandled field name in FanMadeProjectMeta: %s (%s : %s)", fieldName, c.get(fieldName), c.get(fieldName).getNodeType());
                         }
                         break;
+
                 }
             }
             return o;
         } else {
             if (c.isNull() == false) {
-                log("Error reading MetadataEncounterSet object: %s", c.asText());
+                log("Error reading FanMadeProjectMeta object: %s", c.asText());
             }
             return null;
         }
     }
 
     private String code;
-    private String packCode;
-    private String locale;
     private String name;
-    private String realName;
+    private String url;
 
-    private MetadataEncounterSet() {
+    public FanMadeProjectMeta() {
 
     }
 
@@ -113,20 +98,17 @@ public final class MetadataEncounterSet {
         return code;
     }
 
-    public String getPackCode() {
-        return packCode;
-    }
-
-    public String getLocale() {
-        return locale;
-    }
-
     public String getName() {
         return name;
     }
 
-    public String getRealName() {
-        return realName;
+    public String getURL() {
+        return url;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s %s", code, name);
     }
 
 }

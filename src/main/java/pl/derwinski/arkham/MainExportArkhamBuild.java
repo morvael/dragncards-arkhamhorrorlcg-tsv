@@ -47,6 +47,7 @@ import static pl.derwinski.arkham.Util.nvl;
 import pl.derwinski.arkham.json.Card;
 import pl.derwinski.arkham.json.Cards;
 import pl.derwinski.arkham.json.configuration.Configuration;
+import pl.derwinski.arkham.json.fan.FanMadeProjects;
 import pl.derwinski.arkham.json.metadata.Metadata;
 
 /**
@@ -138,7 +139,9 @@ public final class MainExportArkhamBuild {
     }
 
     private String getImageUrl(File imagesDir, String databaseId, Boolean front) throws Exception {
-        if (front == null) {
+        if ((databaseId.startsWith("https://") || databaseId.startsWith("http://")) && databaseId.startsWith("https://dragncards-ahlcg.s3.amazonaws.com/images/") == false) {
+            return databaseId;
+        } else if (front == null) {
             var relative = databaseId.replace("https://dragncards-ahlcg.s3.amazonaws.com/images/", "");
             if (imagesDir.exists()) {
                 var imageFile = new File(imagesDir, relative);
@@ -1062,6 +1065,13 @@ public final class MainExportArkhamBuild {
         cards = Cards.loadCards(Language.EN);
         config = cards.getConfiguration();
         meta = cards.getMetadata();
+        if (config.getCustomSets() != null) {
+            var projects = FanMadeProjects.loadFanMadeProjects(config, meta);
+            for (var code : config.getCustomSets().keySet()) {
+                var project = projects.getProject(code).loadFullProject();
+                cards.addCards(project);
+            }
+        }
         exportCards("run/predefined.xlsx", "run/arkhamhorrorlcg.tsv", "../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/images");
         exportWeaknesses("../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Weakness.json");
         exportBonded("../../cards/arkham/dragncards-arkhamhorrorlcg-plugin/jsons/Core Bonded.json");

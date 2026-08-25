@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import pl.derwinski.arkham.Language;
 import pl.derwinski.arkham.Util;
@@ -76,13 +77,13 @@ public final class Metadata {
                 var fieldName = it.next();
                 switch (fieldName) {
                     case "pack":
-                        o.packs = Collections.unmodifiableMap(MetadataPack.readMetadataPacks(c.get(fieldName)));
+                        o.packs = MetadataPack.readMetadataPacks(c.get(fieldName));
                         break;
                     case "cycle":
-                        o.cycles = Collections.unmodifiableMap(MetadataCycle.readMetadataCycles(c.get(fieldName)));
+                        o.cycles = MetadataCycle.readMetadataCycles(c.get(fieldName));
                         break;
                     case "card_encounter_set":
-                        o.encounters = Collections.unmodifiableMap(MetadataEncounterSet.readMetadataEncounterSets(c.get(fieldName)));
+                        o.encounters = MetadataEncounterSet.readMetadataEncounterSets(c.get(fieldName));
                         break;
                     case "taboo_set":
                         o.taboos = Collections.unmodifiableMap(MetadataTabooSet.readMetadataTabooSets(c.get(fieldName)));
@@ -107,9 +108,9 @@ public final class Metadata {
         }
     }
 
-    private Map<String, MetadataPack> packs;
-    private Map<String, MetadataCycle> cycles;
-    private Map<String, MetadataEncounterSet> encounters;
+    private LinkedHashMap<String, MetadataPack> packs;
+    private LinkedHashMap<String, MetadataCycle> cycles;
+    private LinkedHashMap<String, MetadataEncounterSet> encounters;
     private Map<Integer, MetadataTabooSet> taboos;
 
     private Metadata() {
@@ -270,6 +271,14 @@ public final class Metadata {
             }
         }
         return max;
+    }
+
+    public void addEncounters(Map<String, MetadataEncounterSet> encounters) {
+        this.encounters.putAll(encounters);
+    }
+
+    public void addPacks(Map<String, MetadataPack> packs) {
+        this.packs.putAll(packs);
     }
 
 }

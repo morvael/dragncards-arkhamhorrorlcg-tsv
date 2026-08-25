@@ -26,13 +26,33 @@
  */
 package pl.derwinski.arkham;
 
+import static pl.derwinski.arkham.Util.log;
+import pl.derwinski.arkham.json.fan.FanMadeProjects;
+
 /**
  *
  * @author morvael
  */
-public enum Language {
+public final class MainFanMadeProjects {
 
-    EN,
-    IT
+    public void run() throws Exception {
+        var projects = FanMadeProjects.loadFanMadeProjects();
+        for (var project : projects) {
+            log("%s", project);
+        }
+        var agesUnwound = projects.getProject("0a100500-ab6d-4138-8284-a0ebb2adcadf").loadFullProject();
+        log("%s", agesUnwound);
+        for (var card : agesUnwound.getData()) {
+            log("%s %d", card, card.getSortOrder());
+        }
+    }
+
+    public static void main(String[] args) {
+        try {
+            new MainFanMadeProjects().run();
+        } catch (Exception ex) {
+            log(ex);
+        }
+    }
 
 }
