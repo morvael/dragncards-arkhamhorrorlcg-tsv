@@ -1003,8 +1003,10 @@ public final class Card implements Comparable<Card>, Copyable<Card> {
         return parallelContent;
     }
 
-    public String getImageId(boolean front) {
-        if (front && imageUrl != null) {
+    public String getImageId(boolean front, Card linked) {
+        if (linked != null && linked.imageUrl != null) {
+            return linked.imageUrl;
+        } else if (front && imageUrl != null) {
             return imageUrl;
         } else if (front == false && backImageUrl != null) {
             return backImageUrl;

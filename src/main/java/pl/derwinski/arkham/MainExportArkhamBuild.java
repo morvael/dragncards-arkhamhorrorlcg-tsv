@@ -238,7 +238,7 @@ public final class MainExportArkhamBuild {
         var cardBack = doubleSided || linked ? "multi_sided" : c.getCardBack();
         writeString(bw, c.getId()); //databaseId
         writeString(bw, c.getFrontFullName(true)); //name
-        writeString(bw, getImageUrl(imagesDir, c.getImageId(true), true)); //imageUrl
+        writeString(bw, getImageUrl(imagesDir, c.getImageId(true, null), true)); //imageUrl
         writeString(bw, cardBack); //cardBack
         writeString(bw, c.getTypeName()); //type
         writeString(bw, c.getSubtypeName()); //subtype
@@ -296,7 +296,7 @@ public final class MainExportArkhamBuild {
     private void exportBackSide(File imagesDir, BufferedWriter bw, Card c) throws Exception {
         writeString(bw, c.getId()); //databaseId
         writeString(bw, c.getBackFullName(true)); //name
-        writeString(bw, getImageUrl(imagesDir, c.getImageId(false), false)); //imageUrl
+        writeString(bw, getImageUrl(imagesDir, c.getImageId(false, null), false)); //imageUrl
         writeString(bw, "multi_sided"); //cardBack
         writeString(bw, c.getTypeName()); //type
         writeString(bw, c.getSubtypeName()); //subtype
@@ -354,7 +354,7 @@ public final class MainExportArkhamBuild {
     private void exportLinked(File imagesDir, BufferedWriter bw, Card c, Card cc) throws Exception {
         writeString(bw, c.getId()); //databaseId: multi_sided must share
         writeString(bw, cc.getFrontFullName(true)); //name
-        writeString(bw, getImageUrl(imagesDir, c.getImageId(false), false)); //imageUrl
+        writeString(bw, getImageUrl(imagesDir, c.getImageId(false, cc), false)); //imageUrl
         writeString(bw, "multi_sided"); //cardBack
         writeString(bw, cc.getTypeName()); //type
         writeString(bw, cc.getSubtypeName()); //subtype

@@ -556,6 +556,9 @@
         "98019": {
             "hidden": false
         },
+        "6cca518a-7a37-4236-91e9-0a2e246ba37e": {
+            "double_sided": false
+        },
         "94f198e7-8879-4e75-b812-b30b758c3f69": {
             "name": "Unleashed Chaos",
             "subname": "Acceleration"
