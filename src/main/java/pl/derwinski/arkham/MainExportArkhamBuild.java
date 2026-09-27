@@ -653,6 +653,8 @@ public final class MainExportArkhamBuild {
             line(bw, "                [\"VALIDATE_NOT_EMPTY\", \"$PREFIX\", \"GET_MINI_ID.$PREFIX\"],");
             line(bw, "                [\"VALIDATE_NOT_EMPTY\", \"$DATABASE_ID\", \"GET_MINI_ID.DATABASE_ID\"],");
             line(bw, "                [\"COND\",");
+            line(bw, "                    [\"IN_STRING\", \"$DATABASE_ID\", \"author_id-\"],");
+            line(bw, "                    [\"REGEX_REPLACE\", \"$DATABASE_ID\", \"^(author_id-\\\\d+-)(.*)$\", \"\\\\1{{$PREFIX}}\\\\2\"],");
             for (var c : cards) {
                 if ((c.getMiniCode() != null || "Investigator".equals(c.getTypeName())) && c.getMiniImageId().equals(c.getId()) == false) {
                     line(bw, String.format("                    [\"EQUAL\", \"$DATABASE_ID\", \"%s\"],", c.getId()));
